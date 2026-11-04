@@ -1,4 +1,4 @@
-# Les plans 3D de la pub Fuitéo, construits entièrement en code (aucun modèle téléchargé).
+# Les plans 3D de la pub Diktéo, construits entièrement en code (aucun modèle téléchargé).
 # Usage : blender -b -P scenes.py -- <plan> <image|anim> <sortie> [écran.png | dossier d'écrans]
 #   plans : goutte, cuisine_nuit, cuisine_soir, telephone
 # Échelle : 1 unité = 10 cm, pour garder des valeurs lisibles.

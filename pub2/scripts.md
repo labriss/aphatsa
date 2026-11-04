@@ -1,8 +1,8 @@
-# Pub Fuitéo v2 : une pub par format
+# Pub Diktéo v2 : une pub par format
 
 Base : l'étude des 100 pubs (`video/recherche/pubs-qui-marchent.md`). Aucun tournage : vidéos Pexels
 (licence Pexels : gratuite, usage commercial, sans crédit obligatoire ; on ne fait jamais dire aux personnes
-filmées qu'elles utilisent Fuitéo), vrai écran de Fuitéo capturé (Playwright) et incrusté dans les téléphones
+filmées qu'elles utilisent Diktéo), vrai écran de Diktéo capturé (Playwright) et incrusté dans les téléphones
 à écran vert, voix de synthèse française, sous-titres incrustés.
 
 Aucun faux client, aucun faux chiffre. Les seules promesses : ce que l'appli fait vraiment
@@ -17,7 +17,7 @@ Aucun faux client, aucun faux chiffre. Les seules promesses : ce que l'appli fai
   Aucun cadre, aucune icône, aucun effet gratuit.
 - Écran incrusté : clé verte propre, suivi des 4 coins, reflet et ombre du vrai téléphone conservés par-dessus.
 - Transitions : coupes franches sur le temps fort de la musique, un seul « zoom dans l'écran » par pub.
-- Fin : logo Fuitéo + « 3 devis gratuits par mois, sans carte bancaire » + fuiteo.vercel.app.
+- Fin : logo Diktéo + « 3 devis gratuits par mois, sans carte bancaire » + fuiteo.vercel.app.
 - Son : musique (Promo Drop, licence Pixabay), bruitages CC0 (goutte, clic, ding), voix au premier plan, -16 LUFS.
 
 ## A. TikTok / Reels / Shorts, 9:16, 22 s : « En parlant »
@@ -26,7 +26,7 @@ Recettes : démo au téléphone tenu en main, satisfaisant, bandeau d'action per
 | t | Image | Voix / texte |
 |---|---|---|
 | 0–1,5 s | Robinet qui goutte en gros plan (9890450), son « plic » | « Une fuite. » |
-| 1,5–3 s | Téléphone dans la voiture (32084122), écran Fuitéo, micro orange qui pulse | « Et le devis, tu le fais quand ? » |
+| 1,5–3 s | Téléphone dans la voiture (32084122), écran Diktéo, micro orange qui pulse | « Et le devis, tu le fais quand ? » |
 | 3–9 s | Zoom dans l'écran : la dictée s'écrit, puis les lignes du devis tombent une à une, total qui monte | « Maintenant. En parlant. » |
 | 9–13 s | Main qui tient le téléphone (12280180), devis PDF propre | « L'IA range tout : désignations, prix, TVA. » |
 | 13–17 s | Écran : Envoyer → « Devis accepté », ding | « Ton client accepte en ligne. » |
@@ -43,15 +43,15 @@ Recettes : sans / avec, liste numérotée.
 | 2–5 s | Bureau de nuit, tête dans les mains (6614775), son d'horloge | « Comme hier soir. » |
 | 5–6 s | Coupe franche, lumière du jour : camionnette (9507651) | « Et si tu les faisais avant de repartir ? » |
 | 6–12 s | Artisan dans sa camionnette (9353913) puis téléphone sur le tableau de bord (32084122) | « Tu dictes ton chantier. » |
-| 12–24 s | Liste 1, 2, 3 sur l'écran Fuitéo : 1. tu parles, l'IA chiffre ; 2. tu envoies, il signe ; 3. la facture suit | voix sur chaque chiffre |
-| 24–30 s | Plombier sous l'évier (7584762) puis fin | « Fuitéo. 3 devis gratuits par mois. » |
+| 12–24 s | Liste 1, 2, 3 sur l'écran Diktéo : 1. tu parles, l'IA chiffre ; 2. tu envoies, il signe ; 3. la facture suit | voix sur chaque chiffre |
+| 24–30 s | Plombier sous l'évier (7584762) puis fin | « Diktéo. 3 devis gratuits par mois. » |
 
 ## C. Bumper YouTube / Google, 6 s, 16:9 et 9:16 : « Dicté. Envoyé. Signé. »
 Recette : une idée, une offre.
 
 | t | Image | Texte |
 |---|---|---|
-| 0–1,5 s | Téléphone (852313), écran Fuitéo, micro | « Dicté. » |
+| 0–1,5 s | Téléphone (852313), écran Diktéo, micro | « Dicté. » |
 | 1,5–3 s | Les lignes du devis tombent | « Envoyé. » |
 | 3–4,5 s | « Devis accepté », ding | « Signé. » |
 | 4,5–6 s | Logo + offre | « Gratuit pour commencer. » |

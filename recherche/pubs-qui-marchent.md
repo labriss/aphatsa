@@ -1,7 +1,7 @@
 # Pubs qui marchent : étude de 100 pubs (novembre 2026)
 
 But : apprendre des pubs vidéo **encore diffusées après des semaines ou des mois**, donc rentables pour leur annonceur,
-pour s'en inspirer ensuite pour Fuitéo (TikTok, YouTube, Google Ads). On reprend leurs méthodes (accroche, structure,
+pour s'en inspirer ensuite pour Diktéo (TikTok, YouTube, Google Ads). On reprend leurs méthodes (accroche, structure,
 rythme, preuve, appel à l'action), jamais leurs textes, images ou marques.
 
 ## Méthode
@@ -185,7 +185,7 @@ mécanicien, électricien, installateur, menuisier… ». *À retenir* : la list
 
 **25. Watiso, 15 s, 525 j.** Photos de vrais chantiers avec des cartons : « Isolation de vos murs extérieurs avec
 Watiso », « Nous sommes basés sur Saint-Bonnet-de-Mure », « Notre équipe locale certifiée RGE », « Bénéficiez du
-dispositif dès aujourd'hui ». *À retenir* : c'est ainsi que les clients de Fuitéo font eux-mêmes leur pub (local,
+dispositif dès aujourd'hui ». *À retenir* : c'est ainsi que les clients de Diktéo font eux-mêmes leur pub (local,
 certifié, photos de chantier).
 
 **26-27. Revolut Business, 15 s et 9 s.** La carte en 3D ou tenue en main, et une preuve sociale : « Plus de 30 000
@@ -268,7 +268,7 @@ Meta : leur pub passe surtout par les parrainages dans les vidéos YouTube (non 
 
 ## Les recettes qui reviennent (sur les 100 pubs)
 
-Classées de la plus utile à la moins utile pour un logiciel comme Fuitéo.
+Classées de la plus utile à la moins utile pour un logiciel comme Diktéo.
 
 1. **La démo au téléphone tenu en main** (Grammarly, Indy, Tolteck, Vinted) : le produit fait le travail en vrai, à
    l'écran, en quelques secondes. Accroche type : « Cette appli fait le buzz pour une bonne raison ».
@@ -312,7 +312,7 @@ sans parole, la pub sans offre ni appel à l'action.
    horizontal pour les reportages ; 15 à 40 s le plus souvent, jusqu'à 110 s pour un témoignage.
 10. **Une actualité qui oblige** : la facture électronique de 2026 (Obat, Indy, Qonto, Tolteck).
 
-## Ce que la pub Fuitéo de novembre 2026 faisait à l'opposé
+## Ce que la pub Diktéo de novembre 2026 faisait à l'opposé
 
 Des objets en 3D au lieu de personnes, un montage rythmé façon clip, aucune preuve (ni client, ni chiffre), la musique
 au premier plan, une accroche poétique au lieu d'interpeller le métier. Belle, mais contraire à tout ce qui tient dans

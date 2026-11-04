@@ -73,7 +73,7 @@ W = PAD * 2 + COLS * TW + (COLS - 1) * GAP
 H = 230 + 2 * (TH + CAP) + GAP + PAD
 sheet = Image.new("RGB", (W, H), (242, 245, 243))
 d = ImageDraw.Draw(sheet)
-d.text((PAD, 50), "Fuitéo — pub 30 s, storyboard", font=font(64, True), fill=(21, 32, 27))
+d.text((PAD, 50), "Diktéo — pub 30 s, storyboard", font=font(64, True), fill=(21, 32, 27))
 d.text((PAD, 135), "Vertical 1080 × 1920 · avant gris et froid, après orange et chaud · images réelles des rendus (qualité brouillon)", font=font(30), fill=(86, 100, 94))
 
 
