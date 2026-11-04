@@ -26,11 +26,15 @@ const { top, height } = await page.evaluate(() => {
   return { top: r.top + scrollY, height: r.height };
 });
 const svg = page.locator('section svg[viewBox="0 0 400 400"]').first();
+const at = (f) => page.evaluate((y) => window.scrollTo(0, y), top + (height - 844) * f);
+// Le défilement est amorti par un ressort : on part d'une scène posée au point de départ,
+// puis chaque image avance d'un trentième de seconde (simulé), comme une vraie vidéo à 30 i/s.
+await at(Number(from));
+await page.clock.runFor(2000);
 for (let i = 0; i < n; i++) {
   const f = n === 1 ? Number(from) : Number(from) + ((Number(to) - Number(from)) * i) / (n - 1);
-  await page.evaluate((y) => window.scrollTo(0, y), top + (height - 844) * f);
-  // Le défilement est amorti par un ressort : on lui laisse le temps (simulé) de se poser.
-  await page.clock.runFor(n === 1 ? 2000 : 34);
+  await at(f);
+  await page.clock.runFor(n === 1 ? 2000 : 1000 / 30);
   await svg.screenshot({ path: `${out}/${trade}_${String(i + 1).padStart(4, "0")}.png` });
 }
 await browser.close();

@@ -45,6 +45,13 @@ def reset():
     sc.view_settings.view_transform = "AgX"
     sc.view_settings.look = "AgX - Medium High Contrast"
     sc.render.image_settings.file_format = "PNG"
+    import os
+    if os.environ.get("APERCU"):
+        # Aperçu rapide pour vérifier un cadrage : petite image, peu d'échantillons.
+        sc.render.resolution_percentage = 35
+        sc.eevee.taa_render_samples = 8
+    sc.render.use_motion_blur = True
+    sc.render.motion_blur_shutter = 0.5
     world = bpy.data.worlds.new("monde")
     world.use_nodes = True
     sc.world = world
@@ -73,7 +80,7 @@ def material(name, color="#808080", metallic=0.0, roughness=0.5, transmission=0.
     return m
 
 
-def image_material(name, path, emission_strength=0.0, roughness=0.5, gloss=False):
+def image_material(name, path, emission_strength=0.0, roughness=0.5, gloss=False, gamma=1.0):
     """Matériau à image : en émission pour un écran, en couleur pour du papier."""
     m = bpy.data.materials.new(name)
     m.use_nodes = True
@@ -95,7 +102,14 @@ def image_material(name, path, emission_strength=0.0, roughness=0.5, gloss=False
     nt.links.new(tex.outputs["Color"], b.inputs["Base Color"])
     b.inputs["Roughness"].default_value = roughness
     if emission_strength:
-        nt.links.new(tex.outputs["Color"], b.inputs["Emission Color"])
+        source = tex.outputs["Color"]
+        if gamma != 1.0:
+            # Un écran filmé perd ses noirs : on creuse un peu les sombres de l'image pour garder le texte net.
+            g = nt.nodes.new("ShaderNodeGamma")
+            g.inputs["Gamma"].default_value = gamma
+            nt.links.new(source, g.inputs["Color"])
+            source = g.outputs["Color"]
+        nt.links.new(source, b.inputs["Emission Color"])
         b.inputs["Emission Strength"].default_value = emission_strength
         b.inputs["Base Color"].default_value = (0, 0, 0, 1)
         nt.links.remove(b.inputs["Base Color"].links[0])
@@ -178,6 +192,20 @@ def camera(loc, target, lens=50, fstop=None, focus=None):
         cam.data.dof.focus_distance = focus or (Vector(target) - Vector(loc)).length
     bpy.context.scene.camera = cam
     return cam
+
+
+def camera_rig(loc, target, lens=50, fstop=None, focus=None):
+    """Caméra qui vise une cible (un vide) : on anime la position de l'une et de l'autre."""
+    cam = camera(loc, target, lens, fstop, focus)
+    bpy.ops.object.empty_add(location=target)
+    tgt = bpy.context.object
+    tgt.name = "cible"
+    c = cam.constraints.new("TRACK_TO")
+    c.target = tgt
+    c.track_axis, c.up_axis = "TRACK_NEGATIVE_Z", "UP_Y"
+    if fstop:
+        cam.data.dof.focus_object = tgt
+    return cam, tgt
 
 
 def key(obj, path, frame, value, interp="BEZIER"):
@@ -272,7 +300,9 @@ def shot_goutte(sc):
     glow_wall((0, 16, z - 2.5), "#22364F", 0.5, size=60, radius=(8, 12), edge=1.0)
     # Un léger trois-quarts : on voit le pan hexagonal de l'écrou, le tuyau fuit en perspective.
     area_light("face_douce", (-5, -12, z + 3), (0, 0, z), 260, 6, "#C9D6E6")
-    camera((5.5, -20, z - 3.2), (0.1, 0, z - 1.7), lens=85, fstop=2.8, focus=20.8)
+    cam, tgt = camera_rig((5.5, -20, z - 3.2), (0.1, 0, z - 1.7), lens=85, fstop=2.8)
+    key(cam, "location", 1, (5.9, -21.2, z - 3.0))
+    key(cam, "location", 75, (5.2, -18.6, z - 3.3))
     sc.frame_start, sc.frame_end = 1, 75
     return 48  # l'image clé du storyboard : la goutte prête à tomber
 
@@ -379,8 +409,8 @@ def shot_cuisine(sc, soir=False):
     h, m = (18, 30) if soir else (22, 47)
     hour, minute = clock_hands((cx, 11.66, cz), *angles(h, m))
     if not soir:
-        # Plan 3 : les aiguilles filent de 22:47 à 23:38.
-        for f, (hh, mm) in ((1, (22, 47)), (60, (23, 38))):
+        # Plan 3 : les aiguilles filent de 22:47 à 23:38, de plus en plus vite (le tic-tac accélère).
+        for f, (hh, mm) in ((75, (22, 47)), (124, (23, 38))):
             ah, am = angles(hh, mm)
             if hh == 23:
                 am += 2 * math.pi  # une heure qui passe : un tour complet de la grande aiguille
@@ -388,6 +418,11 @@ def shot_cuisine(sc, soir=False):
             hour.keyframe_insert("rotation_euler", frame=f)
             minute.rotation_euler = (0, am, 0)
             minute.keyframe_insert("rotation_euler", frame=f)
+        for o in (hour, minute):
+            for fc in iter_fcurves(o.animation_data.action):
+                for kp in fc.keyframe_points:
+                    kp.interpolation = "EXPO"
+                    kp.easing = "EASE_IN"
 
     if soir:
         # Le soleil couchant entre par une fenêtre hors champ : son croisillon se dessine sur le mur, en doré.
@@ -408,18 +443,51 @@ def shot_cuisine(sc, soir=False):
         area_light("ciel", (8, 0, 9), (0, 4, 1), 120, 8, "#AFC3E0")
     else:
         # La nuit : la lueur froide de l'écran, la lune par la fenêtre sur l'horloge et la table.
-        area_light("lueur_ecran", (lx, 2.9, 1.4), (lx, 0.2, 0), 30, 3, "#BFD4F2", size_y=2)
+        glow = area_light("lueur_ecran", (lx, 2.9, 1.4), (lx, 0.2, 0), 30, 3, "#BFD4F2", size_y=2)
         area_light("lune", (-9, -2, 8), (0.5, 3, 0), 420, 4, "#6F8FC4")
         area_light("lune_mur", (-7, 3, 10), (cx + 1, 11.6, cz - 1), 900, 2.5, "#7A97C8")
         area_light("contre", (6, 11, 9), (0, 3, 0), 90, 6, "#5D7699")
-    camera((0.35, -7.6, 4.3), (0.3, 4.5, 2.9), lens=36, fstop=2.8, focus=9.0)
-    if not soir:
-        # Plan 3 : lente avancée vers l'horloge pendant que l'heure file.
-        cam = sc.camera
-        key(cam, "location", 1, tuple(cam.location))
-        key(cam, "location", 60, (0.25, -1.5, 6.0))
-        cam.data.dof.focus_distance = 9.0
-    sc.frame_start, sc.frame_end = 1, 75
+    cam, tgt = camera_rig((0.35, -7.6, 4.3), (0.3, 4.5, 2.9), lens=36, fstop=2.8)
+    if soir:
+        # Plan 9 : la même table, la caméra s'approche à peine. La soirée respire.
+        key(cam, "location", 1, (0.45, -7.9, 4.4))
+        key(cam, "location", 75, (0.3, -6.9, 4.15))
+        sc.frame_start, sc.frame_end = 1, 75
+        return 40
+    # Plan 2 : la caméra glisse lentement vers la table.
+    key(cam, "location", 1, (0.45, -7.9, 4.4))
+    key(tgt, "location", 1, (0.3, 4.5, 2.9))
+    key(cam, "location", 75, (0.32, -6.7, 4.5))
+    key(tgt, "location", 75, (0.3, 4.5, 3.1))
+    # Plan 3 : avancée vers l'horloge pendant que l'heure file.
+    key(cam, "location", 124, (0.25, -1.5, 6.0))
+    key(tgt, "location", 124, (0.2, 11.6, 5.9))
+    # La caméra redescend sur l'ordinateur, encore bleu...
+    key(cam, "location", 142, (lx + 0.2, -2.2, 2.4))
+    key(tgt, "location", 142, (lx, 3.3, 1.3))
+    # Plan 4 : ... puis plonge dans l'écran, dont la lueur vire à l'orange et envahit tout.
+    key(cam, "location", 165, (lx, 2.75, 1.27))
+    key(tgt, "location", 165, (lx, 3.4, 1.26))
+    screen = bpy.data.materials["tableur"].node_tree
+    bsdf = screen.nodes["Principled BSDF"]
+    tint = screen.nodes.new("ShaderNodeMix")
+    tint.data_type = "RGBA"
+    tint.blend_type = "MULTIPLY"
+    tint.inputs["Factor"].default_value = 1.0
+    tex = screen.nodes["Image Texture"]
+    screen.links.new(tex.outputs["Color"], tint.inputs["A"])
+    screen.links.new(tint.outputs["Result"], bsdf.inputs["Emission Color"])
+    sock = tint.inputs["B"]
+    for f, col, power in ((144, "#FFFFFF", 1.6), (165, ORANGE_DEEP, 5.0)):
+        sock.default_value = srgb(col)
+        sock.keyframe_insert("default_value", frame=f)
+        bsdf.inputs["Emission Strength"].default_value = power
+        bsdf.inputs["Emission Strength"].keyframe_insert("default_value", frame=f)
+        glow.data.color = srgb(col)[:3] if col != "#FFFFFF" else srgb("#BFD4F2")[:3]
+        glow.data.keyframe_insert("color", frame=f)
+        glow.data.energy = 30 if f == 144 else 600
+        glow.data.keyframe_insert("energy", frame=f)
+    sc.frame_start, sc.frame_end = 1, 165
     return 1
 
 
@@ -479,7 +547,8 @@ def shot_telephone(sc, screen):
     W, H, D = 7.15, 14.7, 0.8
     parts = [rounded_rect("coque", W, H, 1.1, D, (0, 0, 0), titanium)]
     parts.append(rounded_rect("face", W - 0.12, H - 0.12, 1.05, D * 0.3, (0, -D * 0.38, 0), black))
-    screen_mat = image_material("interface", screen, emission_strength=2.4, gloss=True) if screen else material("éteint", "#000000")
+    # Sans vernis et les sombres creusés : sinon le reflet et la courbe de couleur délavent le texte de l'appli.
+    screen_mat = image_material("interface", screen, emission_strength=2.0, gloss=False, gamma=1.6) if screen else material("éteint", "#000000")
     parts.append(screen_plane(W - 0.62, H - 0.62, 0.82, (0, -D * 0.54, 0), screen_mat))
     island = rounded_rect("ilot", 2.0, 0.6, 0.29, 0.05, (0, -D * 0.56, H / 2 - 0.85), material("ilot", "#000000", roughness=0.1))
     parts.append(island)
@@ -495,14 +564,34 @@ def shot_telephone(sc, screen):
     area_light("liseré_d", (8, 5, -2), (0, 0, 0), 1200, 3, ORANGE_DEEP, size_y=14)
     area_light("reflet", (6, -14, 10), (0, 0, 0), 500, 8, "#FFF2E8", size_y=3)
     # Le téléphone monte, pivote et se tourne vers nous (plan 5), puis s'incline (plan 7).
+    # Repères (image 1 = 8,0 s de la pub) : drop à l'image 151 (13,0 s), « Envoyé » à 246 (16,16 s).
     key(rig, "location", 1, (0, 0, -24))
     key(rig, "rotation_euler", 1, (math.radians(25), 0, math.radians(-38)))
     key(rig, "location", 40, (0, 0, 0))
     key(rig, "rotation_euler", 52, (math.radians(4), 0, math.radians(-12)))
-    key(rig, "rotation_euler", 150, (0, 0, 0))
-    camera((0, -42, 0.5), (0, 0, 0), lens=70)
-    sc.frame_start, sc.frame_end = 1, 150
-    return 150
+    key(rig, "rotation_euler", 140, (0, 0, math.radians(-2)))
+    key(rig, "rotation_euler", 246, (0, 0, 0))
+    key(rig, "location", 246, (0, 0, 0))
+    # Plan 7 : envoyé, le téléphone pivote et s'éloigne un peu, comme posé.
+    key(rig, "rotation_euler", 340, (math.radians(-8), 0, math.radians(24)))
+    key(rig, "location", 340, (1.2, 2.0, 0.6))
+    cam, tgt = camera_rig((0, -42, 0.5), (0, 0, 0), lens=70)
+    # La caméra s'approche pendant la dictée : l'écran doit se lire sur un téléphone.
+    key(cam, "location", 1, (0, -44, 0.5))
+    key(tgt, "location", 1, (0, 0, 0))
+    key(cam, "location", 60, (0, -40, 0.5))
+    key(cam, "location", 146, (0, -38, 0.4))
+    key(tgt, "location", 146, (0, 0, 0.3))
+    # Le drop : la caméra cogne en avant, d'un coup, et le téléphone descend dans le cadre
+    # pour laisser le haut au titre « Chiffré tout seul. » (sans recouvrir l'écran blanc).
+    key(cam, "location", 156, (0, -35.5, 2.0), "QUAD")
+    key(tgt, "location", 156, (0, 0, 1.8), "QUAD")
+    key(cam, "location", 246, (0, -34.5, 2.0))
+    key(tgt, "location", 246, (0, 0, 1.8))
+    key(cam, "location", 340, (0, -40, 0.8))
+    key(tgt, "location", 340, (0, 0, 0.5))
+    sc.frame_start, sc.frame_end = 1, 340
+    return 200
 
 
 def main():
