@@ -152,10 +152,70 @@ réelle et datée.
 Point commun : la première phrase est **dite par une personne, au « je » ou au « tu »**, et parle du quotidien du métier
 (Excel, le papier, un gros achat, la réforme), jamais du logiciel en premier.
 
+## Élargissement : 11 pubs d'autres secteurs (même critère, au moins 49 jours ; la plupart plus de 150)
+
+Recherches : « artisan » dans toute la bibliothèque (pubs qui visent les artisans, tous secteurs), créateurs de contenu
+(Canva, Abby), grandes marques de services aux pros (Alan, Revolut Business, ManoMano Pro). Sans pub assez ancienne en
+France : Habitatpresto, Duolingo, Malt, Shopify (le seul résultat venait d'un autre compte, écarté).
+
+| # | Annonceur | Domaine | Diffusée depuis | Durée |
+|---|---|---|---|---|
+| 22 | Cerfrance | Expertise comptable des artisans et agriculteurs (FR) | 1 021 j | 134 s |
+| 23 | POINT.P | Négoce de matériaux pour pros du bâtiment (FR) | 656 j | 20 s |
+| 24 | Bricovis | Visserie et outillage pour pros (FR) | 531 j | 10 s |
+| 25 | Watiso | Entreprise d'isolation (un artisan qui fait sa pub, FR) | 525 j | 15 s |
+| 26 | Revolut Business | Banque pro | 202 j | 15 s |
+| 27 | Revolut Business | idem | 169 j | 9 s |
+| 28 | ManoMano Pro | Bricolage et matériel pour pros (FR) | 148 j | 6 s |
+| 29 | Canva (créateur) | Logiciel de création graphique | 85 j | 38 s |
+| 30 | Canva (créatrice) | idem | 77 j | 48 s |
+| 31 | Alan | Assurance santé (FR) | 65 j | 22 s |
+| 32 | Abby (créatrice) | Devis et factures des indépendants (FR, concurrent proche) | 49 j | 56 s |
+
+**22. Cerfrance, 134 s, 1 021 j.** Mini-documentaire « Parcours de passionné » : un vrai menuisier, nommé à l'écran
+(« créateur de son entreprise, client Cerfrance »), filmé dans son atelier, son camion, au volant, et au drone sur une
+maison en construction. Il raconte son parcours. *À retenir* : le récit de vie d'un artisan tient près de trois ans.
+
+**23. POINT.P, 20 s, 656 j.** Un présentateur face caméra devant l'enseigne : « Le bon plan fournisseur ! », images des
+rayons, un vendeur, code « BIENVENUE10 », bouton « Je crée mon compte ». *À retenir* : un visage, une offre, un code.
+
+**24. Bricovis, 10 s, 531 j.** Un seul plan produit (boîtes de vis) et un texte fixe : « 3 bonnes raisons de commander vos
+vis chez Bricovis » puis trois lignes (50 000 références, jusqu'à -40 %, port offert). Texte de pub : « Artisan,
+mécanicien, électricien, installateur, menuisier… ». *À retenir* : la liste de 3 raisons, lisible en 3 secondes.
+
+**25. Watiso, 15 s, 525 j.** Photos de vrais chantiers avec des cartons : « Isolation de vos murs extérieurs avec
+Watiso », « Nous sommes basés sur Saint-Bonnet-de-Mure », « Notre équipe locale certifiée RGE », « Bénéficiez du
+dispositif dès aujourd'hui ». *À retenir* : c'est ainsi que les clients de Fuitéo font eux-mêmes leur pub (local,
+certifié, photos de chantier).
+
+**26-27. Revolut Business, 15 s et 9 s.** La carte en 3D ou tenue en main, et une preuve sociale : « Plus de 30 000
+entreprises rejoignent Revolut Business chaque mois. Votre entreprise sera-t-elle la prochaine ? ». *À retenir* : seul
+style « image de marque » qui tienne, et c'est une marque déjà célèbre ; il repose quand même sur un chiffre.
+
+**28. ManoMano Pro, 6 s.** Une image décalée et une seule offre : « 10 % offerts, exclusivité Pro, dès la première
+commande ». *À retenir* : le format bumper (6 s) de YouTube : une seule chose, une offre.
+
+**29-30. Canva, par des créateurs, 38 et 48 s.** Une soirée jeux entre amis, une astuce maquillage : le produit n'arrive
+qu'au milieu, comme l'outil qui a permis le moment. Publié au nom du créateur. *À retenir* : le divertissement d'abord.
+
+**31. Alan, 22 s.** Animation de l'appli (comparateur d'offres), mascotte, une phrase par écran : « Avec Alan, comparez
+enfin les offres d'assurance santé… On aligne les garanties… La différence devient claire. »
+
+**32. Abby, 56 s, par une créatrice.** Selfie, gros sous-titres : « Si tu es micro-entrepreneur, depuis septembre 2026,
+tu dois être capable de recevoir des factures électroniques depuis une plateforme agréée. Et ce n'est pas terminé… »,
+puis les étapes dans l'appli sur fond rose, « gratuit ». *À retenir* : même recette qu'Indy, chez un concurrent direct.
+
+**Ce que l'élargissement ajoute :**
+- Le **récit de vie d'un artisan** (Cerfrance) est le format le plus durable de toute l'étude.
+- Les **offres simples** tiennent en 6 à 20 s : une liste de 3 raisons, un code, « 10 % offerts ».
+- Le **local et le concret** (ville, certification, photos de chantier) : c'est le langage des artisans eux-mêmes.
+- Le **créateur de contenu** est partout (Canva, Abby, Jobber, Indy) : la pub prend la forme d'une vidéo normale.
+- Le style « marque » abstrait (Revolut) ne marche que pour des marques déjà connues.
+
 ## Ce qui revient : les méthodes à reprendre
 
-1. **De vraies personnes du métier, pas des objets ni de la 3D.** 17 pubs sur 21 montrent un artisan ou un client qui
-   parle. Les seules sans visage sont des démos d'écran (Tolteck) ou du texte animé (Housecall Pro), jamais de la 3D.
+1. **De vraies personnes, pas des objets ni de la 3D.** 17 pubs sur 21 (puis 22 sur 32 avec l'élargissement) montrent une personne qui
+   parle. Les autres sont des démos d'écran, du texte animé ou une offre ; seule une marque célèbre (Revolut) utilise la 3D.
 2. **Une accroche dès la première seconde, écrite à l'écran** : le métier interpellé (« ARTISAN », « Artisan, marre
    de… », « your Electrical business »), une question, ou « Avant, c'était le papier ».
 3. **Des sous-titres incrustés** partout, souvent mot à mot et gros au centre (la vidéo est vue sans le son).
