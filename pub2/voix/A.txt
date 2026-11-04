@@ -1,0 +1,10 @@
+# Pub A (TikTok, 22 s) — texte écrit pour l'oreille (vérifié avec Whisper)
+v1|Une fuite !
+v2|Et le devis, tu le fais quand ?
+v3|Maintenant. En parlant.
+v4|Tout se range tout seul.
+v5|Tu l'envoies.
+v6|Ton client accepte en ligne.
+v7|Dicté-o.
+v8|Gratuit pour tes trois devis du mois.
+v9|Sans carte bancaire.
