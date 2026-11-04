@@ -129,6 +129,29 @@ la page du produit. *À retenir* : comparaison côte à côte, lisible sans le s
 conforme ? »), puis la solution gratuite. Fin rose avec la note de l'appli. *À retenir* : éduquer sur une contrainte
 réelle et datée.
 
+## Les premières phrases dites (transcription Whisper, à quelques mots près)
+
+- Obat (6) : « Je suis Carlos, plaquiste. J'ai démarré mon entreprise le 3 janvier 2023, suite à une reconversion. »
+  → se présenter par son prénom et son métier, puis raconter.
+- Obat (5) : « Ça fait 4-5 ans que je l'utilise… tu peux mettre ton logo, tes couleurs, tes lignes… »
+- Qonto (19) : « Moi, je fais mes factures sur Excel. [La réforme] arrive, je ne sais même pas par où commencer. »
+  / « Moi, avec Qonto, mes factures sont électroniques et 100 % conformes. » → le dialogue Sans / Avec.
+- Qonto (17) : « Quand on a un gros achat, on peut augmenter notre plafond… contrairement à une banque traditionnelle. »
+- Qonto (18) : « Qonto m'a permis d'économiser, sur une année, environ 5 000 €. »
+- Indy (21) : « La facturation électronique, combien ça va me coûter ? Le problème, c'est que personne ne vous explique
+  vraiment ce que vous avez à faire. Est-ce que vous êtes concerné ? » → trois questions que la cible se pose.
+- Indy (20) : « On va voir ensemble comment créer une facture en moins de 30 secondes. »
+- Pennylane (15) : « Je me souviens encore de la première démonstration… »
+- Jobber (10) : « Well, nobody talks about this, but every blue collar worker 100 % agrees with this. »
+- Jobber (12) : « Before Jobber, it was paper. And as soon as you hire an employee, that all goes out the window. »
+- Jobber (13) : « We started this project. Our scope of work was just replacing the roof… huge structural issues. »
+- Housecall Pro (8) : « Some guys don't mind doing things the hard way. »
+- Housecall Pro (9) : « Have you considered Housecall Pro, but aren't sure it's the right move? »
+- Tolteck (1), Housecall Pro (7), Pennylane (14) : pas de voix, seulement musique et texte à l'écran.
+
+Point commun : la première phrase est **dite par une personne, au « je » ou au « tu »**, et parle du quotidien du métier
+(Excel, le papier, un gros achat, la réforme), jamais du logiciel en premier.
+
 ## Ce qui revient : les méthodes à reprendre
 
 1. **De vraies personnes du métier, pas des objets ni de la 3D.** 17 pubs sur 21 montrent un artisan ou un client qui
