@@ -1,10 +1,11 @@
 // Rend la couche des titres (film/titres.html) en PNG transparents, image par image.
-// Usage : node capture-titres.mjs <sortie> <instants en s, séparés par des virgules | début:fin:ips>
+// Usage : node capture-titres.mjs <sortie> <instants en s, séparés par des virgules | début:fin:ips> [vertical|paysage]
 import { mkdirSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { chromium } from "playwright-core";
 
-const [out, when] = process.argv.slice(2);
+const [out, when, format = "vertical"] = process.argv.slice(2);
+const paysage = format === "paysage";
 mkdirSync(out, { recursive: true });
 let times;
 if (when.includes(":")) {
@@ -15,8 +16,8 @@ if (when.includes(":")) {
 }
 
 const browser = await chromium.launch({ channel: "chrome", headless: true });
-const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
-await page.goto(pathToFileURL(new URL("./film/titres.html", import.meta.url).pathname.slice(1)).href);
+const page = await browser.newPage({ viewport: paysage ? { width: 1920, height: 1080 } : { width: 1080, height: 1920 } });
+await page.goto(pathToFileURL(new URL("./film/titres.html", import.meta.url).pathname.slice(1)).href + (paysage ? "?format=paysage" : ""));
 await page.evaluate(() => document.fonts.ready);
 for (const [i, t] of times.entries()) {
   await page.evaluate((t) => window.rendre(t), t);

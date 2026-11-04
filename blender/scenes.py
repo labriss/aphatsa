@@ -52,6 +52,10 @@ def reset():
         sc.eevee.taa_render_samples = 8
     sc.render.use_motion_blur = True
     sc.render.motion_blur_shutter = 0.5
+    if os.environ.get("APERCU"):
+        # Brouillon : sans lancer de rayons ni flou de mouvement, pour juger le cadrage et le rythme vite.
+        sc.eevee.use_raytracing = False
+        sc.render.use_motion_blur = False
     world = bpy.data.worlds.new("monde")
     world.use_nodes = True
     sc.world = world
@@ -493,7 +497,7 @@ def shot_cuisine(sc, soir=False):
 
 # ——— Plans 5, 7 : le téléphone ———
 
-def rounded_rect(name, w, h, radius, depth, loc, mat):
+def rounded_rect(name, w, h, radius, depth, loc, mat, edge=None):
     bpy.ops.mesh.primitive_cube_add(size=1, location=loc)
     o = bpy.context.object
     o.name = name
@@ -506,9 +510,12 @@ def rounded_rect(name, w, h, radius, depth, loc, mat):
     bm.to_mesh(o.data)
     bm.free()
     mod = o.modifiers.new("arrondi", "BEVEL")
-    mod.width = depth * 0.42
+    mod.width = depth * 0.42 if edge is None else edge
     mod.segments = 8
     mod.limit_method = "ANGLE"
+    # Normales durcies : les faces plates restent plates. Sans ça, le lissage étale l'ombrage
+    # de l'arrondi sur toute la face et fait des taches et des croissants de lumière dans les coins.
+    mod.harden_normals = True
     smooth(o)
     return link(o, mat)
 
@@ -539,14 +546,16 @@ def screen_plane(w, h, radius, loc, mat, segments=24):
 
 def shot_telephone(sc, screen):
     world_color(NIGHT, 1.0)
-    titanium = material("titane", "#3A3F42", metallic=1.0, roughness=0.3)
+    # Titane satiné : des reflets larges et doux qui courent le long des bords, pas des taches.
+    titanium = material("titane", "#4A4F52", metallic=1.0, roughness=0.42)
     black = material("verre_noir", "#050607", roughness=0.05, coat=1.0)
     bpy.ops.object.empty_add(location=(0, 0, 0))
     rig = bpy.context.object
     rig.name = "telephone"
     W, H, D = 7.15, 14.7, 0.8
     parts = [rounded_rect("coque", W, H, 1.1, D, (0, 0, 0), titanium)]
-    parts.append(rounded_rect("face", W - 0.12, H - 0.12, 1.05, D * 0.3, (0, -D * 0.38, 0), black))
+    # La vitre avant : plate, avec une arête à peine adoucie (un gros arrondi y faisait un croissant de reflet).
+    parts.append(rounded_rect("face", W - 0.12, H - 0.12, 1.05, D * 0.3, (0, -D * 0.38, 0), black, edge=0.02))
     # Sans vernis et les sombres creusés : sinon le reflet et la courbe de couleur délavent le texte de l'appli.
     screen_mat = image_material("interface", screen, emission_strength=2.0, gloss=False, gamma=1.6) if screen else material("éteint", "#000000")
     parts.append(screen_plane(W - 0.62, H - 0.62, 0.82, (0, -D * 0.54, 0), screen_mat))
@@ -562,7 +571,10 @@ def shot_telephone(sc, screen):
     # Lumières : liseré orange derrière, grande boîte blanche douce pour le reflet sur le verre.
     area_light("liseré_g", (-8, 5, 4), (0, 0, 0), 1800, 3, ORANGE, size_y=14)
     area_light("liseré_d", (8, 5, -2), (0, 0, 0), 1200, 3, ORANGE_DEEP, size_y=14)
-    area_light("reflet", (6, -14, 10), (0, 0, 0), 500, 8, "#FFF2E8", size_y=3)
+    # Une grande bande de lumière douce au-dessus, devant : un liseré régulier sur tout le haut du cadre,
+    # au lieu d'une petite boîte qui ne se reflétait que dans un coin.
+    area_light("reflet", (0, -16, 18), (0, 0, 0), 900, 34, "#FFF2E8", size_y=5)
+    area_light("reflet_bas", (0, -16, -18), (0, 0, 0), 250, 34, "#FFE2CC", size_y=5)
     # Le téléphone monte, pivote et se tourne vers nous (plan 5), puis s'incline (plan 7).
     # Repères (image 1 = 8,0 s de la pub) : drop à l'image 151 (13,0 s), « Envoyé » à 246 (16,16 s).
     key(rig, "location", 1, (0, 0, -24))
@@ -607,10 +619,20 @@ def main():
     OUT.parent.mkdir(parents=True, exist_ok=True)
     if MODE == "image":
         sc.frame_set(FRAME or still)
+        import os
+        if os.environ.get("BORD"):
+            # Rendu d'une seule zone de l'image (x0,x1,y0,y1 entre 0 et 1, y depuis le bas), pour inspecter un détail.
+            x0, x1, y0, y1 = map(float, os.environ["BORD"].split(","))
+            sc.render.use_border = True
+            sc.render.use_crop_to_border = True
+            sc.render.border_min_x, sc.render.border_max_x, sc.render.border_min_y, sc.render.border_max_y = x0, x1, y0, y1
         sc.render.filepath = str(OUT)
         bpy.ops.render.render(write_still=True)
     else:
         sc.render.filepath = str(OUT) + "_"
+        # Reprise possible : les images déjà rendues sont gardées, et deux rendus peuvent se partager un plan.
+        sc.render.use_overwrite = False
+        sc.render.use_placeholder = True
         bpy.ops.render.render(animation=True)
     bpy.ops.wm.save_as_mainfile(filepath=str(OUT.with_suffix(".blend")))
 

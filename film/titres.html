@@ -67,6 +67,22 @@
     font-family: "Public Sans", sans-serif; font-weight: 700; font-size: 50px; white-space: nowrap; box-shadow: 0 20px 80px rgb(242 92 20 / 0.45); }
   #sans-carte { position: absolute; left: 0; right: 0; top: 1236px; text-align: center; font-family: "Public Sans", sans-serif; font-weight: 600; font-size: 38px; color: var(--foreground); }
   #url { position: absolute; left: 0; right: 0; top: 1330px; text-align: center; font-family: "JetBrains Mono", monospace; font-weight: 500; font-size: 42px; color: var(--muted-foreground); }
+
+  /* 16:9 (?format=paysage) : l'image verticale est à droite (x 936–1544) ; les titres à gauche, alignés à gauche. */
+  html.paysage, html.paysage body { width: 1920px; height: 1080px; }
+  html.paysage .titre { left: 120px !important; right: auto !important; width: 800px; top: 400px !important; text-align: left; font-size: 80px !important; }
+  html.paysage #s4 .titre { font-size: 104px !important; top: 360px !important; }
+  html.paysage #s6 .titre { font-size: 96px !important; top: 380px !important; }
+  html.paysage #metier { top: 420px !important; font-size: 110px !important; height: 1.12em; }
+  html.paysage #metier .nom { text-align: left; }
+  html.paysage #metiers-sous { top: 580px; left: 120px; right: auto; width: 760px; text-align: left; font-size: 40px; }
+  html.paysage #soiree { white-space: nowrap; }
+  html.paysage #fin .halo { top: 50%; }
+  html.paysage #marque { top: 200px; }
+  html.paysage #promesse { top: 430px !important; left: 0 !important; right: 0 !important; width: auto; text-align: center; font-size: 66px !important; }
+  html.paysage #cta { top: 640px; }
+  html.paysage #sans-carte { top: 795px; }
+  html.paysage #url { top: 870px; }
 </style>
 </head>
 <body>
@@ -198,6 +214,7 @@
   };
 
   const p = new URLSearchParams(location.search);
+  if (p.get("format") === "paysage") document.documentElement.classList.add("paysage");
   if (p.get("fond") === "1") document.body.classList.add("fond");
   window.rendre(Number(p.get("t") ?? 0));
 </script>
