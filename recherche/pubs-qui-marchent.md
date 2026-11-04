@@ -1,4 +1,4 @@
-# Pubs qui marchent : étude (novembre 2026)
+# Pubs qui marchent : étude de 100 pubs (novembre 2026)
 
 But : apprendre des pubs vidéo **encore diffusées après des semaines ou des mois**, donc rentables pour leur annonceur,
 pour s'en inspirer ensuite pour Fuitéo (TikTok, YouTube, Google Ads). On reprend leurs méthodes (accroche, structure,
@@ -211,6 +211,89 @@ puis les étapes dans l'appli sur fond rose, « gratuit ». *À retenir* : même
 - Le **local et le concret** (ville, certification, photos de chantier) : c'est le langage des artisans eux-mêmes.
 - Le **créateur de contenu** est partout (Canva, Abby, Jobber, Indy) : la pub prend la forme d'une vidéo normale.
 - Le style « marque » abstrait (Revolut) ne marche que pour des marques déjà connues.
+
+## Les pubs célèbres qui tournent en boucle : 68 pubs (33 à 100)
+
+Demande : « des pubs célèbres qui continuent à se faire parce que ça fonctionne (Frank Leboeuf, NordVPN, Raid Shadow
+Legends…) ». Toutes encore actives, de 35 à 1 199 jours. NordVPN, Manscaped et Ridge n'ont pas de pub vidéo active sur
+Meta : leur pub passe surtout par les parrainages dans les vidéos YouTube (non recensés par les bibliothèques).
+
+### Jeux mobiles (42 pubs)
+
+| Pub | Diffusée depuis | Ce qu'elle fait |
+|---|---|---|
+| **VIP Belote** (jeu de cartes), 57 s | 111 j | **Frank Leboeuf** en selfie, une prise : « Salut, c'est Frank Leboeuf, si comme moi vous êtes passionné de jeux de cartes… », nom et titres à l'écran (« Footballeur, Acteur »), écrans du jeu derrière lui, logo. |
+| Raid: Shadow Legends ×4, 10 à 60 s | 38-126 j | Bande-annonce cinématique en images de synthèse + compte à rebours « Giveaway » + **code promo pour un héros offert** ; version 10 s = image fixe + code ; version « Comeback gift » pour les anciens joueurs. |
+| Royal Match ×3, 59 s | 95-396 j | Le format **« fail »** : on joue exprès mal, le roi est en danger, cri, gros « FAIL », « Play now ». Donne envie de faire mieux. |
+| Hero Wars ×3, 30 à 120 s | 142-534 j | Image quasi fixe « We have something special for you — Claim your gift » (relance) ; héros animés « Your guild awaits ». |
+| Township ×3, 19 à 120 s | 142-**1 199 j** | Record de l'étude : un **vrai chat** qui tape sur une tablette, l'écran du jeu, « Who's making all that noise? Oh, it's our new friend », « Come back ». |
+| Candy Crush ×3, 30 s | 411-881 j | Jeu pur, combos très satisfaisants, un doigt qui joue, « Tasty! », logo. |
+| Clash of Clans ×2, 30 et 59 s | 125-777 j | Jeu pur (attaque d'une base vue de dessus) ; « 5 reasons why you should log into your old Clash account » (liste numérotée façon créateur). |
+| Coin Master ×2, 20-30 s | 315-322 j | Machine à sous du jeu, gains, « Come back ». |
+| Monopoly GO ×3, 22-30 s | 64-158 j | Partenariat avec les Simpson, dessin animé, « Come back for The Simpsons GO! ». |
+| Top War ×3, 45 à 107 s | 63-314 j | **Faux jeu** : course avec des portes ×2 qui multiplient l'armée (pas le vrai jeu), satisfaisant. |
+| Lords Mobile ×2, 37-60 s | 203-265 j | Faux jeu satisfaisant (rouleau géant qui écrase, armée qui grossit). |
+| Whiteout Survival ×3, 57-77 s | 139-285 j | Construction de base vue de dessus, la neige, « Can you keep the town warm, fed, and alive? ». |
+| Gardenscapes ×3, 30 à 120 s, Homescapes ×2 | 66-86 j | **Sketch avec de vrais acteurs** (rendez-vous au cinéma, roses rares, « tu joues mal ») puis le jeu ; défi « Think you can do better? ». |
+| Rise of Kingdoms, 58 s | 122 j | Sketch dessiné et drôle (un Romain qui marchande dans l'au-delà), « 3 jours plus tard », choix à l'écran. |
+| Brawl Stars ×2, 30 s | 296-433 j | Petit film d'animation en épisodes (« Episode 1 »), le jeu à la fin. |
+| June's Journey ×2, 45 s | 35-54 j | Énigme d'objets cachés, un doigt qui cherche, mystère (« June Parker is getting too close »). |
+| DramaBox (séries courtes) | 74 j | Un **épisode de 30 min offert comme pub** ; la voix accroche dès la 1re phrase par une histoire intrigante. |
+
+### Abonnements et services stars des réseaux (17 pubs)
+
+| Pub | Diffusée depuis | Ce qu'elle fait |
+|---|---|---|
+| **Grammarly**, 28 s | 329 j | « This AI writing app is going viral for a reason » ; **une main tient le téléphone, l'appli marche en vrai** (on sélectionne un texte, il est réécrit), page de l'App Store, « Download ». |
+| **ExpressVPN**, 51 s | 190 j | Un créateur raconte une **histoire vraie d'actualité** (« un homme en Australie a piraté des téléphones avec un… ananas »), illustrée ; le produit en solution ; « 30 jours satisfait ou remboursé ». |
+| ExpressVPN, 20 s | 129 j | « People ask me how many VPN subscriptions my family needs. The answer is one. » : répondre à la question que tout le monde se pose ; fin « -80 % ». |
+| Squarespace, 6 s | 316 j | Bumper : une image, un nom de domaine qui s'écrit, c'est tout. |
+| AG1 ×2, 15 s | 193 j | Une voix off drôle et intime sur une scène de vie (« it's a nice body, I'm quite attached to it »). |
+| BetterHelp ×2, 24-40 s | 200-287 j | **Micro-trottoir** au vrai micro (« What are you currently going through? »), émotion ; version marque : objection levée (« la thérapie s'adapte à votre emploi du temps »). |
+| Audible ×2, 6-15 s | 40 j | Une actrice se présente (« I'm Amy Lou Wood… ») ; bumper 6 s avec l'offre (3 mois à 0,99 $). |
+| Dollar Shave Club ×2, 7.5-30 s | 160-182 j | Personnages en pâte à modeler, humour décalé ; version 7 s produit + phrase. |
+| HelloFresh (créatrice), 43 s | 142 j | « Je suis ultra organisée, mais ça c'est mon raccourci secret. Maman de trois enfants… » : personnage, déballage, cuisine, dégustation. |
+| HelloFresh ×2, 8-28 s | 79-80 j | « Voici ce qui pourrait arriver à un couple s'il essayait HelloFresh pendant un mois. Jour 1… » : journée par journée. |
+| Liquid Death ×3 (créateurs), 7 à 44 s | 160-174 j | Vlogs de vraie vie (voyage en famille, frigo) où le produit apparaît naturellement ; un plan de 7 s, le son de la canette. |
+| Duolingo ×2, 23-30 s | 89-373 j | Créateur + « Tired of brainrot games? Duolingo is here to slap your neurons awake », écrans de l'appli ; quiz « How good is your Spanish? ». |
+
+### Achat en ligne (5 pubs)
+
+| Pub | Diffusée depuis | Ce qu'elle fait |
+|---|---|---|
+| **Vinted**, 30 s | 651 j | « Le petit guide d'une vente au top » : une vendeuse, l'écran, une liste à cocher (marque, dimensions, état), **bandeau d'action permanent en bas** « Commence à vendre maintenant ». |
+| AliExpress (créateur), 20 s | 335 j | Déballage + démonstration d'une caméra auto, voix qui liste les fonctions, montage rapide (0,8 coupe/s). |
+| AliExpress, 36 s | 215 j | Une créatrice déballe un bijou, enthousiasme, prix barré. |
+| Shein ×2, 6-10 s | 142-149 j | Formats courts produit + musique, sans voix. |
+
+## Les recettes qui reviennent (sur les 100 pubs)
+
+Classées de la plus utile à la moins utile pour un logiciel comme Fuitéo.
+
+1. **La démo au téléphone tenu en main** (Grammarly, Indy, Tolteck, Vinted) : le produit fait le travail en vrai, à
+   l'écran, en quelques secondes. Accroche type : « Cette appli fait le buzz pour une bonne raison ».
+2. **Le créateur ou la personne qui parle face caméra, en une prise** (Frank Leboeuf, Obat, ExpressVPN, Duolingo,
+   HelloFresh) : « Salut, c'est… », « Moi je… », le nom à l'écran, les écrans du produit derrière.
+3. **La célébrité qui fait un selfie-témoignage** (Frank Leboeuf pour VIP Belote) : pas de production, juste sa tête et
+   son nom ; marche parce que la personne est reconnue d'un public précis.
+4. **L'histoire vraie ou l'actualité en accroche** (ExpressVPN, réforme de la facture 2026 chez Obat, Indy, Abby).
+5. **Répondre à la question que tout le monde se pose** (« Combien d'abonnements VPN ? Un seul. »).
+6. **Le format « fail » ou le défi** (Royal Match, Gardenscapes « Think you can do better? ») : montrer quelqu'un qui
+   rate, donner envie de faire mieux.
+7. **Le satisfaisant pur** (Candy Crush, Clash of Clans, Lords Mobile) : regarder une tâche se faire toute seule,
+   proprement ; pour un logiciel, c'est le devis qui se remplit.
+8. **Le sketch avec de vrais acteurs ou dessiné** (Gardenscapes, Rise of Kingdoms, Dollar Shave Club, Brawl Stars).
+9. **L'animal ou la scène de vie inattendue** (le chat de Township, record de l'étude avec 1 199 jours).
+10. **Le cadeau, le code, le retour** (Raid, Hero Wars, Coin Master, Monopoly GO) : « code promo », « cadeau pour toi »,
+    « Come back » ; c'est la pub de relance des gens qui connaissent déjà.
+11. **« Jour 1, jour 2… »** (HelloFresh) et **la liste numérotée** (« 5 raisons », « 3 bonnes raisons ») : une structure
+    qu'on suit jusqu'au bout.
+12. **Le micro-trottoir** (BetterHelp) : de vraies gens, une vraie question.
+13. **Le bumper de 6 s** (Squarespace, Audible, ManoMano, Shein) : une seule idée, une seule offre.
+14. **Le bandeau d'action permanent** en bas de l'image (Vinted), l'offre visible toute la vidéo.
+
+Ce qui ne revient presque jamais : la 3D « de marque » abstraite (seulement des marques déjà célèbres), le clip rythmé
+sans parole, la pub sans offre ni appel à l'action.
 
 ## Ce qui revient : les méthodes à reprendre
 
