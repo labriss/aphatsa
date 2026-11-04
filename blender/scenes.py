@@ -557,7 +557,15 @@ def shot_telephone(sc, screen):
     # La vitre avant : plate, avec une arête à peine adoucie (un gros arrondi y faisait un croissant de reflet).
     parts.append(rounded_rect("face", W - 0.12, H - 0.12, 1.05, D * 0.3, (0, -D * 0.38, 0), black, edge=0.02))
     # Sans vernis et les sombres creusés : sinon le reflet et la courbe de couleur délavent le texte de l'appli.
-    screen_mat = image_material("interface", screen, emission_strength=2.0, gloss=False, gamma=1.6) if screen else material("éteint", "#000000")
+    import os
+    if os.environ.get("TEL_VUE", "standard") == "standard":
+        # Rendu neutre (Standard) : l'écran affiche exactement les couleurs de l'appli, texte noir compris.
+        # La courbe AgX, belle sur les objets, écrasait les contrastes de l'interface et grisait le texte.
+        sc.view_settings.view_transform = "Standard"
+        sc.view_settings.look = "None"
+        screen_mat = image_material("interface", screen, emission_strength=1.0, gloss=False) if screen else material("éteint", "#000000")
+    else:
+        screen_mat = image_material("interface", screen, emission_strength=2.0, gloss=False, gamma=float(os.environ.get("TEL_GAMMA", 1.6))) if screen else material("éteint", "#000000")
     parts.append(screen_plane(W - 0.62, H - 0.62, 0.82, (0, -D * 0.54, 0), screen_mat))
     island = rounded_rect("ilot", 2.0, 0.6, 0.29, 0.05, (0, -D * 0.56, H / 2 - 0.85), material("ilot", "#000000", roughness=0.1))
     parts.append(island)
