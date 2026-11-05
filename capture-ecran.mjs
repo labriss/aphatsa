@@ -1,10 +1,10 @@
 // Filme l'écran du vrai téléphone de la page d'accueil (le film du devis dicté), image par image.
 // L'horloge du navigateur est simulée : chaque image tombe exactement à son instant, sans à-coup.
-// Usage : node capture-ecran.mjs <sortie> <instants en s, séparés par des virgules | début:fin:ips> [clair|sombre]
+// Usage : node capture-ecran.mjs <sortie> <instants en s, séparés par des virgules | début:fin:ips> [clair|sombre] [métier]
 import { mkdirSync } from "node:fs";
 import { chromium } from "playwright-core";
 
-const [out, when, theme = "sombre"] = process.argv.slice(2);
+const [out, when, theme = "sombre", metier = ""] = process.argv.slice(2);
 mkdirSync(out, { recursive: true });
 let times;
 if (when.includes(":")) {
@@ -22,6 +22,8 @@ const ctx = await browser.newContext({
   reducedMotion: "no-preference",
 });
 await ctx.addInitScript((t) => localStorage.setItem("theme", t), theme === "clair" ? "light" : "dark");
+// Le métier choisi (src/lib/trades.ts) : la dictée et les lignes du film changent avec lui.
+if (metier) await ctx.addInitScript((m) => localStorage.setItem("fuiteo:metier", m), metier);
 // Sans Element.animate, Motion calcule ses animations lui-même, sur l'horloge simulée : elles tombent juste à chaque image.
 await ctx.addInitScript(() => {
   delete Element.prototype.animate;

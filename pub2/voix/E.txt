@@ -1,0 +1,2 @@
+e1|Un tableau électrique à refaire.
+e2|Un tableau à refaire.

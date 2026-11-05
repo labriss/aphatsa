@@ -76,6 +76,22 @@ def cadrer(img, W, H, cx, cy, z):
     return cv2.warpAffine(img, M, (W, H), flags=cv2.INTER_CUBIC if s > 1 else cv2.INTER_AREA, borderMode=cv2.BORDER_REFLECT)
 
 
+def ajuster(img, W, H, z, cache={}):
+    """Toute l'image source au centre (sans recadrage), sur un fond flouté tiré d'elle-même : pour une vidéo
+    verticale dans un format carré ou horizontal."""
+    h, w = img.shape[:2]
+    s = min(W / w, H / h) * z
+    fw, fh = int(w * s), int(h * s)
+    fg = cv2.resize(img, (fw, fh), interpolation=cv2.INTER_AREA if s < 1 else cv2.INTER_CUBIC)
+    fond = cadrer(cv2.resize(img, (w // 4, h // 4), interpolation=cv2.INTER_AREA), W, H, 0.5, 0.5, 1.15)
+    fond = cv2.GaussianBlur(fond, (0, 0), 28)
+    out = (fond.astype(np.float32) * 0.45).astype(np.uint8)
+    x0, y0 = (W - fw) // 2, (H - fh) // 2
+    ax0, ay0, ax1, ay1 = max(0, x0), max(0, y0), min(W, x0 + fw), min(H, y0 + fh)
+    out[ay0:ay1, ax0:ax1] = fg[ay0 - y0: ay1 - y0, ax0 - x0: ax1 - x0]
+    return out
+
+
 class Lecteur:
     """Lit une vidéo à une cadence quelconque, sans revenir en arrière."""
 
@@ -103,7 +119,8 @@ class Lecteur:
 
 def plan_incruste(p):
     """Pré-rend le plan avec l'écran incrusté (mis en cache selon ses réglages)."""
-    cle = hashlib.md5(json.dumps({k: p.get(k) for k in ("src", "debut", "duree", "ecran_debut", "ecran_vitesse", "plein", "reflet")}, sort_keys=True).encode()).hexdigest()[:10]
+    cle = hashlib.md5(json.dumps({**{k: p.get(k) for k in ("src", "debut", "duree", "ecran_debut", "ecran_vitesse", "plein", "reflet")},
+                                  "ecran": p.get("ecran", ECRAN)}, sort_keys=True).encode()).hexdigest()[:10]
     sortie = os.path.join(TMP, f"incr_{p['src']}_{cle}.mp4")
     if not os.path.exists(sortie):
         cmd = [sys.executable, os.path.join(ICI, "incruster.py"), os.path.join(CLIPS, p["src"] + ".mp4"), p.get("ecran", ECRAN), sortie,
@@ -262,7 +279,9 @@ def main():
     ap.add_argument("--brouillon", action="store_true", help="demi-résolution, plus rapide")
     ap.add_argument("--sans-titres", action="store_true")
     a = ap.parse_args()
+    global ECRAN
     pub = PUBS[a.nom]()
+    ECRAN = pub.get("ecran", ECRAN)  # film de l'écran du métier de la pub
     W, H = pub["format"]
     os.makedirs(TMP, exist_ok=True)
     os.makedirs(OUT, exist_ok=True)
@@ -325,7 +344,7 @@ def main():
                 lecteurs[src] = Lecteur(src)
             local = (ti - p["t0"]) * p.get("vitesse", 1)
             img = lecteurs[src].image(local if typ == "incrust" else p["debut"] + local)
-            img = cadrer(img, W, H, cx, cy, z)
+            img = ajuster(img, W, H, z) if p.get("ajuste") else cadrer(img, W, H, cx, cy, z)
             img = etalonner(img, p.get("sat", 0.9))
         elif typ == "ecran":
             img = rendu_ecran(W, H, p["ecran_debut"] + (ti - p["t0"]) * p.get("ecran_vitesse", 1), z, noms)
