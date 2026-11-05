@@ -1,0 +1,8 @@
+n1|Artisan. Il est vingt-et-une heures.
+n2|Et tu fais encore tes devis ?
+n3|Demain, fais autrement.
+n4|Sur le chantier, tu dictes.
+n5|Dicté-o remplit le devis tout seul.
+n6|Tu l'envoies. Ton client l'accepte en ligne.
+n7|Et toi, tu rentres dîner.
+n8|Dicté-o. Gratuit pour trois devis par mois.

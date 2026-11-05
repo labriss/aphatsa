@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Diktéo · la voix qui traverse le devis</title>
+<style>
+/*FONTS*/
+:root{
+  --fond:#0E1412; --grille:#1B2622; --surf:#16201C; --surf2:#1F2B26; --bord:#2A3832;
+  --texte:#E7EDEA; --doux:#8FA39A; --o1:#E8650F; --o2:#C9480A; --o3:#A8350A; --vert:#34C27A;
+}
+html,body{margin:0;background:#050807;overflow:hidden}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;background:var(--fond);overflow:hidden;transform-origin:0 0}
+#persp{position:absolute;inset:0;perspective:2600px;perspective-origin:50% 50%}
+#tilt{position:absolute;inset:0;transform-origin:50% 50%}
+#world{position:absolute;left:0;top:0;width:2400px;height:4400px;transform-origin:0 0;
+  background-image:radial-gradient(var(--grille) 2.6px, transparent 2.8px);background-size:48px 48px;background-position:0 0}
+.st{position:absolute;white-space:nowrap;font-family:'PublicSans';color:var(--texte)}
+.card{position:absolute;background:var(--surf);border:2px solid var(--bord);border-radius:34px;box-shadow:0 30px 60px rgba(0,0,0,.35)}
+.lbl{position:absolute;white-space:nowrap;font-family:'PublicSans';font-weight:700;font-size:26px;color:var(--doux);letter-spacing:.3px}
+.titre{position:absolute;white-space:nowrap;font-family:'Archivo';font-weight:850;color:var(--texte);letter-spacing:-1px}
+.mono{font-family:'JBMono';font-weight:700;font-variant-numeric:tabular-nums}
+.pill{position:absolute;white-space:nowrap;padding:12px 24px;border-radius:999px;background:var(--surf2);border:2px solid var(--bord);
+  font-family:'PublicSans';font-weight:700;font-size:28px;color:var(--texte)}
+.chip{position:absolute;white-space:nowrap;height:60px;line-height:60px;padding:0 22px;border-radius:16px;background:var(--surf2);
+  font-family:'PublicSans';font-weight:600;font-size:32px;color:var(--texte);transform-origin:50% 100%}
+.ligne{position:absolute;width:420px;height:130px;border-radius:26px;background:var(--surf);border:2px solid var(--bord);transform-origin:50% 100%}
+.ligne .d{position:absolute;left:26px;top:22px;font-family:'PublicSans';font-weight:700;font-size:27px;color:var(--texte);white-space:nowrap}
+.ligne .q{position:absolute;left:26px;top:72px;font-family:'JBMono';font-weight:500;font-size:24px;color:var(--doux);white-space:nowrap}
+.ligne .p{position:absolute;right:26px;top:70px;font-family:'JBMono';font-weight:700;font-size:30px;color:var(--texte);white-space:nowrap}
+#hero{position:absolute;left:0;top:0;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;
+  background:radial-gradient(circle at 36% 32%, #FFE2C4 0%, #FF9A4A 28%, #E8650F 62%, #B5460C 100%);
+  box-shadow:0 0 0 3px rgba(255,170,110,.25), 0 10px 26px rgba(232,101,15,.55)}
+#halo{position:absolute;left:0;top:0;width:400px;height:400px;margin:-200px 0 0 -200px;pointer-events:none}
+.bouton{position:absolute;border-radius:28px;display:flex;align-items:center;justify-content:center;white-space:nowrap;
+  font-family:'PublicSans';font-weight:800;font-size:32px}
+#ui{position:absolute;left:0;bottom:0;width:100%;padding:10px;background:#111;color:#ccc;font:14px sans-serif;display:flex;gap:10px;align-items:center;box-sizing:border-box}
+#ui input{flex:1}
+</style>
+</head>
+<body>
+<div id="stage">
+ <div id="persp"><div id="tilt"><div id="world">
+
+  <!-- 1. Le chantier : la voix s'ouvre -->
+  <div class="pill" id="s1heure" style="left:280px;top:250px">Chez Mme Fontaine · 11 h 38</div>
+  <div class="card" id="s1" style="left:280px;top:330px;width:640px;height:420px">
+    <div class="lbl" style="left:40px;top:34px">Villeurbanne · chauffe-eau</div>
+    <div class="titre" style="left:40px;top:72px;font-size:54px">Nouveau devis</div>
+    <div class="lbl" id="s1etat" style="left:40px;top:150px;color:var(--doux)">Touchez le micro et parlez.</div>
+  </div>
+  <div id="s1anneau" style="position:absolute;left:520px;top:480px;width:160px;height:160px;border-radius:50%;border:3px dashed #3A4A43"></div>
+  <div id="s1rempli" style="position:absolute;left:520px;top:480px;width:160px;height:160px;border-radius:50%;
+       background:linear-gradient(145deg,var(--o1),var(--o2) 55%,var(--o3));box-shadow:0 0 60px rgba(232,101,15,.45)"></div>
+  <svg id="s1onde" style="position:absolute;left:300px;top:470px" width="600" height="180"></svg>
+  <svg id="s1micro" style="position:absolute;left:578px;top:522px" width="44" height="76" viewBox="0 0 44 76">
+    <rect x="11" y="2" width="22" height="40" rx="11" fill="#fff"/><path d="M4 34a18 18 0 0 0 36 0" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M22 54v16M12 72h20" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>
+  <div id="doigt" style="position:absolute;left:0;top:0;width:90px;height:90px;border-radius:50%;background:rgba(231,237,234,.85);
+       box-shadow:0 8px 24px rgba(0,0,0,.4)"></div>
+
+  <!-- 2. Vous dites : les mots apparaissent -->
+  <div class="card" id="s2" style="left:1080px;top:760px;width:960px;height:250px">
+    <div class="lbl" style="left:40px;top:30px">Vous dites</div>
+  </div>
+  <div class="chip" id="w0" style="left:1120px;top:880px">Chauffe-eau</div>
+  <div class="chip" id="w1" style="left:1340px;top:880px">200 litres,</div>
+  <div class="chip" id="w2" style="left:1545px;top:880px">520 euros,</div>
+  <div class="chip" id="w3" style="left:1752px;top:880px">la pose…</div>
+
+  <!-- 3. Les lignes du devis tombent en escalier -->
+  <div class="lbl" id="s3lbl" style="left:1650px;top:1170px">Le devis se remplit</div>
+  <div class="ligne" id="l0" style="left:1650px;top:1220px"><div class="d">Chauffe-eau 200 L</div><div class="q">1 u</div><div class="p">520,00 €</div></div>
+  <div class="ligne" id="l1" style="left:1200px;top:1440px"><div class="d">Groupe de sécurité</div><div class="q">1 u</div><div class="p">48,00 €</div></div>
+  <div class="ligne" id="l2" style="left:750px;top:1660px"><div class="d">Dépose ancien ballon</div><div class="q">1 forfait</div><div class="p">60,00 €</div></div>
+  <div class="ligne" id="l3" style="left:300px;top:1880px"><div class="d">Main-d'œuvre</div><div class="q">3 h × 55,00 €</div><div class="p">165,00 €</div></div>
+
+  <!-- 4. Le total se calcule au centime -->
+  <div class="card" id="s4" style="left:400px;top:2080px;width:1380px;height:300px"></div>
+  <div class="lbl" style="left:450px;top:2110px">Total TTC · TVA 10 %</div>
+  <div class="titre mono" id="s4total" style="left:450px;top:2142px;font-size:60px;font-family:'JBMono'">0,00 €</div>
+  <div id="s4piste" style="position:absolute;left:480px;top:2244px;width:1200px;height:12px;border-radius:6px;background:#24312B"></div>
+  <div id="s4rempli" style="position:absolute;left:480px;top:2244px;width:0px;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--o3),var(--o1))"></div>
+  <div id="s4crans"></div>
+  <div class="lbl" id="s4ht" style="left:1310px;top:2300px">HT 793,00 € · TVA 79,30 €</div>
+
+  <!-- 5. Rien ne part sans vous -->
+  <div class="bouton" id="s5" style="left:1500px;top:2520px;width:460px;height:120px;color:#fff;
+       background:linear-gradient(145deg,var(--o1),var(--o2) 55%,var(--o3));box-shadow:0 18px 40px rgba(232,101,15,.35)">Valider et numéroter</div>
+  <div class="lbl" id="s5lbl" style="left:1530px;top:2660px">Rien ne part sans vous</div>
+
+  <!-- 6. Le client signe sur son téléphone -->
+  <div class="pill" id="s6lbl" style="left:980px;top:2690px">Mme Fontaine · sur son téléphone</div>
+  <div class="card" id="s6" style="left:980px;top:2770px;width:460px;height:800px;border-radius:56px;background:#0A0F0D;border:3px solid #33433C">
+    <div style="position:absolute;left:170px;top:18px;width:120px;height:30px;border-radius:15px;background:#000"></div>
+    <div class="lbl" style="left:40px;top:80px">Durand Plomberie</div>
+    <div class="titre" style="left:40px;top:118px;font-size:40px">Devis D-2026-0042</div>
+    <div class="lbl" style="left:40px;top:180px">Remplacement du chauffe-eau</div>
+    <div class="titre mono" style="left:40px;top:232px;font-size:52px;font-family:'JBMono'">872,30 €</div>
+    <div class="lbl" style="left:40px;top:304px">TTC · valable 30 jours</div>
+    <div class="lbl" style="left:40px;top:380px">Signature</div>
+    <div style="position:absolute;left:38px;top:410px;width:380px;height:150px;border-radius:20px;border:2px dashed #33433C"></div>
+  </div>
+  <svg id="s6sig" style="position:absolute;left:1020px;top:3180px" width="380" height="150"><path id="s6path" d="" fill="none" stroke="#E7EDEA" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <div class="bouton" id="s6ok" style="left:1020px;top:3420px;width:380px;height:96px;background:#24312B;border:2px solid #4A5E55;box-sizing:border-box;color:var(--texte);font-size:30px">Accepter le devis</div>
+
+  <!-- 7. La facture est prête -->
+  <div class="pill" id="s7lbl" style="left:300px;top:3610px">Envoyé à 11 h 42, depuis le chantier</div>
+  <div class="card" id="s7" style="left:300px;top:3700px;width:620px;height:200px;border-radius:30px">
+    <div style="position:absolute;left:30px;top:44px;width:110px;height:110px;border-radius:26px;background:linear-gradient(145deg,var(--o1),var(--o3))"></div>
+    <svg style="position:absolute;left:58px;top:72px" width="54" height="54" viewBox="0 0 24 24"><path d="M6.5 2.5H12a9 9 0 0 1 0 18H9.2L4.5 23V4.5a2 2 0 0 1 2-2ZM9.2 9.5a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1Zm3.1-2.5a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1Zm3.1 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Z" fill="#fff" fill-rule="evenodd"/></svg>
+    <div class="titre" style="left:166px;top:46px;font-size:34px">Devis accepté</div>
+    <div class="lbl" style="left:166px;top:100px;font-size:26px;color:var(--texte)">Facture F-2026-0031 prête</div>
+    <div class="lbl" style="left:166px;top:140px;font-size:24px">872,30 € TTC · numérotée</div>
+    <div class="lbl" style="left:520px;top:46px;font-size:22px">à l'instant</div>
+  </div>
+
+  <!-- La marque (vue en entier au recul) -->
+  <div id="marque" style="position:absolute;left:1100px;top:3700px;width:1200px;height:600px">
+    <div style="position:absolute;left:0;top:30px;width:150px;height:150px;border-radius:42px;background:linear-gradient(145deg,var(--o1),var(--o2) 55%,var(--o3));box-shadow:0 0 80px rgba(232,101,15,.4)"></div>
+    <svg style="position:absolute;left:30px;top:60px" width="92" height="92" viewBox="0 0 24 24"><path d="M6.5 2.5H12a9 9 0 0 1 0 18H9.2L4.5 23V4.5a2 2 0 0 1 2-2ZM9.2 9.5a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1Zm3.1-2.5a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1Zm3.1 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Z" fill="#fff" fill-rule="evenodd"/></svg>
+    <div class="titre" style="left:190px;top:22px;font-size:150px;letter-spacing:-5px">Diktéo</div>
+    <div class="titre" style="left:0;top:230px;font-size:84px;letter-spacing:-2px;line-height:1.05">Le devis dicté,<br><span style="color:var(--o1)">envoyé du chantier.</span></div>
+    <div class="lbl" style="left:0;top:460px;font-size:46px;color:var(--texte)">3 devis par mois offerts</div>
+    <div class="lbl" style="left:0;top:524px;font-size:40px">dikteo.vercel.app</div>
+  </div>
+
+  <canvas id="halo" width="400" height="400"></canvas>
+  <div id="hero"></div>
+ </div></div></div>
+</div>
+<div id="ui"><button id="lecture">Lecture</button><input id="curseur" type="range" min="0" max="1000" value="0"><span id="temps">0.00</span></div>
+<script>
+/* Feuille de temps (s) — contacts du héros (la voix), sons posés à ces instants
+ 0.00  la voix est le bouton du micro (atterrissage = raccord de boucle)          impact doux
+ 0.55  le doigt touche le micro : il s'allume, l'onde part                          clic
+ 1.60  la voix saute vers « Vous dites »
+ 2.00 2.35 2.70 3.05  elle rebondit mot à mot, chaque mot apparaît                 pops
+ 3.55 4.00 4.45 4.90  elle tombe en escalier sur les 4 lignes, chaque ligne s'ouvre ticks
+ 5.40  elle se pose sur la piste du total ; 5.40→6.80 elle roule, le total monte    tics rapides
+ 7.25  elle appuie sur « Valider et numéroter »                                     clic + impact
+ 8.05  elle tombe sur la signature ; 8.05→8.65 elle signe                          frottement
+ 8.95  elle appuie sur « Accepter le devis » : vert                                 ding
+ 9.55  elle arrive sur « Devis accepté · facture prête » ; tenue jusqu'à 10.15      pop
+10.15  lancement vers le haut ; recul de la caméra : tout le parcours + la marque    whoosh montant
+14.40  plongée vers le micro                                                         whoosh descendant
+16.00  = 0.00
+*/
+function spring(t,w=14,z=.82){if(t<=0)return 0;if(z>=1)return 1-Math.exp(-w*t)*(1+w*t);const wd=w*Math.sqrt(1-z*z);return 1-Math.exp(-z*w*t)*(Math.cos(wd*t)+(z*w/wd)*Math.sin(wd*t));}
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const ease=x=>(x=clamp(x),x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2);
+const easeOut=x=>1-Math.pow(1-clamp(x),3);
+const lerp=(a,b,k)=>a+(b-a)*k;
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const kf=keys=>t=>{if(t<=keys[0][0])return keys[0][1];for(let i=1;i<keys.length;i++){const[a,va]=keys[i-1],[b,vb,e=ease]=keys[i];if(t<=b)return lerp(va,vb,e((t-a)/(b-a)));}return keys[keys.length-1][1];};
+const rng=s=>()=>(s=(s+0x6D2B79F5)|0,s=Math.imul(s^(s>>>15),1|s),s^=s+Math.imul(s^(s>>>7),61|s),((s^(s>>>14))>>>0)/4294967296);
+
+const D=16, G=6000, R=28;
+// calage sur la musique (123 BPM) : chaque contact tombe sur un temps ; la boucle fait 34 temps
+const BEAT=60/123, DN=34*BEAT;
+const CALAGE=[[0,0],[0.55,1],[1.6,3],[2.0,4],[2.35,5],[2.7,6],[3.05,7],[3.55,8],[4.0,9],[4.45,10],[4.9,11],[5.4,12],[6.8,15],[7.25,16],
+  [8.05,18],[8.65,19],[8.95,20],[9.55,21],[10.15,22],[16,34]].map(([a,b])=>[a,b*BEAT]);
+function tAncien(tn){for(let i=1;i<CALAGE.length;i++){const[a0,b0]=CALAGE[i-1],[a1,b1]=CALAGE[i];if(tn<=b1)return lerp(a0,a1,(tn-b0)/(b1-b0));}return D;}
+window.VIDEO={w:1080,h:1920,duration:DN};
+const $=id=>document.getElementById(id);
+
+// ——— le parcours de la voix ———
+const P={mic:[600,560], w:[[1215,852],[1425,852],[1630,852],[1840,852]],
+  l:[[1860,1192],[1410,1412],[960,1632],[510,1852]], s0:[480,2250], s1:[1680,2250], btn:[1730,2492],
+  sig0:[1040,3290], sig1:[1380,3290], ok:[1210,3392], toast:[610,3672]};
+const S=[]; // segments {a,b,type,p0,p1}
+function hop(a,b,p0,p1){S.push({a,b,type:'hop',p0,p1});}
+function hold(a,b,p){S.push({a,b,type:'hold',p0:p,p1:p});}
+function roll(a,b,p0,p1){S.push({a,b,type:'roll',p0,p1});}
+hold(0,1.6,P.mic);
+hop(1.6,2.0,P.mic,P.w[0]); hop(2.0,2.35,P.w[0],P.w[1]); hop(2.35,2.7,P.w[1],P.w[2]); hop(2.7,3.05,P.w[2],P.w[3]);
+hop(3.05,3.55,P.w[3],P.l[0]); hop(3.55,4.0,P.l[0],P.l[1]); hop(4.0,4.45,P.l[1],P.l[2]); hop(4.45,4.9,P.l[2],P.l[3]);
+hop(4.9,5.4,P.l[3],P.s0); roll(5.4,6.8,P.s0,P.s1); hop(6.8,7.25,P.s1,P.btn); hold(7.25,7.45,P.btn);
+hop(7.45,8.05,P.btn,P.sig0); roll(8.05,8.65,P.sig0,P.sig1); hop(8.65,8.95,P.sig1,P.ok); hold(8.95,9.1,P.ok);
+hop(9.1,9.55,P.ok,P.toast); hold(9.55,10.15,P.toast);
+const CONTACTS=[0,2.0,2.35,2.7,3.05,3.55,4.0,4.45,4.9,5.4,7.25,8.05,8.95,9.55,D];
+
+// le lancement : vraie parabole (même gravité), jouée au ralenti, la plus lente au sommet
+const L0=10.15, L1=D, APEX=-420;
+const lx0=P.toast[0], ly0=P.toast[1], lx1=P.mic[0], ly1=P.mic[1];
+const vUp=Math.sqrt(2*G*(ly0-APEX)), tUp=vUp/G, tDown=Math.sqrt(2*(ly1-APEX)/G), TF=tUp+tDown;
+const WARP=(()=>{const n=2000,acc=[0];let s=0;for(let i=1;i<=n;i++){const u=(i-.5)/n;s+=1-0.9*Math.pow(Math.sin(Math.PI*u),0.6);acc.push(s);}return acc.map(v=>v/s);})();
+function warp(u){const f=clamp(u)*2000,i=Math.floor(f);return i>=2000?1:lerp(WARP[i],WARP[i+1],f-i);}
+function launchPos(t){const u=seg(t,L0,L1),tau=warp(u)*TF;return [lerp(lx0,lx1,tau/TF), ly0-vUp*tau+0.5*G*tau*tau];}
+
+function heroAt(t){
+  if(t>=L0) return launchPos(t);
+  for(const s of S){ if(t<=s.b){ const u=seg(t,s.a,s.b);
+    if(s.type==='hold') return s.p0.slice();
+    if(s.type==='roll') return [lerp(s.p0[0],s.p1[0],ease(u)), lerp(s.p0[1],s.p1[1],ease(u))];
+    const T=s.b-s.a, tt=t-s.a, vy=(s.p1[1]-s.p0[1]-0.5*G*T*T)/T;
+    return [lerp(s.p0[0],s.p1[0],u), s.p0[1]+vy*tt+0.5*G*tt*tt]; } }
+  return P.mic.slice();
+}
+function heroVel(t){const a=heroAt(Math.max(0,t-1/240)),b=heroAt(Math.min(D,t+1/240));return [(b[0]-a[0])*120,(b[1]-a[1])*120];}
+
+// ——— la caméra : suit la voix, cadre chaque étape, recule pour montrer tout, replonge ———
+const ANC=kf([[0,600],[1.6,600],[1.95,1560],[3.05,1560],[3.5,1700],[4.9,720],[5.3,1090],[6.8,1090],[7.15,1700],[7.6,1700],[8.0,1210],[9.1,1210],[9.45,620],[10.15,620]]);
+const ANCY=kf([[0,540],[1.6,540],[1.95,890],[3.05,890],[3.5,1300],[4.9,1880],[5.3,2230],[6.8,2230],[7.15,2580],[7.6,2580],[8.0,3170],[9.1,3170],[9.45,3770],[10.15,3770]]);
+const POIDS=kf([[0,.9],[1.6,.9],[1.7,.3],[2.0,.88],[3.05,.88],[3.2,.3],[3.55,.55],[4.9,.55],[5.0,.3],[5.4,.9],[6.8,.9],[6.9,.35],[7.25,.9],[7.45,.85],[7.6,.35],[8.05,.9],[9.1,.9],[9.2,.35],[9.55,.95],[10.15,.95]]);
+const ZOOM=kf([[0,1.45],[1.6,1.45],[2.0,0.95],[3.05,0.95],[3.55,1.05],[4.9,1.05],[5.4,0.69],[6.8,0.69],[7.25,1.2],[7.5,1.2],[8.05,1.15],[9.1,1.15],[9.55,1.4],[10.15,1.4]]);
+const VUE_TOUT={x:1200,y:2150,z:0.405};
+const RECUL=kf([[L0,0],[11.0,1,easeOut]]);
+const PLONGE=kf([[14.4,0],[D,1]]);
+const BAKE=(()=>{const dt=1/240,n=Math.ceil(D/dt)+2,out=[];let x=600,y=540,vx=0,vy=0;const w=11;
+  for(let i=0;i<n;i++){const t=Math.min(D,i*dt);const h=heroAt(t),v=heroVel(t),k=POIDS(t);
+    const tx=lerp(h[0]+v[0]*.15,ANC(t),k), ty=lerp(h[1]+v[1]*.15,ANCY(t),k);
+    const ax=w*w*(tx-x)-2*w*vx, ay=w*w*(ty-y)-2*w*vy; vx+=ax*dt; vy+=ay*dt; x+=vx*dt; y+=vy*dt; out.push([x,y]);}
+  return out;})();
+function suivi(t){const f=t*240,i=Math.floor(f),a=BAKE[Math.min(i,BAKE.length-1)],b=BAKE[Math.min(i+1,BAKE.length-1)];return [lerp(a[0],b[0],f-i),lerp(a[1],b[1],f-i)];}
+function camera(t){
+  const debut={x:600,y:540,z:1.45};
+  let c;
+  if(t<L0){const s=suivi(t);c={x:s[0],y:s[1],z:ZOOM(t)};
+    if(t<0.8){const k=ease(t/0.8);c={x:lerp(debut.x,c.x,k),y:lerp(debut.y,c.y,k),z:lerp(debut.z,c.z,k)};}}
+  else{const s=suivi(L0),z0=ZOOM(L0),r=RECUL(t),d=PLONGE(t);
+    c={x:lerp(s[0],VUE_TOUT.x,r),y:lerp(s[1],VUE_TOUT.y,r),z:lerp(z0,VUE_TOUT.z,r)};
+    c={x:lerp(c.x,debut.x,d),y:lerp(c.y,debut.y,d),z:Math.exp(lerp(Math.log(c.z),Math.log(debut.z),d))};}
+  return c;
+}
+
+// ——— état des étapes (fonction pure du temps) ———
+const RES=(a)=>t=>1-seg(t,a,a+0.35);      // remise à zéro pendant le recul
+const vis=(t,a,rst)=>t<L0?(t>=a?1:0):(rst(t));
+const pop=(t,a)=>t<a?0:spring(t-a,16,.62);
+const onde=$('s1onde');
+const crans=$('s4crans');(()=>{let h='';for(let i=0;i<=24;i++)h+=`<div style="position:absolute;left:${480+i*50-1}px;top:${i%4?2268:2264}px;width:2px;height:${i%4?10:16}px;background:#34433C"></div>`;crans.innerHTML=h;})();
+const fmt=v=>v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,' ')+' €';
+const sigPts=(()=>{const r=rng(7),pts=[];for(let i=0;i<=60;i++){const u=i/60;pts.push([20+u*340,90+Math.sin(u*19)*26*Math.sin(u*Math.PI)+(r()-.5)*6-u*20]);}return pts;})();
+const haloCv=$('halo');(()=>{const g=haloCv.getContext('2d'),gr=g.createRadialGradient(200,200,0,200,200,200);gr.addColorStop(0,'rgba(255,170,100,.55)');gr.addColorStop(.35,'rgba(232,101,15,.22)');gr.addColorStop(1,'rgba(232,101,15,0)');g.fillStyle=gr;g.fillRect(0,0,400,400);})();
+
+function seek(T){
+  const t=tAncien(((T%DN)+DN)%DN);
+  // caméra
+  const c=camera(t), tilt=18*Math.max(0,RECUL(t)-PLONGE(t)*1.2);
+  $('world').style.transform=`translate(${540-c.x*c.z}px,${960-c.y*c.z}px) scale(${c.z})`;
+  $('tilt').style.transform=`rotateX(${tilt}deg)`;
+  // héros : écrasement au contact, étirement en vol
+  const h=heroAt(t), v=heroVel(t); let sx=1,sy=1;
+  let dc=99;for(const k of CONTACTS){const d=t-k;if(d>=0&&d<dc)dc=d;} if(t<0.12)dc=Math.min(dc,t); if(t>D-0.12)dc=0;
+  const sq=Math.exp(-dc/0.045)*(dc<0.25?1:0);
+  const sp=Math.hypot(v[0],v[1]);
+  if(sq>0.05){sx=1+0.25*sq;sy=1-0.2*sq;}else if(sp>300){const st=Math.min(0.15,sp/16000);sx=1+st;sy=1-st*.7;}
+  const ang=sq>0.05?0:Math.atan2(v[1],v[0])*180/Math.PI;
+  const big=t>=L0?lerp(1,2.6,RECUL(t))*(1-PLONGE(t))+PLONGE(t)*1:1;
+  const enMicro=t<1.6||t>D-0.05;
+  $('hero').style.transform=`translate(${h[0]}px,${h[1]+(sq>0.05?R*0.2*sq:0)}px) rotate(${ang}deg) scale(${sx*big},${sy*big}) rotate(${-ang}deg)`;
+  $('hero').style.background=enMicro&&t>0.55&&t<1.6?'radial-gradient(circle at 36% 32%, #FFFFFF 0%, #FFE2C4 40%, #FFB27A 100%)':'';
+  $('halo').style.transform=`translate(${h[0]}px,${h[1]}px) scale(${t>=L0?lerp(.6,1.6,RECUL(t))*(1-PLONGE(t)*.7):0.6})`;
+  $('halo').style.opacity=t>=L0?1:0.55;
+
+  // 1. micro
+  const micOn=t>=0.55&&t<L0?1:0;
+  $('s1rempli').style.opacity=micOn?1:0; $('s1anneau').style.opacity=micOn?0:1;
+  $('s1rempli').style.transform=`scale(${micOn?0.9+0.1*spring(t-0.55,18,.5)+0.03*Math.sin(t*20):1})`;
+  $('s1micro').style.opacity=(t>=0.55&&t<1.6)?1:0;
+  $('s1etat').textContent=micOn?(t<1.6?'Le micro s’ouvre…':'Vous parlez, il écrit.'):'Touchez le micro et parlez.';
+  $('s1etat').style.color=micOn?'#FFB27A':'';
+  let bars='';if(micOn&&t<3.2){const a=clamp((t-0.6)*3)*(1-seg(t,2.6,3.2));for(let i=0;i<22;i++){const x=i<11?20+i*16:420+(i-11)*16;const hh=8+a*70*Math.abs(Math.sin(t*9+i*1.7)*Math.sin(t*4.3+i*.6));bars+=`<rect x="${x}" y="${90-hh/2}" width="8" height="${hh}" rx="4" fill="#E8650F" opacity="${.5+.5*a}"/>`;}}
+  onde.innerHTML=bars;
+  // le doigt qui touche le micro, puis s'en va
+  const dIn=seg(t,0.05,0.5), dOut=seg(t,0.7,1.2);
+  $('doigt').style.opacity=t<1.2?(1-dOut):0;
+  $('doigt').style.transform=`translate(${lerp(820,555,ease(dIn))+lerp(0,260,ease(dOut))}px,${lerp(820,515,ease(dIn))+lerp(0,300,ease(dOut))}px) scale(${t>0.5&&t<0.65?0.85:1})`;
+
+  // 2. mots
+  const tw=[2.0,2.35,2.7,3.05];
+  for(let i=0;i<4;i++){const e=$('w'+i),k=t<L0?pop(t,tw[i]):RES(12.0+i*.12)(t);e.style.opacity=clamp(k*1.5);e.style.transform=`translateY(${(1-clamp(k))*20}px) scale(${0.6+0.4*k})`;
+    const hit=t>=tw[i]&&t<tw[i]+0.12;e.style.background=hit?'#3A2A1E':'';e.style.marginTop=hit?'6px':'0';}
+  // 3. lignes
+  const tl=[3.55,4.0,4.45,4.9];
+  for(let i=0;i<4;i++){const e=$('l'+i),k=t<L0?pop(t,tl[i]-0.12):RES(12.3+i*.12)(t);e.style.opacity=clamp(k*1.4);e.style.transform=`scale(${0.7+0.3*k}) translateY(${(t>=tl[i]&&t<tl[i]+.1)?8:0}px)`;
+    e.style.borderColor=(t>=tl[i]&&t<tl[i]+.35)?'#E8650F':'';}
+  $('s3lbl').style.opacity=t<L0?clamp((t-3.3)*4):RES(12.8)(t);
+  // 4. total
+  let u=t<L0?seg(heroAt(t)[0],P.s0[0],P.s1[0]):0; if(t<5.4)u=0; if(t>=6.8&&t<L0)u=1;
+  if(t>=L0){u=1-seg(t,12.9,13.6);}
+  const tot=872.30*ease(u);
+  $('s4total').textContent=fmt(tot); $('s4total').style.color=u>=1?'#FFB27A':'';
+  $('s4rempli').style.width=(1200*u)+'px';
+  $('s4ht').style.opacity=u>=1?1:0;
+  // 5. valider
+  const pr=t>=7.25&&t<7.45, valide=t>=7.3&&(t<L0||t<13.4);
+  $('s5').style.transform=`translateY(${pr?10:0}px)`; $('s5').textContent=valide?'D-2026-0042 · validé':'Valider et numéroter';
+  $('s5').style.boxShadow=pr?'0 0 70px rgba(255,150,80,.7)':'';
+  // 6. signature
+  let sg=t<L0?seg(t,8.05,8.65):1-seg(t,13.2,13.6); if(t<8.05)sg=0;
+  const n=Math.floor(sg*60);let d='';for(let i=0;i<=n;i++){const p=sigPts[i];d+=(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1);}
+  $('s6path').setAttribute('d',n>0?d:'');
+  const ok=(t>=8.95&&t<L0)||(t>=L0&&t<13.5);
+  $('s6ok').style.background=ok?'#1E7A4C':''; $('s6ok').style.color=ok?'#fff':''; $('s6ok').textContent=ok?'✓ Devis accepté':'Accepter le devis';
+  $('s6ok').style.transform=`translateY(${t>=8.95&&t<9.1?8:0}px)`;
+  // 7. toast
+  const kt=t<L0?pop(t,9.55-0.08):RES(13.7)(t);
+  $('s7').style.opacity=clamp(kt*1.4); $('s7').style.transform=`scale(${0.75+0.25*kt}) translateY(${(t>=9.55&&t<9.65)?8:0}px)`;
+  $('s7lbl').style.opacity=t<L0?clamp((t-9.7)*4):RES(13.7)(t);
+  $('marque').style.opacity=t<L0?0.0:clamp((t-10.6)*2)*(1-seg(t,14.6,15.1));
+}
+window.seek=seek;
+
+// ——— aperçu ———
+const render=location.search.includes('render');
+if(render){$('ui').style.display='none';}
+else{const fit=()=>{const k=Math.min(innerWidth/1080,(innerHeight-40)/1920);$('stage').style.transform=`scale(${k})`;};addEventListener('resize',fit);fit();
+  let t0=performance.now(),run=false,off=0;$('lecture').onclick=()=>{run=!run;t0=performance.now()-off*1000;};
+  $('curseur').oninput=e=>{off=e.target.value/1000*DN;t0=performance.now()-off*1000;};
+  (function loop(){if(run)off=((performance.now()-t0)/1000)%DN;$('temps').textContent=off.toFixed(2);$('curseur').value=off/DN*1000;seek(off);requestAnimationFrame(loop);})();}
+seek(0);
+</script>
+</body>
+</html>
