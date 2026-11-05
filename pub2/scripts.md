@@ -41,7 +41,7 @@ avec l'exemple du métier, le client et le total de la notification, l'accroche 
 | plombier | « Une fuite. » | Mme Fontaine · 872,30 € |
 | electricien | « Un tableau à refaire. » | M. Lebrun · 905,30 € |
 | chauffagiste | « Des radiateurs tout froids. » | Mme Garnier · 886,60 € |
-| carreleur | « Une salle de bain à carreler. » | M. Petit · 1 734,70 € |
+| carreleur | « Une salle de bain à refaire. » | M. Petit · 1 734,70 € |
 | peintre | « Un séjour à repeindre. » | Mme Laurent · 1 958,00 € |
 | menuisier | « Une porte d'entrée à changer. » | M. Fabre · 2 073,50 € |
 | macon | « Un mur à ouvrir. » | M. Robin · 2 402,40 € |
