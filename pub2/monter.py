@@ -120,7 +120,7 @@ class Lecteur:
 def plan_incruste(p):
     """Pré-rend le plan avec l'écran incrusté (mis en cache selon ses réglages)."""
     cle = hashlib.md5(json.dumps({**{k: p.get(k) for k in ("src", "debut", "duree", "ecran_debut", "ecran_vitesse", "plein", "reflet")},
-                                  "ecran": p.get("ecran", ECRAN)}, sort_keys=True).encode()).hexdigest()[:10]
+                                  "ecran": p.get("ecran", ECRAN), "v": 2}, sort_keys=True).encode()).hexdigest()[:10]
     sortie = os.path.join(TMP, f"incr_{p['src']}_{cle}.mp4")
     if not os.path.exists(sortie):
         cmd = [sys.executable, os.path.join(ICI, "incruster.py"), os.path.join(CLIPS, p["src"] + ".mp4"), p.get("ecran", ECRAN), sortie,
