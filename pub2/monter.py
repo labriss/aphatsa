@@ -260,13 +260,13 @@ def mixer(pub, duree, sortie):
     graphe = ";".join(filtres)
     brut = sortie + ".brut.wav"
     sh("ffmpeg", "-v", "error", "-y", *entrees, "-filter_complex", graphe, "-map", "[pre]", "-ar", "48000", brut)
-    # Normalisation en deux passes : -16 LUFS, crêtes sous -4,5 dBTP (mesurées).
+    # Normalisation en deux passes : -16 LUFS, crêtes sous -4,5 dBTP (limiteur à 0,5 : l'AAC remonte les crêtes d'environ 1 dB).
     r = subprocess.run(["ffmpeg", "-hide_banner", "-i", brut, "-af", "loudnorm=I=-16:TP=-4.5:LRA=11:print_format=json", "-f", "null", "-"],
                        capture_output=True, text=True)
     m = json.loads(r.stderr[r.stderr.rindex("{"):r.stderr.rindex("}") + 1])
     sh("ffmpeg", "-v", "error", "-y", "-i", brut, "-af",
        f"loudnorm=I=-16:TP=-4.5:LRA=11:measured_I={m['input_i']}:measured_TP={m['input_tp']}:measured_LRA={m['input_lra']}:"
-       f"measured_thresh={m['input_thresh']}:offset={m['target_offset']}:linear=true,alimiter=limit=0.59:level=false", "-ar", "48000", sortie)
+       f"measured_thresh={m['input_thresh']}:offset={m['target_offset']}:linear=true,alimiter=limit=0.5:level=false:attack=2:release=60", "-ar", "48000", sortie)
     os.remove(brut)
 
 
@@ -318,7 +318,7 @@ def main():
     sortie = os.path.join(OUT, f"{a.nom}{'_brouillon' if a.brouillon else ''}.mp4")
     ff = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{fw}x{fh}", "-r", str(IPS), "-i", "-",
                            "-i", son, "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-preset", "slow" if not a.brouillon else "veryfast",
-                           "-crf", "17" if not a.brouillon else "24", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
+                           "-crf", "19" if not a.brouillon else "24", "-maxrate", "14M", "-bufsize", "28M", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
                            "-movflags", "+faststart", "-shortest", sortie], stdin=subprocess.PIPE)
     noms = images_ecran()
     vig = vignette(W, H, pub.get("vignette", 0.32))
