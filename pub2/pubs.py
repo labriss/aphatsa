@@ -132,7 +132,7 @@ def pub_b():
         dict(type="clip", src="9353913", debut=1.0, duree=round(drop - 7.0, 3), cx=0.45, cy=0.5, z0=1.0, z1=1.1),
         dict(type="incrust", src="32084122", debut=0.5, duree=3.59, ecran_debut=0.9, cx=0.62, cy=0.42, cx1=0.6, cy1=0.36, z0=1.0, z1=1.45),
         dict(type="ecran", duree=4.4, ecran_debut=6.6, z0=0.94, z1=1.0, punch=0.08),
-        dict(type="incrust", src="32084122", debut=5.5, duree=3.3, ecran_debut=11.0, cx=0.62, cy=0.4, z0=1.15, z1=1.3),
+        dict(type="incrust", src="32084122", debut=5.5, duree=3.3, ecran_debut=11.0, cx=0.40, cy=0.4, z0=1.15, z1=1.3),
         dict(type="clip", src="7584762", debut=6.0, duree=round(fin - 21.6, 3), cx=0.5, cy=0.5, z0=1.0, z1=1.08),
         dict(type="noir", duree=round(30.0 - fin, 3)),
     ]
@@ -237,7 +237,7 @@ def pub_d(vertical=False):
     st("d4", "Et le devis se remplit tout seul.", t[3] + 0.1, t[4] - 0.05, accents=("seul",), **haut)
     vo.append((os.path.join(VOIX, "D", "d3.wav"), t[2] + 0.12))
     vo.append((os.path.join(VOIX, "D", "d5.wav"), t[4] + 0.2))
-    cx, cy = (700, 1500) if vertical else (835, 900)
+    cx, cy = (700, 1500) if vertical else (790, 900)
     titres += [
         {"type": "chrono", "t0": 0.5, "t1": t[3] - 0.05, "x": cx, "y": cy, "depart": t[1], "arret": t[2]},
         {"type": "tampon", "t0": t[2] + 0.05, "t1": t[3] - 0.05, "y": 820 if vertical else 430, "texte": "Pari tenu ✓"},

@@ -31,6 +31,11 @@ Recettes : démo au téléphone tenu en main, le « satisfaisant », appel à l'
 | 14,0–18,0 | Plomberie ; notification « Mme Fontaine a accepté le devis », ding | « Ton client accepte en ligne. » |
 | 18,0–23,0 | Carte de fin : logo, « Le devis dicté, envoyé du chantier », offre, bouton, dikteo.vercel.app | « Diktéo. Gratuit pour tes trois devis du mois. Sans carte bancaire. » |
 
+### A_electricien — la même pub pour les électriciens
+Accroche « Un tableau à refaire. » sur un vieux tableau électrique, écran capturé avec le métier électricien
+(M. Lebrun, Caluire, 905,30 €), plan final : électricien au mur. Autres métiers : ajouter une entrée dans `METIERS`
+(pubs.py), capturer l'écran avec `node capture-ecran.mjs pub2/ecran/<métier> 0:12.5:30 sombre <métier>`.
+
 ## B. YouTube in-stream — 16:9, 30 s — « Le soir / le chantier »
 Recettes : sans / avec, liste numérotée.
 
@@ -56,6 +61,5 @@ pendant que le chrono tourne → 5,0 s, tampon « Pari tenu ✓ » → « Et le 
 « Gratuit pour commencer ».
 
 ## Pour aller plus loin (non fait)
-- Une version par métier (électricien, chauffagiste…) : capturer le film de la page d'accueil avec un autre métier
-  choisi, et des plans Pexels du métier (`34572318` électricien est déjà téléchargé).
+- Les autres métiers (chauffagiste, carreleur, peintre…) sur le modèle de A_electricien.
 - Une vraie voix humaine (fondateur face caméra, recette n° 2) : la plus forte selon l'étude, mais demande un tournage.
