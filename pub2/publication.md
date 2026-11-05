@@ -1,6 +1,6 @@
 # Publier les pubs Diktéo (v2)
 
-Vidéos : `video/out/pub2/` (versions finales sans « _brouillon »). Rien n'a été publié : c'est à vous de le faire.
+Vidéos : `video/out/pub2/livraison/<métier>/` (plombier : `livraison/plombier/`). Rien n'a été publié : c'est à vous de le faire.
 Adresse : https://dikteo.vercel.app — à remplacer partout si vous achetez dikteo.fr.
 
 Mention à garder dans les descriptions (licence de la voix, CC-BY 4.0) :
@@ -54,6 +54,25 @@ Descriptions (90 caractères maximum) :
 Texte Meta :
 > Défi : un devis de plombier dicté en 5 secondes. ⏱️ Pari tenu. Diktéo remplit le devis tout seul, ton client
 > l'accepte en ligne. Gratuit pour commencer 👉 dikteo.vercel.app
+
+
+## Déclinaisons par métier
+
+Dossiers : `video/out/pub2/livraison/<métier>/` (les 6 formats : A, B, C, C_vertical, D, D_vertical).
+Même légende et mêmes conseils que ci-dessus ; changer seulement ce qui suit. Ciblage conseillé : le métier en mot-clé
+(« devis <métier> », « logiciel devis <métier> », « facture <métier> ») et en centre d'intérêt.
+
+| Dossier | Hashtags TikTok / Reels | Titre Google Ads (≤ 30) | Texte Meta (pub D) |
+|---|---|---|---|
+| electricien | #artisan #devis #btp #electricien #électricité #tableauélectrique | « Devis électricien à la voix » (27) | Défi : un devis d'électricien dicté en 5 secondes. ⏱️ Pari tenu. Gratuit pour commencer 👉 dikteo.vercel.app |
+| chauffagiste | #artisan #devis #btp #chauffagiste #chauffage #chaudière | « Devis chauffagiste à la voix » (28) | Défi : un devis de chauffagiste dicté en 5 secondes. ⏱️ Pari tenu. Gratuit pour commencer 👉 dikteo.vercel.app |
+| carreleur | #artisan #devis #btp #carreleur #carrelage #salledebain | « Devis carreleur à la voix » (25) | Défi : un devis de carreleur dicté en 5 secondes. ⏱️ Pari tenu. Gratuit pour commencer 👉 dikteo.vercel.app |
+| peintre | #artisan #devis #btp #peintre #peinturebatiment #renovation | « Devis peintre à la voix » (23) | Défi : un devis de peintre dicté en 5 secondes. ⏱️ Pari tenu. Gratuit pour commencer 👉 dikteo.vercel.app |
+| menuisier | #artisan #devis #btp #menuisier #menuiserie #portedentrée | « Devis menuisier à la voix » (25) | Défi : un devis de menuisier dicté en 5 secondes. ⏱️ Pari tenu. Gratuit pour commencer 👉 dikteo.vercel.app |
+| macon | #artisan #devis #btp #maçon #maconnerie #grosoeuvre | « Devis maçon à la voix » (21) | Défi : un devis de maçon dicté en 5 secondes. ⏱️ Pari tenu. Gratuit pour commencer 👉 dikteo.vercel.app |
+| couvreur | #artisan #devis #btp #couvreur #toiture #zinguerie | « Devis couvreur à la voix » (24) | Défi : un devis de couvreur dicté en 5 secondes. ⏱️ Pari tenu. Gratuit pour commencer 👉 dikteo.vercel.app |
+| serrurier | #artisan #devis #btp #serrurier #serrurerie #depannage | « Devis serrurier à la voix » (25) | Défi : un devis de serrurier dicté en 5 secondes. ⏱️ Pari tenu. Gratuit pour commencer 👉 dikteo.vercel.app |
+| multiservice | #artisan #devis #btp #multiservice #petitstravaux #bricolage | « Devis artisan à la voix » (23) | Défi : un devis de petits travaux dicté en 5 secondes. ⏱️ Pari tenu. Gratuit pour commencer 👉 dikteo.vercel.app |
 
 ## Avant de payer de la pub
 - Tester d'abord en organique (TikTok, Reels, Shorts) : la pub qui garde les gens au-delà de 3 secondes est celle à payer.
