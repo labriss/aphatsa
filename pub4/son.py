@@ -13,8 +13,9 @@ SKILL = os.path.expanduser("~/.claude/skills/sound-effects/sfx")
 VIDEO, SORTIE = sys.argv[1], sys.argv[2]
 SR = 48000
 B = 60 / 123
-D = 34 * B
-DEBUT_MUSIQUE = 30.581  # un temps du morceau (grille vérifiée sur les grosses caisses, écart médian 4 ms)
+INTRO = 4  # temps d'accroche avant l'histoire
+D = 44 * B
+DEBUT_MUSIQUE = 30.581 - INTRO * B  # un temps du morceau (grille vérifiée sur les grosses caisses, écart médian 4 ms)
 
 MAN = json.load(open(os.path.join(SKILL, "manifest.json"), encoding="utf-8"))
 INFO = {e["file"]: e for e in MAN["bundled"] + MAN["default_kit"] if e.get("file")}
@@ -30,9 +31,9 @@ N = int(D * SR) + 1
 musique, bruits, journal = np.zeros((N, 2), np.float32), np.zeros((N, 2), np.float32), []
 
 
-def sfx(f, beat, db=-6.0, desc="", avance=0.0):
-    t = beat * B - avance
+def sfx(f, beat, db=-6.0, desc="", avance=0.0, finit=False):
     s = lire(os.path.join(SKILL, f))
+    t = beat * B - avance - (len(s) / SR if finit else 0)
     s = s / max(1e-6, np.abs(s).max()) * 10 ** (db / 20)
     a = max(0, int(t * SR))
     s = s[: N - a]
@@ -50,25 +51,27 @@ musique[: len(m)] = m
 
 deux = 2 / 60  # les « whoosh » partent 2 images en avance
 sfx("kit/impact.ogg", 0, -9, "la voix se pose dans le micro (raccord de boucle)")
-sfx("kit/click.ogg", 1, -4, "le doigt touche le micro")
-sfx("whoosh/fs-683101-quick-woosh.ogg", 3, -16, "la voix saute", deux)
+H = INTRO
+sfx("kit/click.ogg", H + 1, -4, "le doigt touche le micro")
+sfx("whoosh/fs-683101-quick-woosh.ogg", H + 3, -16, "la voix saute", deux)
 for i, f in enumerate(("pop/fs-447910-plop.ogg", "kit/pop.ogg", "pop/fs-824189-pop-in-sfx.ogg", "pop/kenney-interface-drop-001.ogg")):
-    sfx(f, 4 + i, -9, f"mot {i + 1} dicté")
+    sfx(f, H + 4 + i, -9, f"mot {i + 1} dicté")
 for i in range(4):
-    sfx(f"ui-blip/kenney-ui-rollover{i + 1}.ogg", 8 + i, -10, f"ligne {i + 1} du devis")
+    sfx(f"ui-blip/kenney-ui-rollover{i + 1}.ogg", H + 8 + i, -10, f"ligne {i + 1} du devis")
 for j in range(14):  # le total qui monte : tics de plus en plus rapprochés
     u = (j / 13) ** 0.7
-    sfx("kit/tick.ogg", 12 + 3 * u, -17 + 6 * u, "le total monte")
-sfx("kit/click.ogg", 16, -4, "Valider et numéroter")
-sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 16, -10, "le bouton s'enfonce")
-sfx("whoosh/fs-264777-swoosh.ogg", 16.5, -14, "vers le téléphone du client", deux)
+    sfx("kit/tick.ogg", H + 12 + 3 * u, -17 + 6 * u, "le total monte")
+sfx("kit/click.ogg", H + 16, -4, "Valider et numéroter")
+sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", H + 16, -10, "le bouton s'enfonce")
+sfx("whoosh/fs-264777-swoosh.ogg", H + 16.5, -14, "vers le téléphone du client", deux)
 for j in range(4):
-    sfx("tick/fs721514.ogg", 18 + j * 0.25, -18, "la signature")
-sfx("ding/kenney-interface-confirmation-002.ogg", 20, -6, "devis accepté")
-sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 21, -8, "facture prête")
-sfx("transition/fs-683096-woosh.ogg", 22, -5, "la voix s'envole, la caméra recule", deux)
-sfx("riser/fs-464250-echo-chromatic-riser-wav.ogg", 26, -16, "on voit tout le parcours")
-sfx("whoosh/fs-830856.ogg" if os.path.exists(os.path.join(SKILL, "whoosh/fs830856.ogg")) is False else "whoosh/fs830856.ogg", 30, -9,
+    sfx("tick/fs721514.ogg", H + 18 + j * 0.25, -18, "la signature")
+sfx("ding/kenney-interface-confirmation-002.ogg", H + 20, -6, "devis accepté")
+sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", H + 21, -8, "facture prête")
+sfx("transition/fs-683096-woosh.ogg", H + 22, -5, "la voix s'envole, la caméra recule", deux)
+sfx("riser/fs-464250-echo-chromatic-riser-wav.ogg", 28.6, -16, "monte jusqu'au carton de fin", finit=True)
+sfx("kit/pop.ogg", 28.6, -8, "le carton Diktéo apparaît")
+sfx("whoosh/fs-830856.ogg" if os.path.exists(os.path.join(SKILL, "whoosh/fs830856.ogg")) is False else "whoosh/fs830856.ogg", 40, -9,
     "la caméra replonge", deux)
 
 mix = musique * 10 ** (-9 / 20) + bruits
