@@ -177,10 +177,11 @@ const rng=s=>()=>(s=(s+0x6D2B79F5)|0,s=Math.imul(s^(s>>>15),1|s),s^=s+Math.imul(
 
 const D=16, G=6000, R=28;
 // calage sur la musique (123 BPM) : chaque contact tombe sur un temps ; la boucle fait 34 temps
-const BEAT=60/123, NB=44, DN=NB*BEAT, INTRO=4*BEAT;
-const CALAGE=[[0,0],[0,4],[0.55,5],[1.6,7],[2.0,8],[2.35,9],[2.7,10],[3.05,11],[3.55,12],[4.0,13],[4.45,14],[4.9,15],[5.4,16],[6.8,19],[7.25,20],
-  [8.05,22],[8.65,23],[8.95,24],[9.55,25],[10.15,26],[11.0,28],[14.4,40],[16,44]].map(([a,b])=>[a,b*BEAT]);
-function tAncien(tn){for(let i=1;i<CALAGE.length;i++){const[a0,b0]=CALAGE[i-1],[a1,b1]=CALAGE[i];if(tn<=b1)return lerp(a0,a1,(tn-b0)/(b1-b0));}return D;}
+const BEAT=60/123, NB=52, DN=NB*BEAT, INTRO=4*BEAT;
+// [temps d'origine, temps de musique, ralenti] : « ralenti » = le saut se fige presque au sommet, le temps de lire l'étape
+const CALAGE=[[0,0],[0,4],[0.55,5],[1.6,7],[2.0,8],[2.35,9],[2.7,10],[3.05,11],[3.55,14,1],[4.0,15],[4.45,16],[4.9,17],[5.4,20,1],[6.8,23],[7.25,26,1],
+  [8.05,28],[8.65,29],[8.95,30],[9.1,32],[9.55,33],[10.15,36],[11.0,38],[14.4,48],[16,52]].map(([a,b])=>[a,b*BEAT]);
+function tAncien(tn){for(let i=1;i<CALAGE.length;i++){const[a0,b0]=CALAGE[i-1],[a1,b1,lent]=CALAGE[i];if(tn<=b1){let u=(tn-b0)/(b1-b0);if(lent)u+=0.92*Math.sin(2*Math.PI*u)/(2*Math.PI);return lerp(a0,a1,u);}}return D;}
 window.VIDEO={w:1080,h:1920,duration:DN};
 const $=id=>document.getElementById(id);
 
@@ -220,25 +221,26 @@ function heroAt(t){
 function heroVel(t){const a=heroAt(Math.max(0,t-1/240)),b=heroAt(Math.min(D,t+1/240));return [(b[0]-a[0])*120,(b[1]-a[1])*120];}
 
 // ——— la caméra : suit la voix, cadre chaque étape, recule pour montrer tout, replonge ———
-const ANC=kf([[0,600],[1.6,600],[1.95,1560],[3.05,1560],[3.5,1700],[4.9,720],[5.3,1090],[6.8,1090],[7.15,1700],[7.6,1700],[8.0,1210],[9.1,1210],[9.45,620],[10.15,620]]);
-const ANCY=kf([[0,540],[1.6,540],[1.95,890],[3.05,890],[3.5,1300],[4.9,1880],[5.3,2230],[6.8,2230],[7.15,2580],[7.6,2580],[8.0,3170],[9.1,3170],[9.45,3770],[10.15,3770]]);
-const POIDS=kf([[0,.9],[1.6,.9],[1.7,.3],[2.0,.88],[3.05,.88],[3.2,.3],[3.55,.55],[4.9,.55],[5.0,.3],[5.4,.9],[6.8,.9],[6.9,.35],[7.25,.9],[7.45,.85],[7.6,.35],[8.05,.9],[9.1,.9],[9.2,.35],[9.55,.95],[10.15,.95]]);
-const ZOOM=kf([[0,1.45],[1.6,1.45],[2.0,0.95],[3.05,0.95],[3.55,1.05],[4.9,1.05],[5.4,0.69],[6.8,0.69],[7.25,1.2],[7.5,1.2],[8.05,1.15],[9.1,1.15],[9.55,1.4],[10.15,1.4]]);
+const ANC=kf([[0,600],[1.6,600],[1.95,1560],[3.36,1560],[3.5,1700],[4.9,720],[5.1,1185],[5.22,1185],[5.38,1090],[7.02,1090],[7.18,1700],[7.6,1700],[8.0,1210],[9.1,1210],[9.45,620],[10.15,620]]);
+const ANCY=kf([[0,540],[1.6,540],[1.95,890],[3.36,890],[3.5,1300],[4.9,1880],[5.1,1530],[5.22,1530],[5.38,2230],[7.02,2230],[7.18,2580],[7.6,2580],[8.0,3170],[9.1,3170],[9.45,3770],[10.15,3770]]);
+const POIDS=kf([[0,.9],[1.6,.9],[1.7,.3],[2.0,.88],[3.36,.88],[3.45,.3],[3.55,.55],[4.9,.55],[5.02,.97],[5.24,.97],[5.4,.9],[7.02,.9],[7.1,.35],[7.25,.9],[7.45,.85],[7.6,.35],[8.05,.9],[9.1,.9],[9.2,.35],[9.55,.95],[10.15,.95]]);
+const ZOOM=kf([[0,1.45],[1.6,1.45],[2.0,0.95],[3.36,0.95],[3.55,1.05],[4.9,1.05],[5.1,0.54],[5.24,0.54],[5.4,0.69],[7.02,0.69],[7.25,1.2],[7.5,1.2],[8.05,1.15],[9.1,1.15],[9.55,1.4],[10.15,1.4]]);
 const VUE_TOUT={x:1180,y:2430,z:0.36};
 const RECUL=kf([[L0,0],[11.0,1,easeOut]]);
 const PLONGE=kf([[14.4,0],[D,1]]);
-const BAKE=(()=>{const dt=1/240,n=Math.ceil(D/dt)+2,out=[];let x=600,y=540,vx=0,vy=0;const w=11;
-  for(let i=0;i<n;i++){const t=Math.min(D,i*dt);const h=heroAt(t),v=heroVel(t),k=POIDS(t);
+const TL0=36*BEAT;
+const BAKE=(()=>{const dt=1/240,n=Math.ceil(TL0/dt)+2,out=[];let x=600,y=540,vx=0,vy=0;const w=9;
+  for(let i=0;i<n;i++){const t=tAncien(Math.min(TL0,i*dt));const h=heroAt(t),v=heroVel(t),k=POIDS(t);
     const tx=lerp(h[0]+v[0]*.15,ANC(t),k), ty=lerp(h[1]+v[1]*.15,ANCY(t),k);
     const ax=w*w*(tx-x)-2*w*vx, ay=w*w*(ty-y)-2*w*vy; vx+=ax*dt; vy+=ay*dt; x+=vx*dt; y+=vy*dt; out.push([x,y]);}
   return out;})();
 function suivi(t){const f=t*240,i=Math.floor(f),a=BAKE[Math.min(i,BAKE.length-1)],b=BAKE[Math.min(i+1,BAKE.length-1)];return [lerp(a[0],b[0],f-i),lerp(a[1],b[1],f-i)];}
-function camera(t){
+function camera(t,Tm){
   const debut={x:600,y:540,z:1.45};
   let c;
-  if(t<L0){const s=suivi(t);c={x:s[0],y:s[1],z:ZOOM(t)};
+  if(t<L0){const s=suivi(Tm);c={x:s[0],y:s[1],z:ZOOM(t)};
     if(t<0.8){const k=ease(t/0.8);c={x:lerp(debut.x,c.x,k),y:lerp(debut.y,c.y,k),z:lerp(debut.z,c.z,k)};}}
-  else{const s=suivi(L0),z0=ZOOM(L0),r=RECUL(t),d=PLONGE(t);
+  else{const s=suivi(TL0),z0=ZOOM(L0),r=RECUL(t),d=PLONGE(t);
     c={x:lerp(s[0],VUE_TOUT.x,r),y:lerp(s[1],VUE_TOUT.y,r),z:lerp(z0,VUE_TOUT.z,r)};
     c={x:lerp(c.x,debut.x,d),y:lerp(c.y,debut.y,d),z:Math.exp(lerp(Math.log(c.z),Math.log(debut.z),d))};}
   return c;
@@ -255,23 +257,23 @@ const sigPts=(()=>{const r=rng(7),pts=[];for(let i=0;i<=60;i++){const u=i/60;pts
 const haloCv=$('halo');(()=>{const g=haloCv.getContext('2d'),gr=g.createRadialGradient(200,200,0,200,200,200);gr.addColorStop(0,'rgba(255,170,100,.55)');gr.addColorStop(.35,'rgba(232,101,15,.22)');gr.addColorStop(1,'rgba(232,101,15,0)');g.fillStyle=gr;g.fillRect(0,0,400,400);})();
 
 const CAPS=[[0,4.6,'Encore vos devis<br>à taper <em>le soir</em> ?'],
-  [4.6,11.8,'Dictez-le<br><em>sur le chantier</em>.'],
-  [11.8,15.8,'Diktéo écrit<br><em>chaque ligne</em>.'],
-  [15.8,19.8,'Le total et la TVA,<br><em>au centime</em>.'],
-  [19.8,21.8,'Vous relisez,<br><em>vous validez</em>.'],
-  [21.8,24.8,'Le client signe<br><em>sur son téléphone</em>.'],
-  [24.8,28.4,'La facture<br><em>est déjà prête</em>.'],
-  [28.4,39.6,'Et le soir,<br><em>vous êtes libre</em>.'],
-  [43.1,44.01,'Encore vos devis<br>à taper <em>le soir</em> ?']];
+  [4.6,13.8,'Dictez-le<br><em>sur le chantier</em>.'],
+  [13.8,19.8,'Diktéo écrit<br><em>chaque ligne</em>.'],
+  [19.8,25.8,'Le total et la TVA,<br><em>au centime</em>.'],
+  [25.8,27.8,'Vous relisez,<br><em>vous validez</em>.'],
+  [27.8,32.8,'Le client signe<br><em>sur son téléphone</em>.'],
+  [32.8,36.4,'La facture<br><em>est déjà prête</em>.'],
+  [36.4,47.6,'Et le soir,<br><em>vous êtes libre</em>.'],
+  [51.1,52.01,'Encore vos devis<br>à taper <em>le soir</em> ?']];
 function legende(Tm){
   const b=Tm/BEAT; const c=CAPS.find(x=>b>=x[0]&&b<x[1]);
   if(!c){$('cap').style.opacity=0;return;}
-  const a=c[0]*BEAT,z=c[1]*BEAT, kIn=c[0]===0?1:spring(Tm-a,15,.68), kOut=c[1]>=44?1:1-seg(Tm,z-0.14,z);
+  const a=c[0]*BEAT,z=c[1]*BEAT, kIn=c[0]===0?1:spring(Tm-a,15,.68), kOut=c[1]>=NB?1:1-seg(Tm,z-0.14,z);
   $('cap').innerHTML=c[2]; $('cap').style.opacity=clamp(kIn*1.6)*kOut;
   $('cap').style.transform=`translateY(${(1-kIn)*36-(1-kOut)*20}px) scale(${0.86+0.14*kIn})`;
 }
 function carton(Tm){
-  const a=28.6*BEAT, z=39.4*BEAT, out=1-seg(Tm,z,z+0.3);
+  const a=36.6*BEAT, z=47.4*BEAT, out=1-seg(Tm,z,z+0.3);
   $('finfond').style.opacity=clamp((Tm-a+0.2)*2.5)*out;
   for(let i=0;i<4;i++){const k=Tm<a?0:spring(Tm-a-i*0.09,14,.7);const e=$('f'+i);
     e.style.opacity=clamp(k*1.5)*out; e.style.transform=`translateY(${(1-k)*50}px) scale(${0.9+0.1*k})`;}
@@ -280,7 +282,7 @@ function seek(T){
   const Tm=((T%DN)+DN)%DN, t=tAncien(Tm);
   legende(Tm); carton(Tm);
   // caméra
-  const c=camera(t), tilt=18*Math.max(0,RECUL(t)-PLONGE(t)*1.2);
+  const c=camera(t,Tm), tilt=18*Math.max(0,RECUL(t)-PLONGE(t)*1.2);
   $('world').style.transform=`translate(${540-c.x*c.z}px,${960-c.y*c.z}px) scale(${c.z})`;
   $('tilt').style.transform=`rotateX(${tilt}deg)`;
   // héros : écrasement au contact, étirement en vol
