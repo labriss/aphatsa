@@ -78,11 +78,11 @@ sfx("whoosh/fs-683101-quick-woosh.ogg", 9.3, -13, "la voix part vers le devis", 
 sfx("kit/pop.ogg", 18, -10, "étincelles sur le total")
 sfx("pop/fs-824189-pop-in-sfx.ogg", 29, -9, "confettis")
 sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 33, -9, "le tampon de la facture")
-sfx("transition/fs-683096-woosh.ogg", 34, -5, "la bille s'envole, la caméra recule", deux)
-sfx("kit/pop.ogg", 35.3, -12, "« Ce soir, vous êtes libre. »")
-sfx("riser/fs-464250-echo-chromatic-riser-wav.ogg", 39.5, -16, "monte jusqu'au carton", finit=True)
-sfx("kit/pop.ogg", 39.5, -8, "le carton Diktéo")
-sfx("whoosh/fs-830856.ogg" if not os.path.exists(os.path.join(SKILL, "whoosh/fs830856.ogg")) else "whoosh/fs830856.ogg", 45.4, -9, "la caméra replonge", deux)
+sfx("transition/fs-683096-woosh.ogg", 34, -5, "la bille remonte tout le parcours", deux)
+sfx("kit/pop.ogg", 37, -12, "« Ce soir, vous êtes libre. »")
+sfx("riser/fs-464250-echo-chromatic-riser-wav.ogg", 41.5, -16, "monte jusqu'au carton", finit=True)
+sfx("kit/pop.ogg", 41.5, -8, "le carton Diktéo")
+sfx("whoosh/fs-830856.ogg" if not os.path.exists(os.path.join(SKILL, "whoosh/fs830856.ogg")) else "whoosh/fs830856.ogg", 48.6, -9, "la caméra replonge", deux)
 
 mix = musique * 10 ** (-9 / 20) + bruits
 mix /= max(1e-6, np.abs(mix).max()) / 0.9
