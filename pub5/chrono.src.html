@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Diktéo · le défi chrono</title>
+<style>
+/*FONTS*/
+:root{
+  --nuit:#0B100E; --texte:#EEF2F0; --doux:#8FA39A; --o1:#E8650F; --o2:#C9480A; --o3:#A8350A; --oc:#FF9A4A;
+  /* l'appli, thème clair (src/app/globals.css) */
+  --a-fond:#F2F5F3; --a-txt:#15201B; --a-carte:#FFFFFF; --a-doux:#56645E; --a-bord:#DCE3DF; --a-vert:#1E7A4C;
+}
+html,body{margin:0;background:#050807;overflow:hidden}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;background:var(--nuit);overflow:hidden;transform-origin:0 0}
+#fondc{position:absolute;left:0;top:0}
+#cam{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0}
+#persp{position:absolute;left:0;top:0;width:1080px;height:2020px;perspective:2400px;perspective-origin:540px 1010px}
+#tel{position:absolute;left:206px;top:313px;width:668px;height:1394px;transform-style:preserve-3d;transform-origin:50% 50%}
+#dos{position:absolute;inset:-4px;border-radius:104px;background:linear-gradient(160deg,#4a4f4d,#1b1e1d 40%,#2c302e 70%,#575c5a);transform:translateZ(-16px)}
+#corps{position:absolute;inset:0;border-radius:100px;background:linear-gradient(150deg,#8d9290 0%,#3a3e3c 18%,#252927 50%,#4b504e 82%,#a3a8a6 100%);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.18)}
+#lunette{position:absolute;left:8px;top:8px;right:8px;bottom:8px;border-radius:92px;background:#050505}
+#ecran{position:absolute;left:22px;top:22px;width:390px;height:844px;border-radius:48px;overflow:hidden;transform:scale(1.6);transform-origin:0 0;
+  background:var(--a-fond);color:var(--a-txt);font-family:'PublicSans'}
+#ile{position:absolute;left:50%;top:11px;width:120px;height:34px;margin-left:-60px;border-radius:17px;background:#000;z-index:3}
+#reflet{position:absolute;left:22px;top:22px;width:624px;height:1350px;border-radius:77px;pointer-events:none;
+  background:linear-gradient(115deg,rgba(255,255,255,0) 30%,rgba(255,255,255,.10) 42%,rgba(255,255,255,0) 54%)}
+.bouton{position:absolute;width:8px;border-radius:4px;background:linear-gradient(90deg,#2a2e2c,#777c7a)}
+.f{position:absolute;white-space:nowrap}
+#cap{position:absolute;left:60px;top:760px;width:960px;text-align:center;font-family:'Archivo';font-weight:850;font-size:104px;
+  line-height:1.04;letter-spacing:-3px;color:var(--texte);white-space:nowrap}
+#cap em{font-style:normal;color:var(--oc)}
+#chrono{position:absolute;left:540px;top:0;white-space:nowrap;font-family:'JBMono';font-weight:800;color:var(--oc);transform-origin:50% 50%;
+  display:flex;align-items:center;gap:22px}
+#chrono .pilule{position:absolute;left:-40px;right:-40px;top:-22px;bottom:-22px;border-radius:999px;background:rgba(20,28,25,.82);border:2px solid rgba(255,154,74,.35)}
+#chrono .v{position:relative;font-size:96px;letter-spacing:-2px;line-height:1}
+#chrono .s{position:relative;font-family:'PublicSans';font-weight:700;font-size:52px;margin-left:-8px}
+#chrono svg{position:relative}
+#fin{position:absolute;left:90px;top:640px;width:900px;height:520px}
+/* l'écran de l'appli */
+.st{position:absolute;left:0;top:0;width:100%;height:46px;display:flex;justify-content:space-between;align-items:center;padding:6px 32px 0;box-sizing:border-box;font-size:15px;font-weight:700}
+.titre{position:absolute;left:22px;top:70px;font-family:'Archivo';font-weight:850;font-size:28px;letter-spacing:-.5px}
+.sous{position:absolute;left:22px;top:106px;font-size:16px;color:var(--a-doux)}
+#dictee{position:absolute;left:16px;right:16px;top:140px;height:152px;border-radius:20px;background:var(--a-carte);padding:13px 18px;box-sizing:border-box;
+  font-size:18px;line-height:1.38;overflow:hidden}
+#liste{position:absolute;left:16px;right:16px;top:304px}
+.ligne{position:absolute;left:0;right:0;height:80px;border-radius:16px;background:var(--a-carte);border:1px solid var(--a-bord);box-sizing:border-box;padding:9px 14px}
+.ligne .d{position:absolute;left:14px;top:8px;right:100px;font-size:15px;font-weight:600;line-height:1.15}
+.ligne .m{position:absolute;right:14px;top:10px;font-family:'JBMono';font-weight:800;font-size:16px}
+.ligne .q{position:absolute;left:14px;top:54px;font-family:'JBMono';font-size:13px;color:var(--a-doux)}
+#bas{position:absolute;left:0;right:0;bottom:0;height:180px;background:var(--a-carte)}
+#remplit{position:absolute;left:0;right:0;top:330px;text-align:center;font-size:17px;font-weight:600;color:var(--a-doux)}
+#ui{position:absolute;left:0;bottom:0;width:100%;padding:10px;background:#111;color:#ccc;font:14px sans-serif;display:flex;gap:10px;align-items:center;box-sizing:border-box}
+#ui input{flex:1}
+</style>
+</head>
+<body>
+<div id="stage">
+ <canvas id="fondc" width="1080" height="1920"></canvas>
+ <div id="cam">
+  <div id="persp">
+   <div id="tel">
+    <div id="dos"></div>
+    <div class="bouton" style="left:-6px;top:300px;height:90px"></div>
+    <div class="bouton" style="left:-6px;top:420px;height:150px"></div>
+    <div class="bouton" style="left:-6px;top:590px;height:150px"></div>
+    <div class="bouton" style="right:-6px;top:440px;height:220px"></div>
+    <div id="corps"></div>
+    <div id="lunette"></div>
+    <div id="ecran">
+     <div id="ile"></div>
+     <div class="st"><span>21:04</span><span style="font-family:'JBMono'">5G</span></div>
+     <div class="titre">Nouveau devis</div>
+     <div class="sous">Mme Fontaine · Villeurbanne</div>
+     <div id="dictee"><span id="mots" style="color:var(--a-doux)">Touchez le micro et parlez.</span><span id="caret" style="display:inline-block;width:2px;height:20px;background:#C9480A;margin-left:2px;vertical-align:-3px"></span></div>
+     <div id="remplit">Le devis se remplit…</div>
+     <div id="liste"></div>
+     <div id="bas">
+      <div id="blocMicro" style="position:absolute;inset:0">
+       <svg id="onde" style="position:absolute;left:55px;top:14px" width="280" height="56"></svg>
+       <div id="anneaux" style="position:absolute;left:155px;top:84px;width:80px;height:80px"></div>
+       <div id="micro" style="position:absolute;left:155px;top:84px;width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#E8650F 0%,#C9480A 55%,#A8350A 100%);
+            box-shadow:0 6px 18px rgba(201,72,10,.35)">
+        <svg style="position:absolute;left:24px;top:20px" width="32" height="40" viewBox="0 0 44 56"><rect x="13" y="2" width="18" height="32" rx="9" fill="#fff"/><path d="M5 26a17 17 0 0 0 34 0" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M22 44v9" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>
+       </div>
+      </div>
+      <div id="blocTotal" style="position:absolute;inset:0">
+       <div style="position:absolute;left:24px;top:22px;font-size:16px;color:var(--a-doux)">Total TTC</div>
+       <div id="total" style="position:absolute;right:24px;top:8px;font-family:'JBMono';font-weight:800;font-size:34px;letter-spacing:-.5px">0,00 €</div>
+       <div id="envoyer" style="position:absolute;left:20px;right:20px;top:64px;height:60px;border-radius:16px;background:var(--a-txt);color:#fff;
+            display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700">Valider et envoyer</div>
+       <div id="envoye" style="position:absolute;left:20px;right:20px;top:64px;height:60px;border-radius:16px;background:var(--a-vert);color:#fff;
+            display:flex;align-items:center;justify-content:center;gap:10px;font-size:19px;font-weight:700">
+        <svg width="24" height="24" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Envoyé à Mme Fontaine</div>
+      </div>
+      <div id="doigt" style="position:absolute;left:0;top:0;width:90px;height:90px;margin:-45px 0 0 -45px;border-radius:50%;background:rgba(255,255,255,.38);border:3px solid rgba(21,32,27,.28);box-sizing:border-box"></div>
+     </div>
+    </div>
+    <div id="reflet"></div>
+   </div>
+  </div>
+  <svg id="trace" style="position:absolute;left:0;top:0;overflow:visible" width="1080" height="1920"><path id="tracePath" d="" fill="none" stroke="#FF9A4A" stroke-width="6" stroke-dasharray="4 20" stroke-linecap="round"/></svg>
+  <svg id="avion" style="position:absolute;left:0;top:0;overflow:visible" width="120" height="120" viewBox="0 0 24 24"><path d="M3 11.5 21 3l-6.5 18-3.2-7.3L3 11.5Z" fill="#fff"/><path d="m11.3 13.7 4-4.2" stroke="#8FA39A" stroke-width="1.6" stroke-linecap="round"/></svg>
+ </div>
+ <div id="chrono"><div class="pilule"></div>
+  <svg id="horloge" width="64" height="64" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8.2" stroke="#FF9A4A" stroke-width="2.2" fill="none"/><path d="M9.5 2.5h5M12 2.5v2.3" stroke="#FF9A4A" stroke-width="2.2" stroke-linecap="round"/><path id="aiguille" d="M12 13V8.2" stroke="#FF9A4A" stroke-width="2.4" stroke-linecap="round" style="transform-origin:12px 13px"/></svg>
+  <span class="v" id="cv">0,00</span><span class="s">s</span></div>
+ <div id="cap"></div>
+ <div id="fin">
+  <div class="f" id="f0" style="left:150px;top:0;width:130px;height:130px;border-radius:36px;background:linear-gradient(145deg,var(--o1),var(--o2) 55%,var(--o3));box-shadow:0 0 70px rgba(232,101,15,.45)">
+   <svg style="position:absolute;left:25px;top:25px" width="80" height="80" viewBox="0 0 24 24"><path d="M6.5 2.5H12a9 9 0 0 1 0 18H9.2L4.5 23V4.5a2 2 0 0 1 2-2ZM9.2 9.5a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1Zm3.1-2.5a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1Zm3.1 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Z" fill="#fff" fill-rule="evenodd"/></svg></div>
+  <div class="f" id="f1" style="left:310px;top:-8px;font-family:'Archivo';font-weight:850;font-size:132px;letter-spacing:-5px;color:var(--texte)">Diktéo</div>
+  <div class="f" id="f2" style="left:0;width:900px;text-align:center;top:178px;font-family:'Archivo';font-weight:850;font-size:66px;letter-spacing:-1.5px;line-height:1.08;color:var(--texte)">Le devis dicté,<br><span style="color:var(--oc)">envoyé du chantier.</span></div>
+  <div class="f" id="f3" style="left:210px;width:480px;justify-content:center;top:368px;height:96px;border-radius:28px;display:flex;align-items:center;
+       background:linear-gradient(145deg,var(--o1),var(--o2) 55%,var(--o3));font-family:'PublicSans';font-weight:800;font-size:40px;color:#fff">dikteo.vercel.app</div>
+ </div>
+</div>
+<div id="ui"><button id="lecture">Lecture</button><input id="curseurUI" type="range" min="0" max="1000" value="0"><span id="temps">0.00</span></div>
+<script>
+/* Pub 5, « le défi chrono ». 123 BPM (1 temps = 0,488 s), 36 temps = 17,6 s. Une seule chose à lire à la fois.
+  0      « Un devis, chrono en main. »                                   pop
+  2.5    la phrase cède la place au chrono 0,00 s                       tic
+  4      le chrono part et monte en haut ; le téléphone arrive          whoosh
+  5.5    le doigt touche le micro ; la dictée s'écrit (6→13.5)          clic
+  14     « Le devis se remplit… » ; 4 lignes (15, 15.5, 16, 16.5)        blips
+  16.5→18 le total monte à 872,30 €                                     tics
+  20     le doigt touche « Valider et envoyer » ; l'avion part (20.5)  clic, woosh, ding
+  20.5   le chrono s'arrête : 8,05 s                                    impact
+  21     le chrono vient au centre, en grand ; le téléphone recule      riser court
+  24.5   « Ce soir, vous êtes libre. »                                  pop
+  28.5   carton Diktéo (→36)                                             pop */
+function spring(t,w=14,z=.82){if(t<=0)return 0;if(z>=1)return 1-Math.exp(-w*t)*(1+w*t);const wd=w*Math.sqrt(1-z*z);return 1-Math.exp(-z*w*t)*(Math.cos(wd*t)+(z*w/wd)*Math.sin(wd*t));}
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const ease=x=>(x=clamp(x),x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2);
+const easeOut=x=>1-Math.pow(1-clamp(x),3);
+const lerp=(a,b,k)=>a+(b-a)*k;
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const kf=keys=>t=>{if(t<=keys[0][0])return keys[0][1];for(let i=1;i<keys.length;i++){const[a,va]=keys[i-1],[b,vb,e=ease]=keys[i];if(t<=b)return lerp(va,vb,e((t-a)/(b-a)));}return keys[keys.length-1][1];};
+const rng=s=>()=>(s=(s+0x6D2B79F5)|0,s=Math.imul(s^(s>>>15),1|s),s^=s+Math.imul(s^(s>>>7),61|s),((s^(s>>>14))>>>0)/4294967296);
+const $=id=>document.getElementById(id);
+
+const B=60/123, NB=36, DN=NB*B;
+window.VIDEO={w:1080,h:1920,duration:DN};
+const DEPART=4, STOP=20.5, TEMPS_FINAL=(STOP-DEPART)*B;      // 8,05 s, de la voix à l'envoi
+const fmtS=v=>v.toFixed(2).replace('.',',');
+const fmtE=c=>(c/100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}).replace(/ | /g,' ')+' €';
+
+// ——— le fond : nuit, halo chaud derrière le téléphone, quelques lumières floues (dessiné une fois) ———
+const BOKEH=(()=>{const r=rng(5),a=[];for(let i=0;i<14;i++)a.push({x:r()*1080,y:r()*1920,rad:40+r()*110,al:.04+r()*.07,v:(r()-.5)*14,c:r()<.7?'255,154,74':'238,242,240'});return a;})();
+const fctx=$('fondc').getContext('2d');
+function fond(b,t){const g=fctx;g.globalCompositeOperation='source-over';g.fillStyle='#0B100E';g.fillRect(0,0,1080,1920);
+  const k=0.65+0.35*seg(b,4,6)-0.25*seg(b,24,26);
+  let gr=g.createRadialGradient(540,1050,0,540,1050,1000);gr.addColorStop(0,`rgba(232,101,15,${.30*k})`);gr.addColorStop(.45,`rgba(168,53,10,${.12*k})`);gr.addColorStop(1,'rgba(168,53,10,0)');
+  g.fillStyle=gr;g.fillRect(0,0,1080,1920);
+  for(const o of BOKEH){const y=((o.y+o.v*t)%1920+1920)%1920;const q=g.createRadialGradient(o.x,y,0,o.x,y,o.rad);q.addColorStop(0,`rgba(${o.c},${o.al})`);q.addColorStop(1,`rgba(${o.c},0)`);g.fillStyle=q;g.fillRect(o.x-o.rad,y-o.rad,o.rad*2,o.rad*2);}
+  const v=g.createRadialGradient(540,960,600,540,960,1300);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.55)');g.fillStyle=v;g.fillRect(0,0,1080,1920);}
+
+// ——— l'écran ———
+const DIT="Chauffe-eau électrique 200 litres, 520 euros. Groupe de sécurité et raccords laiton, 48 euros. Dépose de l'ancien ballon, 60 euros. Main-d'œuvre, 3 heures à 55 euros.".split(' ');
+const LIGNES=[['Chauffe-eau électrique 200 L vertical','1 u × 520,00 €',52000],['Groupe de sécurité et raccords laiton','1 u × 48,00 €',4800],
+  ["Dépose et évacuation de l'ancien ballon",'1 forfait × 60,00 €',6000],["Main-d'œuvre",'3 h × 55,00 €',16500]];
+const TTC=Math.round(LIGNES.reduce((s,l)=>s+l[2],0)*1.1);   // 87 230 centimes = 872,30 €
+const ligEl=LIGNES.map((l,i)=>{const e=document.createElement('div');e.className='ligne';e.style.top=(i*86)+'px';
+  e.innerHTML=`<div class="d">${l[0]}</div><div class="m">${fmtE(l[2])}</div><div class="q">${l[1]}</div>`;$('liste').appendChild(e);return e;});
+const anneaux=[0,1,2].map(()=>{const e=document.createElement('div');e.style.cssText='position:absolute;inset:0;border-radius:50%;background:#C9480A';$('anneaux').appendChild(e);return e;});
+const T_DICT=[6,13.5], T_LIG=[15,15.5,16,16.5];
+
+// ——— l'avion qui part vers le client ———
+// le bouton « Valider et envoyer » en coordonnées du monde : écran (22,22)+pt×1.6 dans le téléphone, téléphone en (206,313)
+const BTN=[206+22+195*1.6, 313+22+(844-180+94)*1.6];
+const vol=f=>[BTN[0]+Math.sin(Math.PI*f*0.9)*330+f*120, BTN[1]-f*1900+Math.sin(Math.PI*f)*120];
+const ETINC=(()=>{const r=rng(9),a=[];for(let i=0;i<34;i++){const an=r()*Math.PI*2,sp=500+r()*900;a.push({vx:Math.cos(an)*sp,vy:Math.sin(an)*sp,c:['#FF9A4A','#FFE2C4','#E8650F'][i%3],rot:(r()-.5)*900,d:r()*0.06});}return a;})();
+const etEl=ETINC.map(p=>{const e=document.createElement('div');e.style.cssText=`position:absolute;left:0;top:0;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:4px;background:${p.c}`;$('stage').appendChild(e);return e;});
+
+// ——— caméra (centre visé dans le monde, zoom) ———
+const camZ=kf([[0,1],[4,1],[5.4,0.96],[6.6,1.06],[20.4,1.1,x=>x],[22.4,0.78],[24.4,0.7]]);
+const camY=kf([[0,1010],[5.4,1010],[6.6,930],[20.4,920],[22.4,1010]]);
+
+function seek(T){
+  const t=((T%DN)+DN)%DN, b=t/B;
+  fond(b,t);
+  const z=camZ(b), cy=camY(b);
+  $('cam').style.transform=`translate(${540-540*z}px,${960-cy*z}px) scale(${z})`;
+
+  // le téléphone : arrive en basculant, se balance doucement, recule après l'envoi
+  const ar=b>=4?spring((b-4)*B,7.5,.78):0, rec=seg(b,20.8,22.4), dispo=1-seg(b,21,22);
+  const balX=Math.sin(t*0.9)*1.6, balY=Math.sin(t*0.7+1)*2.2, coup=b>=20&&b<20.4?Math.sin(Math.PI*seg(b,20,20.4))*2:0;
+  const rx=lerp(34,5,ar)+balX+coup+ease(rec)*8, ry=lerp(-24,-5,ar)+balY-ease(rec)*16, tz=-ease(rec)*240;
+  $('tel').style.transform=`translateY(${(1-ar)*1500}px) translateZ(${tz}px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+  $('tel').style.opacity=b<4?0:dispo; $('tel').style.filter=rec>0?`brightness(${1-0.45*rec})`:'';
+  $('reflet').style.backgroundPosition=`${ry*6}px 0`;
+  $('reflet').style.transform=`translateX(${(ry+5)*-12}px)`;
+
+  // la dictée
+  const dict=b>=T_DICT[0], n=dict?Math.min(DIT.length,Math.ceil(seg(b,T_DICT[0],T_DICT[1]-0.4)*DIT.length)):0;
+  $('mots').textContent=dict?DIT.slice(0,n).join(' '):'Touchez le micro et parlez.';
+  $('mots').style.color=dict?'var(--a-txt)':'var(--a-doux)';
+  $('caret').style.opacity=b>=5.5&&b<T_DICT[1]&&Math.floor(t*3)%2===0?1:0;
+  const ecoute=b>=5.6&&b<T_DICT[1]+0.2;
+  let bars='';if(ecoute){const a=seg(b,5.6,6.2)*(1-seg(b,T_DICT[1]-0.3,T_DICT[1]+0.2));for(let i=0;i<28;i++){const hh=6+a*46*Math.abs(Math.sin(t*9+i*1.7)*Math.sin(t*4.1+i*.6));
+    bars+=`<rect x="${i*10}" y="${28-hh/2}" width="5" height="${hh}" rx="2.5" fill="#C9480A"/>`;}}
+  $('onde').innerHTML=bars;
+  anneaux.forEach((e,i)=>{const ph=(((b-5.6)*B)/1.8+i/3)%1;e.style.opacity=ecoute?0.35*(1-ph):0;e.style.transform=`scale(${1+1.1*ph})`;});
+  $('micro').style.transform=`scale(${ecoute?1.06:1})`;
+  // « Le devis se remplit… » puis les lignes
+  $('remplit').style.opacity=b>=13.8&&b<15?seg(b,13.8,14.1)*(1-seg(b,14.8,15)):0;
+  ligEl.forEach((e,i)=>{const k=b>=T_LIG[i]?spring((b-T_LIG[i])*B,17,.62):0;e.style.opacity=clamp(k*1.6);e.style.transform=`translateY(${(1-k)*24}px) scale(${0.96+0.04*k})`;});
+  const tot=b>=14.5;
+  $('blocMicro').style.opacity=tot?0:1; $('blocTotal').style.opacity=tot?seg(b,14.5,14.9):0;
+  const u=b<16.5?0:ease(seg(b,16.5,18.2)); $('total').textContent=fmtE(u>=1?TTC:Math.round(TTC*u/10)*10);
+  $('total').style.color=u>=1?'#C9480A':'';
+  const envoye=b>=20.4;
+  $('envoyer').style.opacity=envoye?0:1; $('envoye').style.opacity=envoye?1:0;
+  $('envoyer').style.transform=`scale(${b>=20&&b<20.4?0.95:1})`;
+  $('envoye').style.transform=`scale(${envoye?0.9+0.1*spring((b-20.4)*B,18,.55):1})`;
+  // le doigt : touche le micro (5.5), puis le bouton (20)
+  const touche=(a)=>b>=a-0.35&&b<a+0.7, pos=b<12?[195,124]:[195,94];
+  const dk=b<12?b-5.5:b-20, vis=touche(5.5)||touche(20);
+  $('doigt').style.left=pos[0]+'px'; $('doigt').style.top=pos[1]+'px';
+  $('doigt').style.opacity=vis?(dk<0?seg(dk,-0.35,-0.05):1-seg(dk,0.15,0.7)):0;
+  $('doigt').style.transform=`scale(${dk<0?1.25-0.25*seg(dk,-0.35,0):0.85+0.6*seg(dk,0,0.7)})`;
+
+  // l'avion
+  const parti=b>=20.4, fv=parti?easeOut(seg(b,20.4,22.2)):0, [ax,ay]=vol(fv), q2=vol(Math.min(1,fv+0.01));
+  $('avion').style.opacity=parti&&fv<0.98?1:0;
+  $('avion').style.transform=`translate(${ax-60}px,${ay-60}px) rotate(${Math.atan2(q2[1]-ay,q2[0]-ax)*180/Math.PI+45}deg) scale(${1.15-0.35*fv})`;
+  let tp='';if(parti){for(let i=0;i<=40;i++){const q=vol(fv*i/40);tp+=(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1);}}
+  $('tracePath').setAttribute('d',tp); $('tracePath').style.opacity=parti?0.75*(1-seg(b,22.4,23.4)):0;
+
+  // le chrono : apparaît (2.5), part (4) en haut, s'arrête (20.5), revient au centre en grand (21), s'efface (24.2)
+  const val=clamp((b-DEPART)*B,0,TEMPS_FINAL), fini=b>=STOP;
+  $('cv').textContent=fmtS(val);
+  $('aiguille').style.transform=`rotate(${val*90}deg)`;
+  const kIn=b>=2.5?spring((b-2.5)*B,15,.62):0, kHaut=b>=4?spring((b-4)*B,9,.85):0, kRet=b>=21?spring((b-21)*B,8,.7):0;
+  const sc=lerp(lerp(2.1,0.8,kHaut),2.4,kRet), y=lerp(lerp(900,205,kHaut),880,kRet);
+  const flash=fini&&b<21?1:0;
+  $('chrono').style.opacity=clamp(kIn*1.5)*(1-seg(b,24,24.4));
+  $('chrono').style.transform=`translate(-50%,${y}px) translateY(-50%) scale(${sc*(0.8+0.2*kIn)*(1+0.06*flash)})`;
+  $('chrono').querySelector('.pilule').style.opacity=kHaut*(1-kRet);
+  $('chrono').style.color=fini?'#FFB27A':'';
+  // éclat à l'arrêt du chrono
+  etEl.forEach((e,i)=>{const p=ETINC[i],dt=(b-21.3)*B-p.d,on=dt>=0&&dt<1;e.style.opacity=on?1-dt*dt:0;
+    if(on)e.style.transform=`translate(${540+p.vx*dt}px,${880+p.vy*dt+700*dt*dt}px) rotate(${p.rot*dt}deg)`;});
+
+  // les phrases (jamais deux à la fois)
+  let html='',k=0,o=0;
+  if(b<2.6){html='Un devis,<br><em>chrono en main.</em>';k=spring(t+0.25,14,.7);o=1-seg(b,2.2,2.6);}
+  else if(b>=24.5&&b<28.3){html='Ce soir,<br><em>vous êtes libre.</em>';k=spring((b-24.5)*B,14,.7);o=clamp(k*1.6)*(1-seg(b,27.9,28.3));}
+  $('cap').innerHTML=html; $('cap').style.opacity=o;
+  $('cap').style.transform=`translateY(${(1-k)*40}px) scale(${0.88+0.12*k})`;
+  // le carton
+  for(let i=0;i<4;i++){const kk=b<28.5?0:spring((b-28.5)*B-i*0.09,14,.7),e=$('f'+i);e.style.opacity=clamp(kk*1.5);e.style.transform=`translateY(${(1-kk)*50}px) scale(${0.9+0.1*kk})`;}
+}
+window.seek=seek;
+
+const render=location.search.includes('render');
+if(render){$('ui').style.display='none';}
+else{const fit=()=>{const k=Math.min(innerWidth/1080,(innerHeight-40)/1920);$('stage').style.transform=`scale(${k})`;};addEventListener('resize',fit);fit();
+  let t0=performance.now(),run=false,off=0;$('lecture').onclick=()=>{run=!run;t0=performance.now()-off*1000;};
+  $('curseurUI').oninput=e=>{off=e.target.value/1000*DN;t0=performance.now()-off*1000;};
+  (function loop(){if(run)off=((performance.now()-t0)/1000)%DN;$('temps').textContent=off.toFixed(2);$('curseurUI').value=off/DN*1000;seek(off);requestAnimationFrame(loop);})();}
+seek(0);
+</script>
+</body>
+</html>
