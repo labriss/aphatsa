@@ -55,27 +55,35 @@ m[-k:] *= np.linspace(1, 0.0, k)[:, None]
 musique[: len(m)] = m
 
 deux = 2 / 60
-sfx("pop/kenney-interface-pluck-001.ogg", 0, -9, "« Un devis, chrono en main. »")
-sfx("ding/fs-634690-lil-pip.ogg", 2.5, -10, "le chrono apparaît")
-sfx("transition/fs-816262-broomstick-whoosh-3-quiet-okm1.ogg", 4, -8, "le téléphone arrive", deux)
-sfx("click/kenney-interface-select-001.ogg", 4, -10, "le chrono part")
-sfx("click/kenney-interface-toggle-001.ogg", 5.5, -6, "le doigt touche le micro")
-sfx("pop/kenney-interface-maximize-001.ogg", 14, -14, "« Le devis se remplit… »")
-for f, bt in (("pop/kenney-interface-drop-001.ogg", 15), ("pop/kenney-interface-drop-002.ogg", 15.5),
-              ("pop/kenney-interface-drop-003.ogg", 16), ("pop/kenney-interface-pluck-002.ogg", 16.5)):
-    sfx(f, bt, -10, "une ligne du devis")
-for j in range(6):
-    sfx("tick/fs528561.ogg", 16.6 + 0.3 * j, -21 + j, "le total monte")
-sfx("click/kenney-interface-click-001.ogg", 20, -6, "« Valider et envoyer »")
-sfx("whoosh/fs-169867-swoosh.ogg", 20.4, -10, "l'avion part vers le client", deux)
-sfx("ding/kenney-interface-glass-001.ogg", 20.4, -9, "envoyé à Mme Fontaine")
-sfx("ding/fs-349504-triangle-open-04.ogg", 20.6, -9, "le chrono s'arrête")
-sfx("transition/kenney-interface-maximize-005.ogg", 21, -12, "le chrono vient au centre")
-sfx("pop/fs-514833-user-interface-menu-sounds-wav.ogg", 21.3, -14, "éclat")
-sfx("pop/kenney-interface-pluck-002.ogg", 24.5, -10, "« Ce soir, vous êtes libre. »")
-sfx("ding/kenney-interface-confirmation-001.ogg", 28.5, -9, "le carton Diktéo")
+SOBRE = os.environ.get("SOBRE") == "1"  # version « pub pro » : vraie musique devant, quelques bruits réels et discrets
+if SOBRE:
+    sfx("transition/fs-816262-broomstick-whoosh-3-quiet-okm1.ogg", 4, -16, "le téléphone arrive", deux)
+    sfx("kit/click.ogg", 5.5, -14, "le doigt touche le micro")
+    sfx("kit/click.ogg", 20, -14, "« Valider et envoyer »")
+    sfx("whoosh/fs-169867-swoosh.ogg", 20.4, -16, "l'avion part vers le client", deux)
+    sfx("ding/fs-349504-triangle-open-04.ogg", 20.6, -13, "envoyé, le chrono s'arrête")
+else:
+    sfx("pop/kenney-interface-pluck-001.ogg", 0, -9, "« Un devis, chrono en main. »")
+    sfx("ding/fs-634690-lil-pip.ogg", 2.5, -10, "le chrono apparaît")
+    sfx("transition/fs-816262-broomstick-whoosh-3-quiet-okm1.ogg", 4, -8, "le téléphone arrive", deux)
+    sfx("click/kenney-interface-select-001.ogg", 4, -10, "le chrono part")
+    sfx("click/kenney-interface-toggle-001.ogg", 5.5, -6, "le doigt touche le micro")
+    sfx("pop/kenney-interface-maximize-001.ogg", 14, -14, "« Le devis se remplit… »")
+    for f, bt in (("pop/kenney-interface-drop-001.ogg", 15), ("pop/kenney-interface-drop-002.ogg", 15.5),
+                  ("pop/kenney-interface-drop-003.ogg", 16), ("pop/kenney-interface-pluck-002.ogg", 16.5)):
+        sfx(f, bt, -10, "une ligne du devis")
+    for j in range(6):
+        sfx("tick/fs528561.ogg", 16.6 + 0.3 * j, -21 + j, "le total monte")
+    sfx("click/kenney-interface-click-001.ogg", 20, -6, "« Valider et envoyer »")
+    sfx("whoosh/fs-169867-swoosh.ogg", 20.4, -10, "l'avion part vers le client", deux)
+    sfx("ding/kenney-interface-glass-001.ogg", 20.4, -9, "envoyé à Mme Fontaine")
+    sfx("ding/fs-349504-triangle-open-04.ogg", 20.6, -9, "le chrono s'arrête")
+    sfx("transition/kenney-interface-maximize-005.ogg", 21, -12, "le chrono vient au centre")
+    sfx("pop/fs-514833-user-interface-menu-sounds-wav.ogg", 21.3, -14, "éclat")
+    sfx("pop/kenney-interface-pluck-002.ogg", 24.5, -10, "« Ce soir, vous êtes libre. »")
+    sfx("ding/kenney-interface-confirmation-001.ogg", 28.5, -9, "le carton Diktéo")
 
-mix = musique * 10 ** (-9 / 20) + bruits
+mix = musique * 10 ** ((-4 if SOBRE else -9) / 20) + bruits
 mix /= max(1e-6, np.abs(mix).max()) / 0.9
 wav = os.path.join(ICI, "tmp", "son.wav")
 with wave.open(wav, "wb") as w:
