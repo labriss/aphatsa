@@ -14,7 +14,13 @@ VIDEO, SORTIE = sys.argv[1], sys.argv[2]
 SR = 48000
 B = 60 / 123
 D = 36 * B
-DEBUT_MUSIQUE = 0.124 + 16 * 60 / 121  # « Hazy After Hours » : 121 BPM mesurés, phase 0,124 s ; accéléré de 123/121 pour tomber sur la grille
+# Morceau choisi par variables d'environnement (défaut : « Hazy After Hours », Mixkit #132) : numéro, tempo mesuré, phase, temps sautés.
+PISTE = os.environ.get("PISTE", "132")
+BPM_P = float(os.environ.get("BPM_P", "121"))
+PHASE_P = float(os.environ.get("PHASE_P", "0.124"))
+SAUT_P = int(os.environ.get("SAUT_P", "16"))
+TITRE_P = os.environ.get("TITRE_P", "« Hazy After Hours » par Alejandro Magaña (A. M.)")
+DEBUT_MUSIQUE = PHASE_P + SAUT_P * 60 / BPM_P  # étiré de 123/BPM_P pour tomber sur la grille de la pub
 
 MAN = json.load(open(os.path.join(SKILL, "manifest.json"), encoding="utf-8"))
 INFO = {e["file"]: e for e in MAN["bundled"] + MAN["default_kit"] if e.get("file")}
@@ -40,7 +46,7 @@ def sfx(f, beat, db=-6.0, desc="", avance=0.0, finit=False):
     journal.append((t, desc, f, INFO.get(f, {}).get("credit", f), INFO.get(f, {}).get("license", "?")))
 
 
-m = lire(os.path.join(ICI, "musique", "mixkit-132.mp3"), DEBUT_MUSIQUE, (D + 0.5) * 123 / 121, af=f"atempo={123 / 121:.5f}")[:N]
+m = lire(os.path.join(ICI, "musique", f"mixkit-{PISTE}.mp3"), DEBUT_MUSIQUE, (D + 0.5) * 123 / BPM_P, af=f"atempo={123 / BPM_P:.5f}")[:N]
 m = m / max(1e-6, np.abs(m).max())
 k = int(0.03 * SR)
 m[:k] *= np.linspace(0, 1, k)[:, None]
@@ -79,11 +85,11 @@ subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", VIDEO, "-i", wav, "-c:v", "
                 "-af", "loudnorm=I=-16:TP=-5:LRA=11,alimiter=limit=0.52:level=false", "-shortest", "-movflags", "+faststart", SORTIE], check=True)
 os.makedirs(os.path.join(ICI, "son"), exist_ok=True)
 with open(os.path.join(ICI, "son", "CREDITS.txt"), "w", encoding="utf-8") as f:
-    f.write("Musique : « Hazy After Hours » par Alejandro Magaña (A. M.), Mixkit #132, Mixkit Stock Music Free License\n\nBruitages :\n")
+    f.write(f"Musique : {TITRE_P}, Mixkit #{PISTE}, Mixkit Stock Music Free License\n\nBruitages :\n")
     for cr in sorted({j[3] for j in journal}):
         f.write(f"- {cr}\n")
 with open(os.path.join(ICI, "son", "SOUND.md"), "w", encoding="utf-8") as f:
-    f.write("# Son de la pub 5 (le défi chrono)\n\nUsage : TikTok, Reels, Shorts, pubs en ligne. Musique : Mixkit #132, Mixkit Stock Music Free License.\n\n")
+    f.write(f"# Son de la pub 5 (le défi chrono)\n\nUsage : TikTok, Reels, Shorts, pubs en ligne. Musique : Mixkit #{PISTE}, Mixkit Stock Music Free License.\n\n")
     f.write("| t (s) | moment | son | licence |\n|---|---|---|---|\n")
     for t, desc, fi, cr, li in sorted(journal):
         f.write(f"| {t:.3f} | {desc} | {fi} | {li} |\n")
