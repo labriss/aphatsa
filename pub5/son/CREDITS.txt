@@ -1,17 +1,21 @@
-Musique : « Techno Fights » par Alejandro Magaña (A. M.), Mixkit #171, Mixkit Stock Music Free License
+Musique : « Hazy After Hours » par Alejandro Magaña (A. M.), Mixkit #132, Mixkit Stock Music Free License
 
 Bruitages :
-- "Classic Click" by adh.dreaming (https://freesound.org/people/adh.dreaming/sounds/671105/), CC0
-- "Click / Tick" by Squirrel_404 (https://freesound.org/people/Squirrel_404/sounds/683048/), CC0
-- "POP SFX Neutral" by ethernel0 (https://freesound.org/people/ethernel0/sounds/776016/), CC0
-- ding/kenney-interface-confirmation-002.ogg
-- impact/kenney-impact-impactsoft-heavy-000.ogg
-- pop/fs-447910-plop.ogg
-- pop/fs-824189-pop-in-sfx.ogg
-- riser/fs-464250-echo-chromatic-riser-wav.ogg
-- tick/fs721514.ogg
-- transition/fs-683096-woosh.ogg
-- ui-blip/kenney-ui-rollover1.ogg
-- ui-blip/kenney-ui-rollover2.ogg
-- ui-blip/kenney-ui-rollover3.ogg
-- whoosh/fs-683101-quick-woosh.ogg
+- click/kenney-interface-click-001.ogg
+- click/kenney-interface-select-001.ogg
+- click/kenney-interface-toggle-001.ogg
+- ding/fs-349504-triangle-open-04.ogg
+- ding/fs-634690-lil-pip.ogg
+- ding/kenney-interface-confirmation-001.ogg
+- ding/kenney-interface-glass-001.ogg
+- pop/fs-514833-user-interface-menu-sounds-wav.ogg
+- pop/kenney-interface-drop-001.ogg
+- pop/kenney-interface-drop-002.ogg
+- pop/kenney-interface-drop-003.ogg
+- pop/kenney-interface-maximize-001.ogg
+- pop/kenney-interface-pluck-001.ogg
+- pop/kenney-interface-pluck-002.ogg
+- tick/fs528561.ogg
+- transition/fs-816262-broomstick-whoosh-3-quiet-okm1.ogg
+- transition/kenney-interface-maximize-005.ogg
+- whoosh/fs-169867-swoosh.ogg
