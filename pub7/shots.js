@@ -54,8 +54,8 @@ const ecrase = () => { const p = P0(); p.lean = .55; p.nod = .5; p.aL = { fl: 1.
 const debout = () => { const p = P0(); p.expr = DEADPAN; p.nod = 0; return p; };
 const telephone = () => {     // le téléphone tenu comme un cornet, contre la bouche
   const p = P0(); p.nod = .02; p.headTurn = .1; p.expr = DEADPAN;
-  p.aR = { fl: 1.45, abd: .08, el: 2.55, wr: .35, hand: 'fist' };
-  p.aL = { fl: .1, abd: .05, el: .3, wr: .1, hand: 'relax' };
+  p.aL = { fl: 1.45, abd: .08, el: 2.55, wr: .35, hand: 'fist' };
+  p.aR = { fl: .1, abd: .05, el: .3, wr: .1, hand: 'relax' };
   return p;
 };
 const souffle = () => { const p = P0(); p.lean = .2; p.nod = .2; p.headTurn = -.35; p.expr = { open: .5, mouthOpen: .5, mouthW: .35, brow: .2 }; return p; };
@@ -122,7 +122,8 @@ export function gag(g, lt) {
   const tilt = b < 7 ? 0 : b < 8.5 ? Math.sin((b - 7) * Math.PI * 4) * .05 * (b - 7) : 0;
   const P = poseAt(b, [[0, ecrit], [1.5, ecrit], [2, pose1()], [2.4, ecrit], [3.6, ecrit], [4, pose1()], [4.4, ecrit], [5.6, ecrit], [6, pose1()], [6.4, ecrit],
     [7, regarde()], [8.4, regarde()], [8.7, ecrase()], [9.8, ecrase()], [10.3, debout()]]);
-  const fig = { x: ART_X, ground: SOL, scale: ART_S, yaw: 20, pose: P, t: lt };
+  const yawG = numAt(b, [[1.4, 20], [1.8, -55], [2.3, -55], [2.6, 20], [3.4, 20], [3.8, -55], [4.3, -55], [4.6, 20], [5.4, 20], [5.8, -55], [6.3, -55], [6.6, 20], [7, -30], [8.4, -30], [8.7, 20]]);
+  const fig = { x: ART_X, ground: SOL, scale: ART_S, yaw: yawG, pose: P, t: lt };
   drawFigure(g, ARTISAN, fig);
   const corps = bodyAt(ARTISAN, fig);
   // feuille posée : elle part de sa main droite vers le haut de la pile
@@ -162,16 +163,16 @@ export function voix(g, lt) {
   drawFigure(g, ARTISAN, fig);
   const corps = bodyAt(ARTISAN, fig);
   // le téléphone dans sa main droite
-  const ph = [corps.R[0] + 8, corps.R[1] - 10];
+  const ph = [corps.L[0] - 8, corps.L[1] - 10];
   form(g, rectPts(ph[0] - 22, ph[1] - 40, 44, 84), { v: .12, line: 2, grad: .2, seed: 60 });
   form(g, rectPts(ph[0] - 17, ph[1] - 34, 34, 70), { v: .55, line: 1, seed: 61 });
   // les mots sortent en volutes d'encre de sa bouche et entrent dans le téléphone
   const bouche = [corps.head[0] + ART_S * .12, corps.head[1] + ART_S * .12];
-  if (b > .8 && b < 6.4) for (let k = 0; k < 4; k++) {
-    const u = ((b - .8) * .9 + k / 4) % 1, a = u * Math.PI * 2.4;
-    const x = lerp(bouche[0] + 60, ph[0], u) + Math.cos(a) * 26 * (1 - u), y = lerp(bouche[1] - 50, ph[1] - 30, u) + Math.sin(a) * 20 * (1 - u);
-    const pts = []; for (let i = 0; i < 14; i++) { const aa = a + i * .45; pts.push([x + Math.cos(aa) * (4 + i * 1.6), y + Math.sin(aa) * (4 + i * 1.6)]); }
-    stroke(g, pts, 3, { seed: 70 + k, alpha: Math.sin(u * Math.PI) });
+  // trois arcs de son partent de la bouche vers le téléphone, en rythme avec la parole
+  if (b > .8 && b < 6.4) for (let k = 0; k < 3; k++) {
+    const u = ((b - .8) * 1.6 + k / 3) % 1, rr = 10 + u * 34, c = [bouche[0] + ART_S * .08, bouche[1]];
+    const pts = []; for (let i = 0; i <= 10; i++) { const aa = -.7 + i * .14; pts.push([c[0] + Math.cos(aa) * rr, c[1] + Math.sin(aa) * rr]); }
+    stroke(g, pts, 3.2, { seed: 70 + k, alpha: Math.sin(u * Math.PI) });
   }
   // la bande de télégramme sort du bas du téléphone et descend ; une ligne s'imprime sur chaque coup
   const len = numAt(b, [[1.8, 0], [6, 520]], lin);
