@@ -114,6 +114,8 @@ html,body{margin:0;background:#050807;overflow:hidden}
   <div class="f" id="f3" style="left:210px;width:480px;justify-content:center;top:368px;height:96px;border-radius:28px;display:flex;align-items:center;
        background:linear-gradient(145deg,var(--o1),var(--o2) 55%,var(--o3));font-family:'PublicSans';font-weight:800;font-size:40px;color:#fff">dikteo.vercel.app</div>
  </div>
+<div id="bille" style="position:absolute;left:0;top:0;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;z-index:9;pointer-events:none;
+  background:radial-gradient(circle at 36% 32%, #FFE2C4 0%, #FF9A4A 28%, #E8650F 62%, #B5460C 100%);box-shadow:0 0 0 3px rgba(255,170,110,.25), 0 10px 26px rgba(232,101,15,.55), 0 0 60px rgba(255,154,74,.35)"></div>
 </div>
 <div id="ui"><button id="lecture">Lecture</button><input id="curseurUI" type="range" min="0" max="1000" value="0"><span id="temps">0.00</span></div>
 <script>
@@ -191,11 +193,40 @@ const bEl=[];BURSTS.forEach((E,k)=>{const r=rng(50+k);for(let i=0;i<E.n;i++){con
 const MICW=W(195,788);
 const vagues=[0,1,2,3].map(()=>{const e=document.createElement('div');e.style.cssText='position:absolute;left:0;top:0;width:200px;height:200px;margin:-100px 0 0 -100px;border-radius:50%;border:5px solid #E8650F;pointer-events:none;opacity:0';$('cam').insertBefore(e,$('persp'));return e;});
 
+// ——— la bille : elle guide le regard et déclenche chaque geste (comme la boucle de la pub 4) ———
+const G=6000, R=28;
+const SP=(x,y)=>({s:[x,y]}), WP=pt=>({w:pt});
+const PT={haut:SP(540,-120), cap:SP(540,752), chr:SP(540,800), mic:WP(W(195,744)),
+  l0:WP(W(318,304)), l1:WP(W(318,390)), l2:WP(W(318,476)), l3:WP(W(318,562)),
+  tot:WP(W(190,672)), tot2:WP(W(330,672)), btn:WP(W(195,728)), chrC:SP(540,765), capF:SP(540,752), logo:SP(305,640)};
+const S=[]; const hop=(a,b,p0,p1)=>S.push({a,b,t:'hop',p0,p1}), hold=(a,b,p)=>S.push({a,b,t:'hold',p0:p,p1:p}), roll=(a,b,p0,p1)=>S.push({a,b,t:'roll',p0,p1});
+hop(0,1,PT.haut,PT.cap); hop(1,2,PT.cap,PT.cap); hop(2,3,PT.cap,PT.chr); hold(3,4,PT.chr); hop(4,5.5,PT.chr,PT.mic);
+for(let k=5.5;k<13.5;k++) hop(k,k+1,PT.mic,PT.mic); hold(13.5,14,PT.mic);
+hop(14,15,PT.mic,PT.l0); hop(15,15.5,PT.l0,PT.l1); hop(15.5,16,PT.l1,PT.l2); hop(16,16.5,PT.l2,PT.l3);
+hop(16.5,17,PT.l3,PT.tot); roll(17,18.2,PT.tot,PT.tot2); hop(18.2,20,PT.tot2,PT.btn); hold(20,20.4,PT.btn);
+hop(20.4,22,PT.btn,PT.chrC); hop(22,23,PT.chrC,PT.chrC); hop(23,24,PT.chrC,PT.chrC); hop(24,25,PT.chrC,PT.capF);
+hop(25,26,PT.capF,PT.capF); hop(26,27,PT.capF,PT.capF); hop(27,28,PT.capF,PT.capF); hop(28,29.5,PT.capF,PT.logo); hold(29.5,36.1,PT.logo);
+const CONTACTS=S.filter(x=>x.t==='hop').map(x=>x.b);
+function bille(b,cam){
+  const toS=P=>P.s?P.s:[(P.w[0]-cam.cx)*cam.z+540,(P.w[1]-cam.cy)*cam.z+960];
+  for(const g of S){ if(b<=g.b){ const u=seg(b,g.a,g.b), p0=toS(g.p0), p1=toS(g.p1);
+    if(g.t==='hold') return [p0[0],p0[1]-R];
+    if(g.t==='roll') return [lerp(p0[0],p1[0],ease(u)),lerp(p0[1],p1[1],ease(u))-R];
+    const T=(g.b-g.a)*B, tt=(b-g.a)*B, vy=(p1[1]-p0[1]-0.5*G*T*T)/T;
+    return [lerp(p0[0],p1[0],u), p0[1]+vy*tt+0.5*G*tt*tt-R]; } }
+  const l=toS(PT.logo); return [l[0],l[1]-R];
+}
+
 function seek(T){
   const t=((T%DN)+DN)%DN, b=t/B;
   fond(b,t);
   const z=camZ(b)*(1+punch(b)), cy=camY(b)+Math.sin(t*0.7)*10, cx=540+Math.sin(t*0.5)*14;
   $('cam').style.transform=`translate(${540-cx*z}px,${960-cy*z}px) scale(${z})`;
+  {const cam={z,cx,cy}, h=bille(b,cam), h2=bille(Math.min(36,b+0.02),cam);
+   let dc=99;for(const k of CONTACTS){const d=(b-k)*B;if(d>=0&&d<dc)dc=d;}
+   const sq=dc<0.25?Math.exp(-dc/0.05):0, vx=(h2[0]-h[0])/(0.02*B), vy=(h2[1]-h[1])/(0.02*B), sp=Math.hypot(vx,vy);
+   let sx=1,sy=1,ang=0; if(sq>0.05){sx=1+0.25*sq;sy=1-0.2*sq;}else if(sp>300){const st=Math.min(0.15,sp/16000);sx=1+st;sy=1-st*.7;ang=Math.atan2(vy,vx)*180/Math.PI;}
+   $('bille').style.transform=`translate(${h[0]}px,${h[1]+(sq>0.05?R*0.2*sq:0)}px) rotate(${ang}deg) scale(${sx},${sy}) rotate(${-ang}deg)`;}
 
   // le téléphone : arrive en basculant, se balance doucement, recule après l'envoi
   const ar=b>=4?spring((b-4)*B,7.5,.78):0, rec=seg(b,20.8,22.4), dispo=1-seg(b,20.9,21.6);
@@ -231,7 +262,7 @@ function seek(T){
   // le doigt : touche le micro (5.5), puis le bouton (20)
   const touche=(a)=>b>=a-0.35&&b<a+0.7, pos=b<12?[195,124]:[195,94];
   const dk=b<12?b-5.5:b-20, vis=touche(5.5)||touche(20);
-  $('doigt').style.left=pos[0]+'px'; $('doigt').style.top=pos[1]+'px';
+  $('doigt').style.display='none'; $('doigt').style.left=pos[0]+'px'; $('doigt').style.top=pos[1]+'px';
   $('doigt').style.opacity=vis?(dk<0?seg(dk,-0.35,-0.05):1-seg(dk,0.15,0.7)):0;
   $('doigt').style.transform=`scale(${dk<0?1.25-0.25*seg(dk,-0.35,0):0.85+0.6*seg(dk,0,0.7)})`;
 
