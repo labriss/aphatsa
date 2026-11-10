@@ -55,8 +55,34 @@ m[-k:] *= np.linspace(1, 0.0, k)[:, None]
 musique[: len(m)] = m
 
 deux = 2 / 60
-SOBRE = os.environ.get("SOBRE", "1") == "1"  # version « pub pro » : vraie musique devant, quelques bruits réels et discrets
-if SOBRE:
+RYTHME = os.environ.get("RYTHME") == "1"  # version rythmée (comme la boucle de la pub 4) : un bruit sur chaque geste
+SOBRE = not RYTHME and os.environ.get("SOBRE", "1") == "1"  # version « pub pro » : vraie musique devant, quelques bruits réels et discrets
+POPS = ("pop/fs-447910-plop.ogg", "kit/pop.ogg", "pop/fs-824189-pop-in-sfx.ogg", "pop/kenney-interface-drop-001.ogg")
+if RYTHME:
+    sfx("kit/pop.ogg", 0, -9, "« Un devis, chrono en main. »")
+    sfx("kit/tick.ogg", 2.5, -6, "le chrono apparaît")
+    sfx("transition/fs-683096-woosh.ogg", 4, -9, "le téléphone arrive", deux)
+    sfx("kit/click.ogg", 4, -8, "le chrono part")
+    sfx("kit/click.ogg", 5.5, -4, "le doigt touche le micro")
+    sfx("whoosh/fs-683101-quick-woosh.ogg", 6, -15, "la voix part en ondes", deux)
+    sfx("pop/fs-824189-pop-in-sfx.ogg", 14, -14, "« Le devis se remplit… »")
+    for i, bt in enumerate((15, 15.5, 16, 16.5)):
+        sfx(POPS[i], bt, -9, "une ligne tombe, éclat")
+    for j in range(10):
+        u = (j / 9) ** 0.7
+        sfx("kit/tick.ogg", 16.6 + 1.6 * u, -18 + 6 * u, "le total monte")
+    sfx("kit/pop.ogg", 18.2, -10, "étincelles sur le total")
+    sfx("kit/click.ogg", 20, -4, "« Valider et envoyer »")
+    sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 20, -11, "le bouton s'enfonce")
+    sfx("transition/fs-683096-woosh.ogg", 20.4, -8, "l'avion part vers le client", deux)
+    sfx("ding/kenney-interface-confirmation-002.ogg", 20.4, -6, "envoyé")
+    sfx("pop/fs-824189-pop-in-sfx.ogg", 20.4, -9, "confettis")
+    sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 20.5, -7, "le chrono s'arrête")
+    sfx("whoosh/fs-683101-quick-woosh.ogg", 21, -12, "le chrono vient au centre", deux)
+    sfx("kit/pop.ogg", 24.5, -12, "« Ce soir, vous êtes libre. »")
+    sfx("riser/fs-464250-echo-chromatic-riser-wav.ogg", 28.5, -16, "monte jusqu'au carton", finit=True)
+    sfx("kit/pop.ogg", 28.5, -8, "le carton Diktéo")
+elif SOBRE:
     sfx("transition/fs-816262-broomstick-whoosh-3-quiet-okm1.ogg", 4, -16, "le téléphone arrive", deux)
     sfx("kit/click.ogg", 5.5, -14, "le doigt touche le micro")
     sfx("kit/click.ogg", 20, -14, "« Valider et envoyer »")

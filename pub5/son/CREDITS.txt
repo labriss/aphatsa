@@ -1,7 +1,15 @@
-Musique : « Smile » (Mixkit), Mixkit #1076, Mixkit Stock Music Free License
+Musique : « Tech House Vibes » par Alejandro Magaña (A. M.), Mixkit #130, Mixkit Stock Music Free License
 
 Bruitages :
 - "Classic Click" by adh.dreaming (https://freesound.org/people/adh.dreaming/sounds/671105/), CC0
-- ding/fs-349504-triangle-open-04.ogg
-- transition/fs-816262-broomstick-whoosh-3-quiet-okm1.ogg
-- whoosh/fs-169867-swoosh.ogg
+- "Click / Tick" by Squirrel_404 (https://freesound.org/people/Squirrel_404/sounds/683048/), CC0
+- "POP SFX Neutral" by ethernel0 (https://freesound.org/people/ethernel0/sounds/776016/), CC0
+- ding/fs-571513-soft-notifications-bell-ding-d.ogg
+- ding/kenney-interface-confirmation-002.ogg
+- impact/kenney-impact-impactsoft-heavy-000.ogg
+- pop/fs-447910-plop.ogg
+- pop/fs-824189-pop-in-sfx.ogg
+- pop/kenney-interface-drop-001.ogg
+- riser/fs-464250-echo-chromatic-riser-wav.ogg
+- transition/fs-683096-woosh.ogg
+- whoosh/fs-683101-quick-woosh.ogg

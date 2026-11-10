@@ -149,7 +149,7 @@ const fmtE=c=>(c/100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFra
 const BOKEH=(()=>{const r=rng(5),a=[];for(let i=0;i<14;i++)a.push({x:r()*1080,y:r()*1920,rad:40+r()*110,al:.04+r()*.07,v:(r()-.5)*14,c:r()<.7?'255,154,74':'238,242,240'});return a;})();
 const fctx=$('fondc').getContext('2d');
 function fond(b,t){const g=fctx;g.globalCompositeOperation='source-over';g.fillStyle='#0B100E';g.fillRect(0,0,1080,1920);
-  const k=0.65+0.35*seg(b,4,6)-0.25*seg(b,24,26);
+  const k=0.65+0.35*seg(b,4,6)-0.25*seg(b,24,26)+(b>=4&&b<21?0.16*pouls(b):0);
   let gr=g.createRadialGradient(540,1050,0,540,1050,1000);gr.addColorStop(0,`rgba(232,101,15,${.30*k})`);gr.addColorStop(.45,`rgba(168,53,10,${.12*k})`);gr.addColorStop(1,'rgba(168,53,10,0)');
   g.fillStyle=gr;g.fillRect(0,0,1080,1920);
   for(const o of BOKEH){const y=((o.y+o.v*t)%1920+1920)%1920;const q=g.createRadialGradient(o.x,y,0,o.x,y,o.rad);q.addColorStop(0,`rgba(${o.c},${o.al})`);q.addColorStop(1,`rgba(${o.c},0)`);g.fillStyle=q;g.fillRect(o.x-o.rad,y-o.rad,o.rad*2,o.rad*2);}
@@ -176,17 +176,32 @@ const etEl=ETINC.map(p=>{const e=document.createElement('div');e.style.cssText=`
 const camZ=kf([[0,1],[4,1],[5.4,0.96],[6.6,1.06],[20.4,1.1,x=>x],[22.4,0.78],[24.4,0.7]]);
 const camY=kf([[0,1010],[5.4,1010],[6.6,930],[20.4,920],[22.4,1010]]);
 
+// ——— le rythme : tout bat sur la musique (123 BPM) ———
+const pouls=b=>Math.exp(-(b-Math.floor(b))*5);                 // 1 sur chaque temps, puis s'éteint
+const PUNCH=[[4,0.04],[5.5,0.07],[15,0.03],[15.5,0.03],[16,0.03],[16.5,0.03],[18.2,0.05],[20,0.05],[20.5,0.09]];
+const punch=b=>PUNCH.reduce((s,[a,amp])=>s+(b>=a?amp*Math.exp(-(b-a)*B*5)*Math.cos((b-a)*B*16):0),0);
+const W=(ptx,pty)=>[206+22+ptx*1.6,313+22+pty*1.6];          // point de l'écran (en pt) → monde
+const BURSTS=[...[0,1,2,3].map(i=>({a:T_LIG[i],at:W(330,304+i*86+24),n:14,cols:['#FF9A4A','#FFE2C4','#E8650F'],v:[300,700],dur:0.6,g:900})),
+  {a:18.2,at:W(300,694),n:26,cols:['#FF9A4A','#FFE2C4','#E8650F'],v:[500,1100],dur:0.9,g:1400},
+  {a:20.4,at:W(195,758),n:44,cols:['#2FAE6C','#7BE0A8','#FFE2C4','#FF9A4A'],v:[700,1500],dur:1.3,g:2200,conf:1}];
+const bEl=[];BURSTS.forEach((E,k)=>{const r=rng(50+k);for(let i=0;i<E.n;i++){const an=r()*Math.PI*2,sp=lerp(E.v[0],E.v[1],r());const e=document.createElement('div');
+  const w=E.conf?20:12,h=E.conf?11:12;e.style.cssText=`position:absolute;left:0;top:0;width:${w}px;height:${h}px;margin:${-h/2}px 0 0 ${-w/2}px;border-radius:${E.conf?'2px':'50%'};background:${E.cols[i%E.cols.length]};pointer-events:none;opacity:0`;
+  $('cam').appendChild(e);bEl.push({E,e,vx:Math.cos(an)*sp,vy:Math.sin(an)*sp-220,rot:(r()-.5)*1200,d:r()*0.05});}});
+// la voix déborde du téléphone : des ondes partent du micro, derrière l'appareil
+const MICW=W(195,788);
+const vagues=[0,1,2,3].map(()=>{const e=document.createElement('div');e.style.cssText='position:absolute;left:0;top:0;width:200px;height:200px;margin:-100px 0 0 -100px;border-radius:50%;border:5px solid #E8650F;pointer-events:none;opacity:0';$('cam').insertBefore(e,$('persp'));return e;});
+
 function seek(T){
   const t=((T%DN)+DN)%DN, b=t/B;
   fond(b,t);
-  const z=camZ(b), cy=camY(b);
-  $('cam').style.transform=`translate(${540-540*z}px,${960-cy*z}px) scale(${z})`;
+  const z=camZ(b)*(1+punch(b)), cy=camY(b)+Math.sin(t*0.7)*10, cx=540+Math.sin(t*0.5)*14;
+  $('cam').style.transform=`translate(${540-cx*z}px,${960-cy*z}px) scale(${z})`;
 
   // le téléphone : arrive en basculant, se balance doucement, recule après l'envoi
-  const ar=b>=4?spring((b-4)*B,7.5,.78):0, rec=seg(b,20.8,22.4), dispo=1-seg(b,21,22);
+  const ar=b>=4?spring((b-4)*B,7.5,.78):0, rec=seg(b,20.8,22.4), dispo=1-seg(b,20.9,21.6);
   const balX=Math.sin(t*0.9)*1.6, balY=Math.sin(t*0.7+1)*2.2, coup=b>=20&&b<20.4?Math.sin(Math.PI*seg(b,20,20.4))*2:0;
   const rx=lerp(34,5,ar)+balX+coup+ease(rec)*8, ry=lerp(-24,-5,ar)+balY-ease(rec)*16, tz=-ease(rec)*240;
-  $('tel').style.transform=`translateY(${(1-ar)*1500}px) translateZ(${tz}px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+  $('tel').style.transform=`translateY(${(1-ar)*1500}px) translateZ(${tz}px) rotateX(${rx}deg) rotateY(${ry}deg) scale(${1+(b>=5&&b<20.5?0.014*pouls(b):0)})`;
   $('tel').style.opacity=b<4?0:dispo; $('tel').style.filter=rec>0?`brightness(${1-0.45*rec})`:'';
   $('reflet').style.backgroundPosition=`${ry*6}px 0`;
   $('reflet').style.transform=`translateX(${(ry+5)*-12}px)`;
@@ -241,6 +256,12 @@ function seek(T){
   // éclat à l'arrêt du chrono
   etEl.forEach((e,i)=>{const p=ETINC[i],dt=(b-21.3)*B-p.d,on=dt>=0&&dt<1;e.style.opacity=on?1-dt*dt:0;
     if(on)e.style.transform=`translate(${540+p.vx*dt}px,${880+p.vy*dt+700*dt*dt}px) rotate(${p.rot*dt}deg)`;});
+
+  // éclats (lignes, total, envoi) et ondes de la voix
+  bEl.forEach(p=>{const dt=(b-p.E.a)*B-p.d,on=dt>=0&&dt<p.E.dur;p.e.style.opacity=on?1-Math.pow(dt/p.E.dur,2):0;
+    if(on)p.e.style.transform=`translate(${p.E.at[0]+p.vx*dt}px,${p.E.at[1]+p.vy*dt+0.5*p.E.g*dt*dt}px) rotate(${p.rot*dt}deg)`;});
+  vagues.forEach((e,i)=>{const on=b>=6&&b<13.6, ph=(((b-6)/2+i/4)%1+1)%1;e.style.opacity=on?0.5*(1-ph)*(1-seg(b,13,13.6)):0;
+    e.style.transform=`translate(${MICW[0]}px,${MICW[1]}px) scale(${1+5*ph})`;});
 
   // les phrases (jamais deux à la fois)
   let html='',k=0,o=0;
