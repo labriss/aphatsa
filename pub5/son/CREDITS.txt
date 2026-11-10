@@ -1,21 +1,7 @@
-Musique : « Hazy After Hours » par Alejandro Magaña (A. M.), Mixkit #132, Mixkit Stock Music Free License
+Musique : « Smile » (Mixkit), Mixkit #1076, Mixkit Stock Music Free License
 
 Bruitages :
-- click/kenney-interface-click-001.ogg
-- click/kenney-interface-select-001.ogg
-- click/kenney-interface-toggle-001.ogg
+- "Classic Click" by adh.dreaming (https://freesound.org/people/adh.dreaming/sounds/671105/), CC0
 - ding/fs-349504-triangle-open-04.ogg
-- ding/fs-634690-lil-pip.ogg
-- ding/kenney-interface-confirmation-001.ogg
-- ding/kenney-interface-glass-001.ogg
-- pop/fs-514833-user-interface-menu-sounds-wav.ogg
-- pop/kenney-interface-drop-001.ogg
-- pop/kenney-interface-drop-002.ogg
-- pop/kenney-interface-drop-003.ogg
-- pop/kenney-interface-maximize-001.ogg
-- pop/kenney-interface-pluck-001.ogg
-- pop/kenney-interface-pluck-002.ogg
-- tick/fs528561.ogg
 - transition/fs-816262-broomstick-whoosh-3-quiet-okm1.ogg
-- transition/kenney-interface-maximize-005.ogg
 - whoosh/fs-169867-swoosh.ogg

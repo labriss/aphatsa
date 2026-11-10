@@ -14,12 +14,12 @@ VIDEO, SORTIE = sys.argv[1], sys.argv[2]
 SR = 48000
 B = 60 / 123
 D = 36 * B
-# Morceau choisi par variables d'environnement (défaut : « Hazy After Hours », Mixkit #132) : numéro, tempo mesuré, phase, temps sautés.
-PISTE = os.environ.get("PISTE", "132")
-BPM_P = float(os.environ.get("BPM_P", "121"))
-PHASE_P = float(os.environ.get("PHASE_P", "0.124"))
-SAUT_P = int(os.environ.get("SAUT_P", "16"))
-TITRE_P = os.environ.get("TITRE_P", "« Hazy After Hours » par Alejandro Magaña (A. M.)")
+# Morceau choisi par variables d'environnement (défaut : « Smile », Mixkit #1076, choisie par l'utilisateur le 10 nov. 2026) : numéro, tempo mesuré, phase, temps sautés.
+PISTE = os.environ.get("PISTE", "1076")
+BPM_P = float(os.environ.get("BPM_P", "123"))
+PHASE_P = float(os.environ.get("PHASE_P", "0.1"))
+SAUT_P = int(os.environ.get("SAUT_P", "0"))
+TITRE_P = os.environ.get("TITRE_P", "« Smile » (Mixkit)")
 DEBUT_MUSIQUE = PHASE_P + SAUT_P * 60 / BPM_P  # étiré de 123/BPM_P pour tomber sur la grille de la pub
 
 MAN = json.load(open(os.path.join(SKILL, "manifest.json"), encoding="utf-8"))
@@ -55,7 +55,7 @@ m[-k:] *= np.linspace(1, 0.0, k)[:, None]
 musique[: len(m)] = m
 
 deux = 2 / 60
-SOBRE = os.environ.get("SOBRE") == "1"  # version « pub pro » : vraie musique devant, quelques bruits réels et discrets
+SOBRE = os.environ.get("SOBRE", "1") == "1"  # version « pub pro » : vraie musique devant, quelques bruits réels et discrets
 if SOBRE:
     sfx("transition/fs-816262-broomstick-whoosh-3-quiet-okm1.ogg", 4, -16, "le téléphone arrive", deux)
     sfx("kit/click.ogg", 5.5, -14, "le doigt touche le micro")
