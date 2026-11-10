@@ -17,20 +17,24 @@ html,body{margin:0;background:#050807;overflow:hidden}
 #micro{position:absolute;left:504px;top:200px;width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#E8650F 0%,#C9480A 55%,#A8350A 100%)}
 #micro svg{position:absolute;left:21px;top:16px}
 #onde{position:absolute;left:340px;top:286px}
-#feuille{position:absolute;left:80px;top:900px;width:920px;height:900px;border-radius:22px;background:#E9E1D2;
-  box-shadow:0 40px 80px -20px rgba(0,0,0,.7),0 14px 28px -10px rgba(0,0,0,.5);transform-origin:50% 0;overflow:hidden}
-#feuille .tete{position:absolute;left:56px;right:56px;top:46px;height:120px}
-.titre{position:absolute;left:0;top:0;font-family:'Archivo';font-weight:800;font-size:40px;letter-spacing:-.8px;color:var(--encre);white-space:nowrap}
-.client{position:absolute;left:0;top:54px;font-family:'PublicSans';font-size:26px;color:var(--doux);white-space:nowrap}
-.num{position:absolute;right:0;top:8px;font-family:'JBMono';font-weight:700;font-size:24px;color:var(--doux)}
-.ligne{position:absolute;left:56px;right:56px;height:118px}
-.ligne .d{position:absolute;left:0;top:14px;font-family:'PublicSans';font-weight:700;font-size:30px;color:var(--encre);white-space:nowrap}
-.ligne .q{position:absolute;left:0;top:60px;font-family:'JBMono';font-size:23px;color:var(--doux);white-space:nowrap}
-.ligne .m{position:absolute;right:0;top:14px;font-family:'JBMono';font-weight:800;font-size:31px;color:var(--encre);white-space:nowrap}
+#tel{position:absolute;left:166px;top:616px;width:748px;height:1228px;border-radius:100px;background:linear-gradient(160deg,#2a2622,#0c0b0a 40%,#151311);
+  box-shadow:0 60px 110px -30px rgba(0,0,0,.85),0 20px 40px -14px rgba(0,0,0,.6),inset 0 0 0 3px #3a342d}
+#ile{position:absolute;left:470px;top:652px;width:140px;height:40px;border-radius:20px;background:#050505;z-index:2}
+#feuille{position:absolute;left:190px;top:640px;width:700px;height:1180px;border-radius:78px;background:#E9E1D2;transform-origin:50% 0;overflow:hidden}
+#feuille .tete{position:absolute;left:44px;right:44px;top:96px;height:110px}
+.titre{position:absolute;left:0;top:0;font-family:'Archivo';font-weight:800;font-size:38px;letter-spacing:-.8px;color:var(--encre);white-space:nowrap}
+.client{position:absolute;left:0;top:52px;font-family:'PublicSans';font-size:24px;color:var(--doux);white-space:nowrap}
+.num{position:absolute;right:0;top:10px;font-family:'JBMono';font-weight:700;font-size:21px;color:var(--doux)}
+.ligne{position:absolute;left:44px;right:44px;height:116px}
+.ligne .d{position:absolute;left:0;top:14px;font-family:'PublicSans';font-weight:700;font-size:27px;color:var(--encre);white-space:nowrap}
+.ligne .q{position:absolute;left:0;top:58px;font-family:'JBMono';font-size:21px;color:var(--doux);white-space:nowrap}
+.ligne .m{position:absolute;right:0;top:14px;font-family:'JBMono';font-weight:800;font-size:28px;color:var(--encre);white-space:nowrap}
 .ligne .sep{position:absolute;left:0;right:0;bottom:0;height:2px;background:#D8CFBE}
-#tot{position:absolute;left:56px;right:56px;top:720px;height:120px;border-radius:18px;background:#DFD5C3}
+#tot{position:absolute;left:44px;right:44px;top:740px;height:116px;border-radius:22px;background:#DFD5C3}
 #tot .l{position:absolute;left:28px;top:40px;font-family:'PublicSans';font-weight:600;font-size:28px;color:var(--doux)}
-#tot .v{position:absolute;right:28px;top:22px;font-family:'JBMono';font-weight:800;font-size:58px;color:var(--o);white-space:nowrap}
+#tot .v{position:absolute;right:26px;top:26px;font-family:'JBMono';font-weight:800;font-size:50px;color:var(--o);white-space:nowrap}
+#btn{position:absolute;left:44px;right:44px;top:1010px;height:110px;border-radius:30px;background:#15201B;color:#EDE6DA;display:flex;align-items:center;justify-content:center;gap:14px;
+  font-family:'PublicSans';font-weight:800;font-size:31px;white-space:nowrap}
 #avion{position:absolute;left:0;top:0;pointer-events:none}
 #trace{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
 #tag{position:absolute;left:60px;top:760px;width:960px;text-align:center;font-family:'Archivo';font-weight:800;font-size:104px;line-height:1.05;letter-spacing:-3px;color:var(--texte)}
@@ -48,10 +52,12 @@ html,body{margin:0;background:#050807;overflow:hidden}
   <div id="micro"><svg width="30" height="40" viewBox="0 0 44 56"><rect x="13" y="2" width="18" height="32" rx="9" fill="#fff"/><path d="M5 26a17 17 0 0 0 34 0" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M22 44v9" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></div>
   <svg id="onde" width="400" height="40"></svg>
   <div id="phrases"></div>
+  <div id="tel"></div><div id="ile"></div>
   <div id="feuille">
    <div class="tete"><div class="titre">Devis</div><div class="client">Mme Fontaine · Villeurbanne</div><div class="num">D-2026-0042</div></div>
    <div id="lignes"></div>
    <div id="tot"><div class="l">Total TTC</div><div class="v" id="totv">0,00 €</div></div>
+   <div id="btn"><span id="btnt">Valider et envoyer</span></div>
   </div>
   <div id="vols"></div>
   <svg id="trace" width="1080" height="1920"><path id="traceP" d="" fill="none" stroke="#C9480A" stroke-width="5" stroke-dasharray="3 18" stroke-linecap="round"/></svg>
@@ -85,7 +91,7 @@ const lerp=(a,b,k)=>a+(b-a)*k;
 const seg=(t,a,b)=>clamp((t-a)/(b-a));
 const rng=s=>()=>(s=(s+0x6D2B79F5)|0,s=Math.imul(s^(s>>>15),1|s),s^=s+Math.imul(s^(s>>>7),61|s),((s^(s>>>14))>>>0)/4294967296);
 const $=id=>document.getElementById(id);
-const B=60/123, NB=44, DN=NB*B;
+const B=60/123, NB=34, DN=NB*B;
 window.VIDEO={w:1080,h:1920,duration:DN};
 
 // ——— le papier : grain fin et lumière douce de fenêtre (dessiné une fois) ———
@@ -99,11 +105,11 @@ window.VIDEO={w:1080,h:1920,duration:DN};
 
 // ——— les quatre phrases et les lignes qu'elles deviennent ———
 const P=[
-  {a:0,  fly:3.4, mots:[["Chauffe-eau 200 litres,","d"],["520 euros.","m"]], d:"Chauffe-eau électrique 200 L", q:"1 pièce × 520,00 €", m:52000},
-  {a:5.5,fly:8.3, mots:[["Groupe de sécurité,","d"],["48 euros.","m"]], d:"Groupe de sécurité et raccords", q:"1 pièce × 48,00 €", m:4800},
-  {a:10.2,fly:12.9,mots:[["Dépose du vieux ballon,","d"],["60 euros.","m"]], d:"Dépose de l'ancien ballon", q:"1 forfait × 60,00 €", m:6000},
-  {a:14.8,fly:17.7,mots:[["Main-d'œuvre,","d"],["3 heures","q"],["à 55 euros.","m"]], d:"Main-d'œuvre", q:"3 heures × 55,00 €", m:16500}];
-const DUREE_DIT=2.4, VOL=1.3, ECART=0.45;
+  {a:0,  fly:1.8, mots:[["Chauffe-eau 200 litres,","d"],["520 euros.","m"]], d:"Chauffe-eau électrique 200 L", q:"1 pièce × 520,00 €", m:52000},
+  {a:3.4,fly:5.2, mots:[["Groupe de sécurité,","d"],["48 euros.","m"]], d:"Groupe de sécurité et raccords", q:"1 pièce × 48,00 €", m:4800},
+  {a:6.8,fly:8.6,mots:[["Dépose du vieux ballon,","d"],["60 euros.","m"]], d:"Dépose de l'ancien ballon", q:"1 forfait × 60,00 €", m:6000},
+  {a:10.2,fly:12.0,mots:[["Main-d'œuvre,","d"],["3 heures","q"],["à 55 euros.","m"]], d:"Main-d'œuvre", q:"3 heures × 55,00 €", m:16500}];
+const DUREE_DIT=1.2, VOL=1.0, ECART=0.3;
 const fmtE=c=>(c/100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}).replace(/ | /g,' ')+' €';
 const TTC=Math.round(P.reduce((s,p)=>s+p.m,0)*1.1);   // 87 230 centimes
 P.forEach((p,i)=>{
@@ -111,7 +117,7 @@ P.forEach((p,i)=>{
   p.ph=ph; p.words=[]; p.chunks=p.mots.map(([txt,cible])=>{const c=document.createElement('span');c.className='c';
     txt.split(' ').forEach((w,k,arr)=>{const s=document.createElement('span');s.className='w';s.textContent=w;c.appendChild(s);p.words.push(s);if(k<arr.length-1)c.appendChild(document.createTextNode(' '));});
     ph.appendChild(c);ph.appendChild(document.createTextNode(' '));return {c,cible,txt};});
-  const l=document.createElement('div');l.className='ligne';l.style.top=(190+i*128)+'px';
+  const l=document.createElement('div');l.className='ligne';l.style.top=(222+i*124)+'px';
   l.innerHTML=`<div class="d">${p.d}</div><div class="q">${p.q}</div><div class="m">${fmtE(p.m)}</div><div class="sep"></div>`;$('lignes').appendChild(l);
   p.ligne=l; p.cells={d:l.querySelector('.d'),q:l.querySelector('.q'),m:l.querySelector('.m')};
 });
@@ -127,19 +133,19 @@ function prepare(){ if(VOLS&&VOLS.police) return; const police=document.fonts.ch
     VOLS.push({p,ch,v,from,to:[toX,to[1]-6],k});})); VOLS.police=police;}
 
 // ——— l'avion ———
-const ORIG=[540,1350];
-const vol=f=>[ORIG[0]+f*700-Math.sin(Math.PI*f)*260, ORIG[1]-f*1700+Math.sin(Math.PI*f)*120];
+const ORIG=[540,1705];
+const vol=f=>[ORIG[0]+f*700-Math.sin(Math.PI*f)*260, ORIG[1]-f*1900+Math.sin(Math.PI*f)*120];
 
 function seek(T){
   prepare();
   const t=((T%DN)+DN)%DN, b=t/B;
   // caméra calme : elle avance doucement vers la feuille, puis recule pour la fin
-  const z=1+0.05*ease(seg(b,0,20))-0.05*ease(seg(b,22,26)), dy=-30*ease(seg(b,0,20))+30*ease(seg(b,22,26));
+  const z=1+0.05*ease(seg(b,0,14))-0.05*ease(seg(b,16.5,19)), dy=-30*ease(seg(b,0,14))+30*ease(seg(b,16.5,19));
   $('cam').style.transform=`translateY(${dy}px) scale(${z})`;
 
   // le micro et la voix
   const parle=P.find(p=>b>=p.a&&b<p.a+DUREE_DIT+0.3);
-  $('micro').style.opacity=b<26.5?1-seg(b,23,24):0; $('micro').style.transform=`scale(${parle?1.06:1})`;
+  $('micro').style.opacity=1-seg(b,14,15); $('micro').style.transform=`scale(${parle?1.06:1})`;
   let bars='';if(parle){const a=seg(b,parle.a,parle.a+0.3)*(1-seg(b,parle.a+DUREE_DIT,parle.a+DUREE_DIT+0.3));
     for(let i=0;i<30;i++){const h=4+a*30*Math.abs(Math.sin(t*8+i*1.9)*Math.sin(t*3.7+i*.7));bars+=`<rect x="${i*13+6}" y="${20-h/2}" width="6" height="${h}" rx="3" fill="#C9480A"/>`;}}
   $('onde').innerHTML=bars;
@@ -164,22 +170,23 @@ function seek(T){
     p.ligne.querySelector('.sep').style.opacity=dOk?1:0;
     const m=p.cells.m; m.style.color=mOk&&b<p.fly+VOL+1.2?'#C9480A':''; });
   // le total
-  const u=ease(seg(b,20,22.5)); $('totv').textContent=fmtE(u>=1?TTC:Math.round(TTC*u/10)*10);
-  $('tot').style.opacity=seg(b,19.6,20.1);
+  const u=ease(seg(b,13.8,15.4)); $('totv').textContent=fmtE(u>=1?TTC:Math.round(TTC*u/10)*10);
+  $('tot').style.opacity=seg(b,13.3,13.8);
 
-  // la feuille se plie en deux puis en avion, qui part chez le client
-  const pli=seg(b,23,24.6), part=b>=24.6;
-  $('feuille').style.transform=`perspective(2400px) rotateX(${ease(pli)*88}deg) scale(${1-0.35*ease(pli)})`;
-  $('feuille').style.opacity=pli<1?1:0;
-  const fv=part?easeOut(seg(b,24.6,26.6)):0,[ax,ay]=vol(fv),q=vol(Math.min(1,fv+0.01));
-  $('avion').style.opacity=b>=24.3&&fv<0.99?seg(b,24.3,24.7):0;
-  $('avion').style.transform=`translate(${ax-90}px,${ay-90}px) rotate(${Math.atan2(q[1]-ay,q[0]-ax)*180/Math.PI+45}deg) scale(${lerp(0.6,1,seg(b,24.3,24.8))-0.45*fv})`;
+  // le pouce appuie sur « Valider et envoyer », le bouton devient vert, un avion de papier sort du téléphone
+  const press=b>=16&&b<16.5?Math.sin(Math.PI*seg(b,16,16.5)):0, ok=b>=16.3;
+  $('btn').style.transform=`scale(${1-0.06*press})`; $('btn').style.opacity=seg(b,13.6,14.1);
+  $('btn').style.background=ok?'#2F8F5B':''; $('btnt').textContent=ok?'✓  Envoyé à Mme Fontaine':'Valider et envoyer';
+  const part=b>=16.3, fv=part?easeOut(seg(b,16.3,18.3)):0,[ax,ay]=vol(fv),q=vol(Math.min(1,fv+0.01));
+  $('avion').style.opacity=part&&fv<0.99?seg(b,16.3,16.6):0;
+  $('avion').style.transform=`translate(${ax-90}px,${ay-90}px) rotate(${Math.atan2(q[1]-ay,q[0]-ax)*180/Math.PI+45}deg) scale(${lerp(0.5,1,seg(b,16.3,16.8))-0.45*fv})`;
   let tp='';if(part){for(let i=0;i<=40;i++){const pp=vol(fv*i/40);tp+=(i?'L':'M')+pp[0].toFixed(1)+' '+pp[1].toFixed(1);}}
-  $('traceP').setAttribute('d',tp); $('traceP').style.opacity=part?0.8*(1-seg(b,26.4,27.4)):0;
+  $('traceP').setAttribute('d',tp); $('traceP').style.opacity=part?0.8*(1-seg(b,18.2,19.2)):0;
 
+  const sort=seg(b,18.4,19.2); for(const id of ['tel','ile','feuille'])$(id).style.opacity=1-sort; $('feuille').style.transform='';
   // la phrase de fin, puis le carton (jamais ensemble)
-  const kt=b>=27?spring((b-27)*B,12,.8):0; $('tag').style.opacity=clamp(kt*1.5)*(1-seg(b,31.6,32.1)); $('tag').style.transform=`translateY(${(1-kt)*30}px)`;
-  for(let i=0;i<4;i++){const k=b<32.5?0:spring((b-32.5)*B-i*0.1,12,.8),e=$('f'+i);e.style.opacity=clamp(k*1.5);e.style.transform=`translateY(${(1-k)*40}px)`;}
+  const kt=b>=19.4?spring((b-19.4)*B,12,.8):0; $('tag').style.opacity=clamp(kt*1.5)*(1-seg(b,23.3,23.8)); $('tag').style.transform=`translateY(${(1-kt)*30}px)`;
+  for(let i=0;i<4;i++){const k=b<24?0:spring((b-24)*B-i*0.1,12,.8),e=$('f'+i);e.style.opacity=clamp(k*1.5);e.style.transform=`translateY(${(1-k)*40}px)`;}
 }
 window.seek=seek;
 

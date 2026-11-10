@@ -13,7 +13,7 @@ SKILL = os.path.expanduser("~/.claude/skills/sound-effects/sfx")
 VIDEO, SORTIE = sys.argv[1], sys.argv[2]
 SR = 48000
 B = 60 / 123
-D = 44 * B
+D = 34 * B
 # Morceau choisi par variables d'environnement (défaut : « Smile », Mixkit #1076, choisie par l'utilisateur le 10 nov. 2026) : numéro, tempo mesuré, phase, temps sautés.
 PISTE = os.environ.get("PISTE", "474")
 BPM_P = float(os.environ.get("BPM_P", "121"))
@@ -56,16 +56,18 @@ musique[: len(m)] = m
 
 deux = 2 / 60
 SOBRE = True
-# Pub 6 : un souffle doux quand une phrase part se ranger, un clic léger quand le prix se pose, le pli et l'envoi.
-for fly, n in ((3.4, 2), (8.3, 2), (12.9, 2), (17.7, 3)):
-    sfx("transition/fs-816262-broomstick-whoosh-3-quiet-okm1.ogg", fly, -17, "les mots partent se ranger", deux)
-    sfx("kit/click.ogg", fly + (n - 1) * 0.45 + 1.2, -16, "le prix se pose")
-for j in range(6):
-    sfx("tick/fs528561.ogg", 20 + 0.42 * j, -24 + j, "le total monte")
-sfx("ding/fs-349504-triangle-open-04.ogg", 22.5, -14, "le total est juste")
-sfx("transition/fs-702773-swipe-wav.ogg", 23, -14, "la feuille se plie", deux)
-sfx("whoosh/fs-169867-swoosh.ogg", 24.6, -14, "l'avion part chez le client", deux)
-sfx("ding/kenney-interface-confirmation-001.ogg", 32.5, -15, "le carton Diktéo")
+# Pub 6 (version téléphone, rapide) : souffle doux quand une phrase part se ranger, clic léger quand le prix se pose,
+# le total qui monte, le pouce sur « Valider et envoyer », l'avion qui part.
+for fly, n in ((1.8, 2), (5.2, 2), (8.6, 2), (12.0, 3)):
+    sfx("transition/fs-816262-broomstick-whoosh-3-quiet-okm1.ogg", fly, -18, "les mots partent se ranger", deux)
+    sfx("kit/click.ogg", fly + (n - 1) * 0.3 + 0.95, -16, "le prix se pose")
+for j in range(5):
+    sfx("tick/fs528561.ogg", 13.8 + 0.32 * j, -24 + j, "le total monte")
+sfx("ding/fs-349504-triangle-open-04.ogg", 15.4, -14, "le total est juste")
+sfx("kit/click.ogg", 16, -11, "le pouce sur « Valider et envoyer »")
+sfx("ding/kenney-interface-confirmation-001.ogg", 16.3, -14, "envoyé")
+sfx("whoosh/fs-169867-swoosh.ogg", 16.3, -14, "l'avion part chez le client", deux)
+sfx("ding/kenney-interface-confirmation-001.ogg", 24, -16, "le carton Diktéo")
 
 mix = musique * 10 ** ((-4 if SOBRE else -9) / 20) + bruits
 mix /= max(1e-6, np.abs(mix).max()) / 0.9

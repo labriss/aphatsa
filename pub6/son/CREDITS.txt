@@ -5,6 +5,5 @@ Bruitages :
 - ding/fs-349504-triangle-open-04.ogg
 - ding/kenney-interface-confirmation-001.ogg
 - tick/fs528561.ogg
-- transition/fs-702773-swipe-wav.ogg
 - transition/fs-816262-broomstick-whoosh-3-quiet-okm1.ogg
 - whoosh/fs-169867-swoosh.ogg
