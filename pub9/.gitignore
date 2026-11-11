@@ -1,0 +1,6 @@
+*.mp4
+*.png
+*.jpg
+tmp/
+musique/
+notifs.html
