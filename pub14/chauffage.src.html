@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Diktéo · le froid</title>
+<style>
+/*FONTS*/
+html,body{margin:0;background:#050505;overflow:hidden}
+#c{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0}
+#ui{position:absolute;left:0;bottom:0;width:100%;padding:10px;background:#111;color:#ccc;font:14px sans-serif;display:flex;gap:10px;align-items:center;box-sizing:border-box}
+#ui input{flex:1}
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<div id="ui"><button id="lecture">Lecture</button><input id="curseurUI" type="range" min="0" max="1000" value="0"><span id="temps">0.00</span></div>
+<script>
+/* Pub 14 « le froid » : pour les chauffagistes. Un salon gelé en plein hiver. Chaque phrase dictée installe le vrai
+   matériel : la chaudière, les radiateurs, le thermostat ; le givre recule, la pièce se réchauffe, le thermostat monte.
+   b0 « CHAUFFAGISTE ? » essuyé du doigt dans le givre d'une vitre + « Encore une chaudière à chiffrer ce soir ? »
+   b4 recul : le salon gelé   b5…11 les quatre lignes   b13.5 le chauffage démarre : 21°, le total   b17 envoi   b21 carton */
+const W=1080,H=1920,BPM=129.2,B=60/BPM,NB=28,DN=NB*B;
+const cv=document.getElementById('c'),g=cv.getContext('2d');
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const lerp=(a,b,k)=>a+(b-a)*k;
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const ease=x=>(x=clamp(x),x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2);
+const easeOut=x=>1-Math.pow(1-clamp(x),3);
+function spring(t,w=14,z=.62){if(t<=0)return 0;const wd=w*Math.sqrt(1-z*z);return 1-Math.exp(-z*w*t)*(Math.cos(wd*t)+(z*w/wd)*Math.sin(wd*t));}
+const rnd=n=>{n=Math.sin(n*127.1+311.7)*43758.5453;return n-Math.floor(n);};
+const O1='#E8650F',O2='#C9480A',O3='#A8350A',ORANGE='#ff8a3d';
+function rr(x,y,w,h,r){g.beginPath();g.roundRect(x,y,w,h,r);}
+function texte(t,x,y,size,col,poids=700,font='Archivo',align='center'){g.font=`${poids} ${size}px ${font}`;g.fillStyle=col;g.textAlign=align;g.textBaseline='middle';g.fillText(t,x,y);}
+function lueur(col,flou){g.shadowColor=col;g.shadowBlur=flou;}
+const mix=(c1,c2,k)=>`rgb(${c1.map((v,i)=>Math.round(lerp(v,c2[i],k))).join(',')})`;
+
+const ITEMS=[
+  {b:5, dit:'« Chaudière à condensation,', dit2:'3 200 euros. »'},
+  {b:7, dit:'« Six radiateurs,', dit2:'280 euros pièce. »'},
+  {b:9, dit:'« Thermostat connecté,', dit2:'180 euros. »'},
+  {b:11,dit:'« Main-d’œuvre, deux jours,', dit2:'880 euros. »'},
+];
+const T_CH=5.3, T_RAD=7.3, T_TH=9.3, T_MO=11.3, B_ON=13.5, B_ENV=17, B_TXT=17.8, B_FIN=21;
+const TOTAL=6534;
+// la chaleur de la pièce, de 0 (gel) à 1 (21°)
+const chaleur=b=>.12*ease(seg(b,T_CH+.5,T_CH+1.5))+.18*ease(seg(b,T_RAD+.4,T_RAD+1.6))+.1*ease(seg(b,T_TH+.4,T_TH+1.2))+.6*ease(seg(b,B_ON,B_ON+2.6));
+// la pièce
+const FEN={x:590,y:520,w:380,h:520};            // la fenêtre (dehors : la neige)
+const CHAUD={x:110,y:560,w:240,h:340};          // la chaudière murale
+const RADS=[{x:560,y:1180,w:440,h:190},{x:90,y:1180,w:300,h:190}];
+const THERMO={x:450,y:840,r:62};
+const SOL=1480;
+
+// le givre : une texture de cristaux, calculée une fois
+const GIVRE=(()=>{const c=document.createElement('canvas');c.width=W;c.height=H;const f=c.getContext('2d');
+  let s=11;const R=()=>(s=(s*16807)%2147483647)/2147483647;
+  f.strokeStyle='rgba(200,220,245,.28)';f.lineCap='round';
+  const branche=(x,y,a,l,d)=>{if(d>5||l<4)return;const x2=x+Math.cos(a)*l,y2=y+Math.sin(a)*l;f.lineWidth=Math.max(.6,2.2-d*.35);f.beginPath();f.moveTo(x,y);f.lineTo(x2,y2);f.stroke();
+    branche(x2,y2,a+(R()-.5)*.5,l*.82,d+1);if(R()<.7)branche(x+(x2-x)*.5,y+(y2-y)*.5,a+(R()<.5?1:-1)*(.6+R()*.5),l*.5,d+1);};
+  for(let i=0;i<260;i++){const bord=R();let x,y;if(bord<.25){x=R()*W;y=R()*260;}else if(bord<.5){x=R()*W;y=H-R()*260;}else if(bord<.75){x=R()*220;y=R()*H;}else{x=W-R()*220;y=R()*H;}
+    branche(x,y,R()*Math.PI*2,30+R()*60,0);}
+  const gr=f.createRadialGradient(W/2,H/2,H*.3,W/2,H/2,H*.75);gr.addColorStop(0,'rgba(220,235,255,0)');gr.addColorStop(1,'rgba(160,190,225,.25)');f.fillStyle=gr;f.fillRect(0,0,W,H);
+  return c;})();
+// le givre de la vitre, pour l'accroche
+const VITRE=(()=>{const c=document.createElement('canvas');c.width=FEN.w*3;c.height=FEN.h*3;const f=c.getContext('2d');
+  f.fillStyle='rgba(120,145,175,.82)';f.fillRect(0,0,c.width,c.height);
+  let s=5;const R=()=>(s=(s*16807)%2147483647)/2147483647;f.strokeStyle='rgba(215,230,245,.45)';f.lineCap='round';
+  const branche=(x,y,a,l,d)=>{if(d>5||l<5)return;const x2=x+Math.cos(a)*l,y2=y+Math.sin(a)*l;f.lineWidth=Math.max(.8,3-d*.45);f.beginPath();f.moveTo(x,y);f.lineTo(x2,y2);f.stroke();
+    branche(x2,y2,a+(R()-.5)*.5,l*.8,d+1);if(R()<.75)branche(x+(x2-x)*.5,y+(y2-y)*.5,a+(R()<.5?1:-1)*(.6+R()*.5),l*.55,d+1);};
+  for(let i=0;i<140;i++)branche(R()*c.width,R()*c.height,R()*Math.PI*2,40+R()*80,0);
+  return c;})();
+const SCRATCH=document.createElement('canvas');SCRATCH.width=VITRE.width;SCRATCH.height=VITRE.height;const sg=SCRATCH.getContext('2d');
+
+function etincelles(x,y,seed,t,force=1,col=[255,200,140]){if(t<0||t>1)return;g.save();g.globalCompositeOperation='lighter';
+  for(let i=0;i<22*force;i++){const a=rnd(seed+i*7)*Math.PI*2,v=(60+rnd(seed+i*3)*260)*force,px=x+Math.cos(a)*v*t,py=y+Math.sin(a)*v*t+t*t*200;
+    g.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${1-t})`;g.beginPath();g.arc(px,py,3*(1-t)+.8,0,7);g.fill();}g.restore();}
+let FADE=1;
+function etiquette(nom,prix,x,y,b0,b,extra){if(b<b0||FADE<=0)return;const k=spring((b-b0)*B,15,.6),fl=Math.exp(-(b-b0)*B*4),vieux=b>b0+2.2?.55:1;
+  g.font='700 36px Archivo';const w1=g.measureText(nom).width;g.font='800 46px JBMono';const w2=g.measureText(prix).width,w=w1+w2+76;
+  const cx=clamp(x,w/2+20,1060-w/2);
+  g.save();g.globalAlpha*=clamp(k*1.6)*vieux*FADE;g.translate(cx,y);g.scale(.7+.3*clamp(k),.7+.3*clamp(k));
+  g.fillStyle='rgba(12,10,8,.88)';rr(-w/2,-40,w,80,28);g.fill();g.strokeStyle=`rgba(255,138,61,${.45+.5*fl})`;g.lineWidth=2.5;rr(-w/2,-40,w,80,28);g.stroke();
+  texte(nom,-w/2+26,2,36,'#f3ece2',700,'Archivo','left');lueur(`rgba(255,138,61,${.4+.4*fl})`,16+30*fl);texte(prix,w/2-26,2,46,ORANGE,800,'JBMono','right');
+  if(extra){g.shadowBlur=0;extra(w);}g.restore();}
+// la dictée en direct : « TU DICTES », les mots s'écrivent au rythme de la voix, curseur, micro qui pulse
+function dictee(it,b,mx,my,tx,y0,size){
+  const L1=it.dit.length,L2=it.dit2.length,u=seg(b,it.b+.05,it.b+1.3),n=Math.floor(u*(L1+L2));
+  const s1=it.dit.slice(0,Math.min(n,L1)),s2=it.dit2.slice(0,Math.max(0,n-L1));
+  texte('TU DICTES',tx,y0-2,30,ORANGE,900,'Archivo','left');
+  texte(s1,tx,y0+54,size,'#fff',700,'Archivo','left');if(s2)texte(s2,tx,y0+54+size*1.3,size,ORANGE,700,'Archivo','left');
+  if(u<1||Math.floor(b*3)%2===0){g.font=`700 ${size}px Archivo`;const yy=s2?y0+54+size*1.3:y0+54,ww=g.measureText(s2||s1).width;g.fillStyle=s2?ORANGE:'#fff';g.fillRect(tx+ww+6,yy-size*.45,4,size*.9);}
+  if(u<1){g.save();g.globalCompositeOperation='lighter';for(let k=0;k<2;k++){const ph=((b-it.b)*1.6+k*.5)%1;g.strokeStyle=`rgba(255,138,61,${.7*(1-ph)})`;g.lineWidth=3;g.beginPath();g.arc(mx,my,46+ph*36,0,7);g.stroke();}g.restore();}
+}
+
+// ——— les objets ———
+function chaudiere(k,on,t){if(k<=0)return;const {x,y,w,h}=CHAUD;g.save();g.globalAlpha*=clamp(k*2);g.translate(0,(1-k)*-60);
+  g.fillStyle='rgba(0,0,0,.4)';rr(x+10,y+16,w,h,18);g.fill();
+  const gr=g.createLinearGradient(x,0,x+w,0);gr.addColorStop(0,'#bcb8b0');gr.addColorStop(.35,'#e2ded6');gr.addColorStop(1,'#a9a49b');g.fillStyle=gr;rr(x,y,w,h,18);g.fill();
+  g.fillStyle='#1a1c1e';rr(x+60,y+60,w-120,56,10);g.fill();
+  if(on>0){g.save();lueur('rgba(255,138,61,.8)',14);texte(`${Math.round(lerp(20,60,on))}°`,x+w/2,y+90,36,ORANGE,800,'JBMono');g.restore();}
+  g.fillStyle='rgba(0,0,0,.12)';g.fillRect(x+30,y+150,w-60,3);texte('CONDENSATION',x+w/2,y+190,18,'#6e6a62',800,'Archivo');
+  // la flamme bleue visible par le hublot
+  g.fillStyle='#22262a';g.beginPath();g.arc(x+w/2,y+250,34,0,7);g.fill();
+  if(on>0){g.save();g.globalCompositeOperation='lighter';for(let i=0;i<5;i++){const fx=x+w/2-16+i*8,hh=18+8*Math.sin(t*14+i*1.7);const gf=g.createLinearGradient(0,y+268,0,y+268-hh);gf.addColorStop(0,`rgba(90,160,255,${.9*on})`);gf.addColorStop(1,'rgba(255,170,90,0)');g.fillStyle=gf;g.beginPath();g.ellipse(fx,y+268-hh/2,4,hh/2,0,0,7);g.fill();}g.restore();}
+  // les tuyaux sous la chaudière
+  g.strokeStyle='#b5713f';g.lineWidth=10;g.lineCap='round';for(let i=0;i<3;i++){g.beginPath();g.moveTo(x+70+i*50,y+h);g.lineTo(x+70+i*50,y+h+50);g.stroke();}
+  g.restore();}
+function radiateur(r,k,chaud,t){if(k<=0)return;const {x,y,w,h}=r;g.save();g.globalAlpha*=clamp(k*2);const sy=.6+.4*clamp(k);g.translate(x+w/2,y+h);g.scale(1,sy);g.translate(-x-w/2,-y-h);
+  g.fillStyle='rgba(0,0,0,.35)';rr(x+8,y+14,w,h,12);g.fill();
+  const n=Math.floor(w/34);for(let i=0;i<n;i++){const ex=x+i*(w/n),gr=g.createLinearGradient(ex,0,ex+w/n,0);
+    const c0=mix([150,150,148],[226,170,130],chaud),c1=mix([232,232,228],[255,226,200],chaud);gr.addColorStop(0,c0);gr.addColorStop(.5,c1);gr.addColorStop(1,c0);g.fillStyle=gr;rr(ex+2,y,w/n-4,h,10);g.fill();}
+  g.fillStyle='#8f8b85';g.fillRect(x-14,y+h-30,14,12);g.fillStyle='#d9d2c6';g.beginPath();g.arc(x-20,y+h-24,12,0,7);g.fill();
+  g.restore();
+  // l'air chaud qui ondule au-dessus
+  if(chaud>.05){g.save();g.globalCompositeOperation='lighter';g.strokeStyle=`rgba(255,180,120,${.22*chaud})`;g.lineWidth=3;
+    for(let i=0;i<5;i++){const bx=x+w*(i+.5)/5;g.beginPath();for(let s=0;s<=20;s++){const yy=y-10-s*9,xx=bx+Math.sin(t*3+s*.5+i)*8;s?g.lineTo(xx,yy):g.moveTo(xx,yy);}g.stroke();}g.restore();}}
+function thermostat(k,temp,b){if(k<=0)return;const {x,y,r}=THERMO;g.save();g.translate(x,y);g.scale(clamp(k,0,1.1),clamp(k,0,1.1));
+  g.fillStyle='rgba(0,0,0,.4)';g.beginPath();g.arc(6,10,r,0,7);g.fill();
+  const gr=g.createRadialGradient(-20,-20,5,0,0,r);gr.addColorStop(0,'#f2efe9');gr.addColorStop(1,'#bdb8ae');g.fillStyle=gr;g.beginPath();g.arc(0,0,r,0,7);g.fill();
+  g.fillStyle='#16191c';g.beginPath();g.arc(0,0,r*.74,0,7);g.fill();
+  const u=clamp((temp-12)/9);g.strokeStyle='rgba(255,255,255,.12)';g.lineWidth=7;g.beginPath();g.arc(0,0,r*.6,Math.PI*.75,Math.PI*2.25);g.stroke();
+  g.strokeStyle=u>.5?ORANGE:'#7fb8ff';g.lineCap='round';g.beginPath();g.arc(0,0,r*.6,Math.PI*.75,Math.PI*(.75+1.5*u));g.stroke();
+  lueur(u>.5?'rgba(255,138,61,.7)':'rgba(127,184,255,.7)',12);texte(`${temp.toFixed(0)}°`,0,2,40,u>.5?'#ffd2b0':'#cfe4ff',800,'JBMono');g.restore();}
+function calendrier(k,b){if(k<=0)return;const x=830,y=380;g.save();g.translate(x,y);g.scale(clamp(k,0,1.1),clamp(k,0,1.1));
+  g.fillStyle='rgba(0,0,0,.4)';rr(-62,-58,132,140,14);g.fill();g.fillStyle='#ece7dd';rr(-66,-66,132,140,14);g.fill();g.fillStyle=O2;rr(-66,-66,132,36,14);g.fill();g.fillRect(-66,-46,132,16);
+  const flip=b>=T_MO+.8?1:0;texte(flip?'JOUR 2':'JOUR 1',0,-48,18,'#fff',900,'Archivo');texte(flip?'2':'1',0,20,64,'#2a2622',900,'Archivo');g.restore();}
+
+function salon(b,t,h){
+  // le mur : froid bleu-gris, qui se réchauffe
+  const gm=g.createLinearGradient(0,0,0,SOL);gm.addColorStop(0,mix([22,30,42],[58,40,30],h));gm.addColorStop(1,mix([30,40,54],[74,52,38],h));g.fillStyle=gm;g.fillRect(-400,-600,W+800,SOL+600);
+  // la plinthe et le parquet
+  const gs=g.createLinearGradient(0,SOL,0,H+400);gs.addColorStop(0,mix([40,44,50],[92,62,40],h));gs.addColorStop(1,mix([18,20,24],[44,30,20],h));g.fillStyle=gs;g.fillRect(-400,SOL,W+800,800);
+  g.strokeStyle='rgba(0,0,0,.25)';g.lineWidth=3;for(let y=SOL+60;y<H+400;y+=70){g.beginPath();g.moveTo(-400,y);g.lineTo(W+400,y);g.stroke();}
+  g.fillStyle=mix([60,66,74],[120,96,76],h);g.fillRect(-400,SOL-24,W+800,24);
+  // la fenêtre : la nuit d'hiver, la neige
+  const {x,y,w,h:fh}=FEN;g.fillStyle='#0a1222';g.fillRect(x,y,w,fh);
+  g.fillStyle='#d8e4f0';g.beginPath();g.moveTo(x,y+fh);g.lineTo(x,y+fh-70);g.quadraticCurveTo(x+w*.4,y+fh-110,x+w,y+fh-60);g.lineTo(x+w,y+fh);g.fill();
+  g.fillStyle='rgba(255,255,255,.85)';for(let i=0;i<40;i++){const sx=x+((rnd(i*3.1)*w+t*12*(rnd(i)-.5)*4)%w+w)%w,sy=y+((rnd(i*7.3)*fh+t*(40+rnd(i*2)*50))%fh);g.beginPath();g.arc(sx,sy,1.5+rnd(i*5)*2,0,7);g.fill();}
+  // le givre sur la vitre : il fond avec la chaleur
+  g.save();g.globalAlpha=.85*(1-h);g.drawImage(VITRE,x,y,w,fh);g.restore();
+  g.strokeStyle=mix([70,76,84],[140,110,86],h);g.lineWidth=22;g.strokeRect(x,y,w,fh);g.lineWidth=12;g.beginPath();g.moveTo(x+w/2,y);g.lineTo(x+w/2,y+fh);g.stroke();
+  // un fauteuil et une lampe, pour lire le salon
+  g.fillStyle='rgba(0,0,0,.3)';rr(380,1290,170,180,24);g.fill();rr(370,1360,190,110,20);g.fill();
+}
+
+function seek(T){
+  const t=((T%DN)+DN)%DN,b=t/B;
+  g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.shadowBlur=0;g.setLineDash([]);   // tout remettre à zéro à chaque image
+  g.fillStyle='#050505';g.fillRect(0,0,W,H);
+  const h=chaleur(b);
+  // la caméra : collée à la vitre givrée, puis recul sur le salon
+  const kz=ease(seg(b,3.6,4.9));const cx=lerp(FEN.x+FEN.w/2,540,kz),cy=lerp(FEN.y+FEN.h/2,1000,kz),z=Math.exp(lerp(Math.log(2.9),Math.log(1),kz));
+  g.save();g.translate(540,960);g.scale(z,z);g.translate(-cx,-cy);
+  salon(b,t,h);
+  // l'accroche : « CHAUFFAGISTE ? » essuyé du doigt dans le givre, la lumière chaude passe à travers
+  if(b<5){const wipe=seg(b,.1,1.4);sg.setTransform(1,0,0,1,0,0);sg.clearRect(0,0,SCRATCH.width,SCRATCH.height);
+    sg.globalCompositeOperation='source-over';sg.drawImage(VITRE,0,0);sg.globalCompositeOperation='destination-out';
+    sg.font='900 92px Archivo';sg.textAlign='center';sg.textBaseline='middle';sg.lineJoin='round';sg.lineCap='round';sg.lineWidth=18;
+    sg.save();sg.beginPath();sg.rect(0,0,SCRATCH.width*(.08+.9*wipe),SCRATCH.height);sg.clip();sg.strokeStyle='#000';sg.fillStyle='#000';sg.strokeText('CHAUFFAGISTE ?',SCRATCH.width/2,SCRATCH.height*.42);sg.fillText('CHAUFFAGISTE ?',SCRATCH.width/2,SCRATCH.height*.42);sg.restore();
+    const {x,y,w,h:fh}=FEN;g.save();g.globalAlpha=1-seg(b,3.4,4.4);
+    const gl=g.createRadialGradient(x+w/2,y+fh*.42,10,x+w/2,y+fh*.42,w*.6);gl.addColorStop(0,'rgba(240,150,80,.9)');gl.addColorStop(1,'rgba(200,100,40,.5)');g.fillStyle=gl;g.fillRect(x,y,w,fh);
+    g.drawImage(SCRATCH,x,y,w,fh);
+    // les lettres essuyées restent nettes : la lumière chaude passe à travers
+    g.save();g.beginPath();g.rect(x,y,w*(.08+.9*wipe),fh);g.clip();g.font='900 30.7px Archivo';g.textAlign='center';g.textBaseline='middle';lueur('rgba(255,150,70,.9)',6);g.fillStyle='#ffe4c8';g.fillText('CHAUFFAGISTE ?',x+w/2,y+fh*.42);g.restore();
+    g.restore();}
+  // 1 · la chaudière se pose au mur
+  const kc=b>=T_CH?clamp(spring((b-T_CH)*B,13,.6),0,1.1):0;chaudiere(kc,ease(seg(b,B_ON,B_ON+2)),t);
+  // les tuyaux de cuivre qui courent vers les radiateurs
+  if(b>=T_RAD){const u=ease(seg(b,T_RAD,T_RAD+1));g.save();g.strokeStyle='#b5713f';g.lineWidth=9;g.lineCap='round';g.lineJoin='round';
+    const pts=[[180,CHAUD.y+CHAUD.h+50],[180,1430],[1020,1430],[1020,1330]];let L=0;const ls=[];for(let i=1;i<pts.length;i++){const l=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);ls.push(l);L+=l;}
+    let reste=L*u;g.beginPath();g.moveTo(...pts[0]);for(let i=1;i<pts.length&&reste>0;i++){const k=Math.min(1,reste/ls[i-1]);g.lineTo(lerp(pts[i-1][0],pts[i][0],k),lerp(pts[i-1][1],pts[i][1],k));reste-=ls[i-1];}g.stroke();g.restore();}
+  // 2 · les radiateurs
+  RADS.forEach((r,i)=>{const b0=T_RAD+.3+i*.35;const k=b>=b0?clamp(spring((b-b0)*B,14,.55),0,1.1):0;radiateur(r,k,ease(seg(b,B_ON+.4+i*.2,B_ON+2.2)),t);
+    const d=(b-b0)*B;etincelles(r.x+r.w/2,r.y+r.h/2,i*17,d/.6,.6);});
+  // 3 · le thermostat
+  const kt=b>=T_TH?clamp(spring((b-T_TH)*B,15,.55),0,1.1):0;thermostat(kt,lerp(13,21,clamp((h-.4)/.6)),b);
+  // 4 · la main-d'œuvre : deux jours au calendrier
+  calendrier(b>=T_MO?clamp(spring((b-T_MO)*B,14,.55),0,1.1):0,b);
+  g.restore(); // fin de la caméra
+
+  // le givre sur les bords de l'écran : il fond avec la chaleur
+  if(b>=3.6){g.save();g.globalAlpha=(1-h)*seg(b,3.6,4.8);g.drawImage(GIVRE,0,0);g.restore();}
+  // la lueur chaude quand le chauffage démarre
+  if(h>.4){g.save();g.globalCompositeOperation='lighter';const gl=g.createRadialGradient(540,1300,100,540,1300,1200);gl.addColorStop(0,`rgba(255,150,80,${.16*(h-.4)/.6})`);gl.addColorStop(1,'rgba(255,120,60,0)');g.fillStyle=gl;g.fillRect(0,0,W,H);g.restore();}
+
+  // les étiquettes, une par ligne dictée
+  FADE=1-seg(b,B_ON,B_ON+.5);
+  etiquette('Chaudière à condensation','3 200 €',540,980,T_CH+.4,b);
+  etiquette('6 radiateurs','1 680 €',700,1100,T_RAD+.5,b);
+  etiquette('Thermostat connecté','180 €',540,740,T_TH+.4,b);
+  etiquette('Main-d’œuvre 2 jours','880 €',560,520,T_MO+.4,b);
+  // le contexte de l'accroche
+  if(b>1.2&&b<4.6){const k=spring((b-1.2)*B,15,.7);g.save();g.globalAlpha=clamp(k*1.6)*(1-seg(b,3.6,4.4));g.translate(0,(1-clamp(k))*16);lueur('rgba(0,0,0,.9)',24);texte('Encore une chaudière à chiffrer ce soir ?',540,1560,50,'#f3e6d6',800,'Archivo');g.restore();}
+  // la phrase dite, en haut : une seule à la fois, avec le micro
+  ITEMS.forEach((it,i)=>{const b1=i<ITEMS.length-1?ITEMS[i+1].b-.15:B_ON-.3;if(b<it.b-.05||b>b1+.2)return;
+    const k=spring((b-it.b)*B,15,.75),a=clamp(k*1.6)*(1-seg(b,b1,b1+.2));g.save();g.globalAlpha=a;
+    g.fillStyle='rgba(10,8,6,.88)';rr(70,80,940,236,40);g.fill();
+    const gm=g.createLinearGradient(110,143,190,223);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(150,198,44,0,7);g.fill();
+    g.fillStyle='#fff';rr(141,173,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(150,193,17,.15*Math.PI,.85*Math.PI);g.stroke();
+    dictee(it,b,150,198,220,130,44);g.restore();});
+  // le chauffage démarre : 21°, et le total
+  if(b>=B_ON+.3&&b<B_ENV+.8){const kg=easeOut(seg(b,B_ON+.5,B_ON+2.3)),a=clamp((b-B_ON-.3)*3)*(1-seg(b,B_ENV+.2,B_ENV+.8)),val=TOTAL*kg;
+    const txt=val.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}).replace(/ | /g,' ')+' €',fl=kg>=1?Math.exp(-(b-B_ON-2.3)*B*3):0;
+    g.save();g.globalAlpha=a;g.fillStyle='rgba(12,10,8,.9)';rr(110,100,860,180,30);g.fill();g.strokeStyle='rgba(255,138,61,.35)';g.lineWidth=2;rr(110,100,860,180,30);g.stroke();
+    texte('TOTAL TTC',150,190,30,'rgba(255,190,140,.8)',800,'Archivo','left');lueur(`rgba(255,138,61,${.6+.4*fl})`,18+40*fl);texte(txt,930,194,82,ORANGE,800,'JBMono','right');g.restore();}
+  // l'envoi : le devis part par la fenêtre, une traînée chaude dans la neige
+  if(b>=B_ENV&&b<B_FIN){const u=ease(seg(b,B_ENV,B_ENV+1.5));const P0=[540,1000],P1=[FEN.x+FEN.w/2,FEN.y+FEN.h/2],P2=[1200,-200];
+    const at=v=>v<.5?[lerp(P0[0],P1[0],v*2),lerp(P0[1],P1[1],v*2)]:[lerp(P1[0],P2[0],v*2-1),lerp(P1[1],P2[1],v*2-1)];
+    const [hx,hy]=at(u),fa=1-seg(b,B_ENV+1.3,B_ENV+1.6);g.save();g.globalAlpha=fa;g.globalCompositeOperation='lighter';
+    g.beginPath();for(let i=0;i<=30;i++){const [px,py]=at(u*i/30);i?g.lineTo(px,py):g.moveTo(px,py);}g.strokeStyle='rgba(255,170,100,.5)';g.lineWidth=4;g.stroke();
+    const gl=g.createRadialGradient(hx,hy,0,hx,hy,70);gl.addColorStop(0,'rgba(255,240,220,.95)');gl.addColorStop(.3,'rgba(255,160,80,.5)');gl.addColorStop(1,'rgba(255,120,40,0)');g.fillStyle=gl;g.beginPath();g.arc(hx,hy,70,0,7);g.fill();g.restore();}
+  if(b>=B_TXT&&b<B_FIN+.2){const k=ease(seg(b,B_TXT,B_TXT+.6)),a=k*(1-seg(b,B_FIN-.3,B_FIN+.2));g.save();g.globalAlpha=a;g.fillStyle='rgba(12,10,8,.86)';rr(150,1640+(1-k)*20,780,190,40);g.fill();
+    texte('Envoyé à Mme Roux.',540,1700+(1-k)*20,64,'#fff',800);texte('Avant le premier froid.',540,1780+(1-k)*20,64,ORANGE,800);g.restore();}
+  // le carton
+  if(b>=B_FIN){const k=spring((b-B_FIN)*B,12,.8);g.save();g.fillStyle=`rgba(8,6,5,${.84*clamp(k*1.5)})`;g.fillRect(0,0,W,H);g.globalAlpha=clamp(k*1.5);g.translate(0,(1-k)*36);
+    const tx=540-260,ty=700;const gr=g.createLinearGradient(tx,ty,tx+140,ty+140);gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);
+    lueur('rgba(232,101,15,.5)',40);g.fillStyle=gr;rr(tx,ty,140,140,40);g.fill();g.shadowColor='transparent';
+    g.save();g.translate(tx+18,ty+16);g.scale(4.4,4.4);g.fillStyle='#fff';g.fill(new Path2D('M6.5 2.5H12a9 9 0 0 1 0 18H9.2L4.5 23V4.5a2 2 0 0 1 2-2ZM9.2 9.5a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1Zm3.1-2.5a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1Zm3.1 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Z'),'evenodd');g.restore();
+    texte('Diktéo',tx+170,ty+72,138,'#fff',900,'Archivo','left');
+    texte('Tu dictes ton devis, Diktéo l’écrit.',540,940,46,'#f1e7da',700,'Archivo');
+    texte('3 devis offerts par mois · sans carte',540,1060,44,'#fff',700,'Archivo');
+    const gb=g.createLinearGradient(290,1150,790,1250);gb.addColorStop(0,O1);gb.addColorStop(.55,O2);gb.addColorStop(1,O3);g.fillStyle=gb;rr(270,1150,540,104,34);g.fill();
+    texte('dikteo.vercel.app',540,1203,46,'#fff',800,'Archivo');g.restore();}
+}
+window.seek=seek;
+const render=location.search.includes('render');
+if(render){document.getElementById('ui').style.display='none';}
+else{const fit=()=>{const k=Math.min(innerWidth/1080,(innerHeight-40)/1920);cv.style.transform=`scale(${k})`;};addEventListener('resize',fit);fit();
+  let t0=performance.now(),run=false,off=0;document.getElementById('lecture').onclick=()=>{run=!run;t0=performance.now()-off*1000;};
+  document.getElementById('curseurUI').oninput=e=>{off=e.target.value/1000*DN;t0=performance.now()-off*1000;};
+  (function loop(){if(run)off=((performance.now()-t0)/1000)%DN;document.getElementById('temps').textContent=off.toFixed(2);document.getElementById('curseurUI').value=off/DN*1000;seek(off);requestAnimationFrame(loop);})();}
+document.fonts.ready.then(()=>{seek(0);window.VIDEO={w:W,h:H,duration:DN};});
+</script>
+</body>
+</html>
