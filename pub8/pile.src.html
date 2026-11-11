@@ -22,7 +22,7 @@ html,body{margin:0;background:#050505;overflow:hidden}
    b19.5 l'onde de voix balaie la pile          b21    le téléphone monte : « Et si tu les disais ? »
    b22–34 la vraie dictée, les lignes, le total b34   « Envoyé. Depuis le chantier. »
    b38  carton : « Ce soir, t'as fini à 18 h. » puis l'offre */
-const W=1080,H=1920,B=60/121,NB=33,DN=NB*B;
+const W=1080,H=1920,B=60/121,NB=38,DN=NB*B;
 const cv=document.getElementById('c'),g=cv.getContext('2d');
 const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
 const lerp=(a,b,k)=>a+(b-a)*k;
@@ -43,8 +43,8 @@ const fond=document.createElement('canvas');fond.width=W;fond.height=H;
 // ——— les galères : des blocs qui tombent et s'empilent ———
 const GALERES=['Le chantier.','Le camion.','Les fournisseurs.','Le client qui rappelle.','Les urgences.','La compta.'];
 const SOL=1700, HB=134;
-const blocs=GALERES.map((t,i)=>({t,b:1.5+i,size:76,h:HB}));
-blocs.push({t:'LES DEVIS.',b:8.5,size:150,h:220,devis:true});
+const blocs=GALERES.map((t,i)=>({t,b:1.6+i*1.5,size:76,h:HB}));
+blocs.push({t:'LES DEVIS.',b:11.2,size:150,h:220,devis:true});
 let y=SOL;blocs.forEach((k,i)=>{k.y=y-k.h/2;y-=k.h+6;k.dx=(rnd(i+3)-.5)*60;k.rot=(rnd(i+11)-.5)*.07;});
 function mesure(k){g.font=`800 ${k.size}px Archivo`;k.w=g.measureText(k.t).width+(k.devis?110:72);}
 
@@ -66,7 +66,7 @@ function seek(T){
   g.setTransform(1,0,0,1,0,0);g.drawImage(fond,0,0);
   // secousse de la caméra aux impacts
   let sx=0,sy=0;
-  for(const k of blocs){const d=(b-k.b-.48)*B;if(d>0&&d<.5){const a=(k.devis?22:6)*Math.exp(-d*9);sx+=Math.sin(d*90)*a;sy+=Math.cos(d*70)*a;}}
+  for(const k of blocs){const d=(b-k.b-.6)*B;if(d>0&&d<.5){const a=(k.devis?22:6)*Math.exp(-d*9);sx+=Math.sin(d*90)*a;sy+=Math.cos(d*70)*a;}}
   g.translate(sx,sy);
 
   // 0 · « Artisan ? »
@@ -75,13 +75,13 @@ function seek(T){
     texte('Artisan',-w2/2-6,0,200,CREME,900);texte('?',(w1+ -w2)/2+ w2/2+4,0,200,O1,900);g.restore();}
 
   // 1 · la pile
-  const vacille=b<7.2?0:b<8.5?Math.sin((b-7.2)*Math.PI*3)*.02*(b-7.2):b<10.5?Math.sin((b-8.5)*Math.PI*2)*.03:0;
-  const souffle=seg(b,10.5,11.6);       // l'onde de voix balaie de gauche à droite
+  const vacille=b<9.9?0:b<11.2?Math.sin((b-9.9)*Math.PI*3)*.02*(b-9.9):b<13.4?Math.sin((b-11.2)*Math.PI*2)*.03:0;
+  const souffle=seg(b,13.4,14.6);       // l'onde de voix balaie de gauche à droite
   const xOnde=lerp(-200,1300,easeOut(souffle));
   blocs.forEach((k,i)=>{
     if(b<k.b-.05)return;
     mesure(k);
-    const chute=clamp((b-k.b)*B/.24),yy=chute<1?lerp(-260,k.y,chute*chute):k.y+(1-spring((b-k.b)*B-.36,22,.45))*(k.devis?-28:-12)*0;
+    const chute=clamp((b-k.b)*B/.3),yy=chute<1?lerp(-260,k.y,chute*chute):k.y+(1-spring((b-k.b)*B-.36,22,.45))*(k.devis?-28:-12)*0;
     let x=540+k.dx,yb=chute<1?yy:k.y,rot=k.rot;
     // la pile oscille autour de sa base
     const hBase=SOL-k.y;x+=Math.sin(vacille)*hBase;rot+=vacille;
@@ -100,35 +100,35 @@ function seek(T){
     g.restore();
   });
   // l'heure s'allume au-dessus de la pile
-  if(b>=7.2&&b<10.9){const k=spring((b-7.2)*B,14,.7),a=clamp(k*1.5)*(1-seg(b,10.5,10.9));g.save();g.globalAlpha=a;g.shadowColor='rgba(232,101,15,.7)';g.shadowBlur=40;
+  if(b>=9.9&&b<13.8){const k=spring((b-9.9)*B,14,.7),a=clamp(k*1.5)*(1-seg(b,13.4,13.8));g.save();g.globalAlpha=a;g.shadowColor='rgba(232,101,15,.7)';g.shadowBlur=40;
     texte('22 h 07',540,330,130,O1,800,'JBMono');g.restore();}
   // l'onde de voix
   if(souffle>0&&souffle<1){g.save();for(let i=0;i<46;i++){const x=xOnde-i*22;if(x<-30||x>1110)continue;const h=60+Math.abs(Math.sin(i*1.7+t*14)*Math.sin(i*.6))*520*(1-i/46);
     g.fillStyle=`rgba(232,101,15,${.9*(1-i/46)})`;rr(x-7,1080-h/2,14,h,7);g.fill();}g.restore();}
 
   // 2 · le téléphone et le vrai écran
-  if(b>=11.2&&b<23.8){
-    const monte=easeOut(seg(b,11.2,12.2)),sort=ease(seg(b,22.6,23.6));
-    const sc=lerp(.86,.92,seg(b,12.5,22.6)),py=lerp(2300,1180,monte)+sort*1300;
+  if(b>=14.2&&b<28){
+    const monte=easeOut(seg(b,14.2,15.3)),sort=ease(seg(b,26.8,27.9));
+    const sc=lerp(.86,.92,seg(b,15.5,26.8)),py=lerp(2300,1180,monte)+sort*1300;
     const pw=640*sc,ph=1366*sc;
     g.save();g.translate(540,py);
     g.shadowColor='rgba(0,0,0,.7)';g.shadowBlur=80;g.shadowOffsetY=40;
     const gr=g.createLinearGradient(-pw/2,-ph/2,pw/2,ph/2);gr.addColorStop(0,'#2b2622');gr.addColorStop(.4,'#0d0c0b');gr.addColorStop(1,'#1a1714');
     g.fillStyle=gr;rr(-pw/2-20,-ph/2-20,pw+40,ph+40,96*sc);g.fill();g.shadowColor='transparent';
     g.save();rr(-pw/2,-ph/2,pw,ph,80*sc);g.clip();
-    const f=Math.round(clamp((b-12.5)/8)*(N_ECR-1)),im=ECRANS[f];
+    const f=Math.round(clamp((b-15.5)/10)*(N_ECR-1)),im=ECRANS[f];
     if(im&&im.complete)g.drawImage(im,-pw/2,-ph/2,pw,ph);
     g.restore();
     g.fillStyle='#050505';rr(-70*sc,-ph/2+22*sc,140*sc,40*sc,20*sc);g.fill();
     g.restore();
   }
-  legende(['Et si tu les disais,','tout simplement ?'],b,11.6,15,240,74,[CREME,O1]);
-  legende(['Lignes, prix, TVA :','il s’écrit tout seul.'],b,15.3,19.8,240,70,[CREME,CREME]);
-  legende(['Envoyé.','Depuis le chantier.'],b,20.3,22.8,240,78,[O1,CREME]);
+  legende(['Et si tu les disais,','tout simplement ?'],b,14.6,18.6,240,74,[CREME,O1]);
+  legende(['Lignes, prix, TVA :','il s’écrit tout seul.'],b,19,23.6,240,70,[CREME,CREME]);
+  legende(['Envoyé.','Depuis le chantier.'],b,24.3,27.2,240,78,[O1,CREME]);
 
   // 3 · le carton
-  if(b>=23.2){
-    const k=spring((b-23.2)*B,12,.8);
+  if(b>=27.4){
+    const k=spring((b-27.4)*B,12,.8);
     g.save();g.globalAlpha=clamp(k*1.5);g.translate(0,(1-k)*40);
     // la tuile du logo
     const tx=540-260,ty=640;const gr=g.createLinearGradient(tx,ty,tx+140,ty+140);gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);
@@ -137,8 +137,8 @@ function seek(T){
     texte('Diktéo',tx+170,ty+72,138,CREME,900,'Archivo','left');
     g.restore();
   }
-  legende(['Ce soir,','t’as fini à 18 h.'],b,23.6,26.4,1010,82,[CREME,O1]);
-  if(b>=26.6){const k=spring((b-26.6)*B,13,.8),a=clamp(k*1.6);g.save();g.globalAlpha=a;g.translate(0,(1-k)*30);
+  legende(['Ce soir,','t’as fini à 18 h.'],b,27.8,31,1010,82,[CREME,O1]);
+  if(b>=31.2){const k=spring((b-31.2)*B,13,.8),a=clamp(k*1.6);g.save();g.globalAlpha=a;g.translate(0,(1-k)*30);
     texte('3 devis offerts par mois',540,1000,64,CREME,800);texte('sans carte bancaire',540,1080,46,'#B9AFA1',600,'PublicSans');
     const gr=g.createLinearGradient(290,1170,790,1270);gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);g.fillStyle=gr;rr(270,1170,540,104,34);g.fill();
     texte('dikteo.vercel.app',540,1223,46,'#fff',800,'PublicSans');g.restore();}

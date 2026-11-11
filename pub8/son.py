@@ -13,7 +13,7 @@ SKILL = os.path.expanduser("~/.claude/skills/sound-effects/sfx")
 VIDEO, SORTIE = sys.argv[1], sys.argv[2]
 SR = 48000
 B = 60 / 121
-D = 33 * B
+D = 38 * B
 # Morceau choisi par variables d'environnement (défaut : « Smile », Mixkit #1076, choisie par l'utilisateur le 10 nov. 2026) : numéro, tempo mesuré, phase, temps sautés.
 PISTE = os.environ.get("PISTE", "474")
 BPM_P = float(os.environ.get("BPM_P", "121"))
@@ -61,23 +61,23 @@ SOBRE = False
 sfx("kit/pop.ogg", 0, -10, "« Artisan ? »")
 for i in range(6):
     # un coup lourd et grave sous chaque bloc, de plus en plus fort à mesure que la pile monte
-    sfx("impact/kenney-impact-impactpunch-heavy-00%d.ogg" % (i % 2), 1.5 + i + .48, -1 + i * .4, "une galère tombe sur la pile")
-    sfx("impact/kenney-sci-lowfrequency-explosion-00%d.ogg" % (i % 2), 1.5 + i + .48, -9 + i * .8, "le grave du choc")
-sfx("kit/tick.ogg", 7.2, -10, "22 h 07 s'allume")
-sfx("riser/fs-464250-echo-chromatic-riser-wav.ogg", 8.5 + .48, -15, "la pile monte en tension", finit=True)
-sfx("impact/fs-222517-dramatic-hit.ogg", 8.5 + .48, -1, "« LES DEVIS. » s'écrase")
-sfx("impact/fs-177242-cinematic-impact.ogg", 8.5 + .48, -5, "le grand choc de « LES DEVIS. »")
-sfx("whoosh/fs-169867-swoosh.ogg", 10.5, -7, "l'onde de voix balaie la pile", deux)
-sfx("transition/fs-683096-woosh.ogg", 11.2, -12, "le téléphone monte", deux)
-sfx("kit/click.ogg", 12.5, -10, "le micro")
+    sfx("impact/kenney-impact-impactpunch-heavy-00%d.ogg" % (i % 2), 1.6 + i * 1.5 + .6, -1 + i * .4, "une galère tombe sur la pile")
+    sfx("impact/kenney-sci-lowfrequency-explosion-00%d.ogg" % (i % 2), 1.6 + i * 1.5 + .6, -9 + i * .8, "le grave du choc")
+sfx("kit/tick.ogg", 9.9, -10, "22 h 07 s'allume")
+sfx("riser/fs-464250-echo-chromatic-riser-wav.ogg", 11.2 + .6, -15, "la pile monte en tension", finit=True)
+sfx("impact/fs-222517-dramatic-hit.ogg", 11.2 + .6, -1, "« LES DEVIS. » s'écrase")
+sfx("impact/fs-177242-cinematic-impact.ogg", 11.2 + .6, -5, "le grand choc de « LES DEVIS. »")
+sfx("whoosh/fs-169867-swoosh.ogg", 13.4, -7, "l'onde de voix balaie la pile", deux)
+sfx("transition/fs-683096-woosh.ogg", 14.2, -12, "le téléphone monte", deux)
+sfx("kit/click.ogg", 15.5, -10, "le micro")
 for j in range(4):
-    sfx("pop/kenney-interface-drop-00%d.ogg" % (j % 3 + 1), 17.8 + j * .3, -15, "une ligne du devis")
-sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 20.3, -9, "envoyé")
-sfx("ding/kenney-interface-confirmation-001.ogg", 23.2, -13, "le carton Diktéo")
+    sfx("pop/kenney-interface-drop-00%d.ogg" % (j % 3 + 1), 22.2 + j * .35, -15, "une ligne du devis")
+sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 24.3, -9, "envoyé")
+sfx("ding/kenney-interface-confirmation-001.ogg", 27.4, -13, "le carton Diktéo")
 
 # la musique un peu plus basse pendant la pile, pour laisser la place aux chocs
 tb = np.arange(N) / SR / B
-env = np.where(tb < 10.5, 10 ** (-6 / 20), 1.0).astype(np.float32)
+env = np.where(tb < 13.4, 10 ** (-6 / 20), 1.0).astype(np.float32)
 env = np.convolve(env, np.ones(int(.2 * SR)) / int(.2 * SR), mode="same").astype(np.float32)
 mix = musique * env[:, None] * 10 ** (-7 / 20) + bruits
 mix /= max(1e-6, np.abs(mix).max()) / 0.9
