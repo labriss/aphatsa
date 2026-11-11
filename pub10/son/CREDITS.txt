@@ -9,7 +9,6 @@ Bruitages :
 - impact/kenney-impact-impactsoft-heavy-000.ogg
 - pop/fs-447910-plop.ogg
 - riser/fs-685256-riser-sound-effect-short-wav.ogg
-- transition/fs-702773-swipe-wav.ogg
 - transition/fs-816262-broomstick-whoosh-3-quiet-okm1.ogg
 - whoosh/fs-169867-swoosh.ogg
 - whoosh/fs-683101-quick-woosh.ogg
