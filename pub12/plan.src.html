@@ -133,9 +133,9 @@ function couteau(x,y,a){g.save();g.translate(x,y);g.rotate(a);lueur('rgba(0,0,0,
 
 // ——— les gestes, dans l'ordre ———
 const PHRASES=[
-  {b:3, dit:'« Rebouchage des fissures,', dit2:'forfait 180 euros. »'},
+  {b:2.7, dit:'« Rebouchage des fissures,', dit2:'forfait 180 euros. »'},
   {b:6, dit:'« Sous-couche, 32 m²,', dit2:'7 euros le mètre. »'},
-  {b:10, dit:'« Deux couches de mat velours,', dit2:'18 euros le mètre. »'},
+  {b:10, dit:'« Deux couches de peinture mat velours,', dit2:'18 euros le mètre. »'},
   {b:14,dit:'« Protection et nettoyage,', dit2:'90 euros. »'},
 ];
 const B_REB=3.6, B_PRIM=6.6, B_C1=10.6, B_C2=12.7, B_SCOTCH=14.6, B_BACHE=15.6, B_LUM=17.1, B_CADRE=17.7, B_PLANTE=18.2, B_TOT=18.6, B_GLINT=19.2, B_ENV=20.6, B_FIN=22.6;
@@ -198,7 +198,7 @@ function scene(b,t){
   // le mur : pourri, puis rebouché, puis peint
   g.drawImage(MUR,MX,0);
   // l'accroche bombée
-  {const rev=clamp(.45+seg(b,0,.45)*.55),fade=1-.9*seg(b,2.8,3.3);
+  {const rev=clamp(.45+seg(b,0,.45)*.55),fade=1-.9*seg(b,2.3,2.8);
     g.save();g.globalAlpha=fade;g.translate(540,760);g.rotate(-.06);g.save();g.beginPath();g.rect(-560,-200,1120*rev,420);g.clip();
     g.font='900 162px Archivo';g.textAlign='center';g.textBaseline='middle';
     g.save();g.filter='blur(16px)';g.fillStyle='rgba(232,101,15,.55)';g.fillText('PEINTRE ?',0,0);g.restore();
@@ -255,12 +255,12 @@ function scene(b,t){
 // ——— un seul élément du début à la fin : le rond orange du micro ———
 // il s'ouvre en bandeau pour chaque phrase, se referme en rond, devient le cartouche du total, la coche de l'envoi,
 // puis glisse et grandit pour devenir le carré du logo Diktéo (transition par forme commune, jamais de coupe)
-const FENETRES=[[3,8.6,'big'],[10,12.6,'big'],[14,16.6,'big'],[B_TOT,B_FIN-.55,'tot']];
+const FENETRES=[[2.7,9.2,'big'],[10,13.5,'big'],[14,17.0,'big'],[B_TOT,B_FIN-.55,'tot']];
 const GEO={big:[60,110,960,200,44],tot:[90,115,900,230,52]};
 function ouvert(b){let k=0,typ='big';for(const [a,e,t] of FENETRES){const v=spring(Math.max(0,(b-a))*B,13,.78)*(1-ease(seg(b,e,e+.4)));if(b>=a&&v>k){k=v;typ=t;}if(b>=a&&b<e+.4)typ=t;}return [clamp(k,0,1.04),typ];}
 function boite(b){
-  if(b<2.55)return;
-  const app=easeOut(seg(b,2.55,2.95));
+  if(b<2.3)return;
+  const app=easeOut(seg(b,2.3,2.65));
   const [k,typ]=ouvert(b);
   // le rond : au fil de la pub il reste à gauche ; à la fin il devient le logo
   const m=ease(seg(b,B_FIN-.5,B_FIN+.35));
@@ -282,11 +282,12 @@ function boite(b){
   if(m>0)return;
   // le contenu de la boîte, en fondu doux pendant qu'elle est ouverte
   // la dictée en direct : « TU DICTES », puis les mots s'écrivent au rythme de la voix, avec un curseur
-  PHRASES.forEach(ph=>{const a=seg(b,ph.b+.05,ph.b+.3)*(1-seg(b,ph.b+2.55,ph.b+2.85))*clamp(k);if(a<=0)return;g.save();g.globalAlpha=a;
+  PHRASES.forEach(ph=>{const fin=[5.75,9.2,13.5,17.0][PHRASES.indexOf(ph)],a=seg(b,ph.b+.05,ph.b+.3)*(1-seg(b,fin-.3,fin))*seg(k,.85,1);if(a<=0)return;g.save();g.globalAlpha=a;
+    let fs=44;g.font=`700 ${fs}px Archivo`;while(Math.max(g.measureText(ph.dit).width,g.measureText(ph.dit2).width)>770&&fs>30){fs-=2;g.font=`700 ${fs}px Archivo`;}
     g.font='800 26px Archivo';g.fillStyle=ORANGE;g.textAlign='left';g.textBaseline='middle';g.letterSpacing='4px';g.fillText('TU DICTES',224,140);g.letterSpacing='0px';
-    const tout=ph.dit.length+ph.dit2.length,n=Math.floor(tout*easeOut(seg(b,ph.b+.15,ph.b+1.45))),n1=Math.min(n,ph.dit.length),n2=Math.max(0,n-ph.dit.length);
-    texte(ph.dit.slice(0,n1),222,196,44,'#fff',700,'Archivo','left');texte(ph.dit2.slice(0,n2),222,256,44,ORANGE,700,'Archivo','left');
-    if(n<tout||((b*B*2.4)%1)<.6){g.font='700 44px Archivo';const w=g.measureText(n2>0?ph.dit2.slice(0,n2):ph.dit.slice(0,n1)).width;g.fillStyle=n<tout?'#fff':'rgba(255,255,255,.6)';g.fillRect(226+w,n2>0?234:174,4,44);}
+    const tout=ph.dit.length+ph.dit2.length,n=Math.floor(tout*seg(b,ph.b+.2,ph.b+.2+[2.6,3.0,3.1,2.4][PHRASES.indexOf(ph)])),n1=Math.min(n,ph.dit.length),n2=Math.max(0,n-ph.dit.length);
+    texte(ph.dit.slice(0,n1),222,196,fs,'#fff',700,'Archivo','left');texte(ph.dit2.slice(0,n2),222,256,fs,ORANGE,700,'Archivo','left');
+    if(n<tout||((b*B*2.4)%1)<.6){g.font=`700 ${fs}px Archivo`;const w=g.measureText(n2>0?ph.dit2.slice(0,n2):ph.dit.slice(0,n1)).width;g.fillStyle=n<tout?'#fff':'rgba(255,255,255,.6)';g.fillRect(226+w,n2>0?234:174,4,44);}
     g.restore();});
   const at=seg(b,B_TOT+.2,B_TOT+.5)*(1-seg(b,B_ENV-.15,B_ENV+.1))*clamp(k);
   if(at>0){g.save();g.globalAlpha=at;texte('TOTAL DU DEVIS · TTC',590,172,34,'#f3dccb',700);lueur('rgba(255,138,61,.6)',26);texte('1 177,00 €',590,256,100,ORANGE,800,'JBMono');g.shadowColor='transparent';

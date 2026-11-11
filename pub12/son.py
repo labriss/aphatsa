@@ -58,7 +58,7 @@ sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 0, -6, "« PEINTRE ? » bom
 sfx("whoosh/fs-264777-swoosh.ogg", 0, -13, "le jet de la bombe", 1 / 60)
 sfx("whoosh/fs-264777-swoosh.ogg", .75, -16, "la question bombée", 1 / 60)
 for bt in (3, 6, 10, 14):
-    sfx("kit/click.ogg", bt, -12, "une phrase dictée")
+    sfx("kit/click.ogg", bt - (.3 if bt == 3 else 0), -12, "une phrase dictée")
 for k in range(4):
     sfx("transition/fs-850347-swipe-various.ogg", 3.6 + .5 * k, -17, "le couteau lisse l'enduit")
 # Le rouleau : pas de « swipe » (trop aigu, il glisse en hauteur : on dirait un laser). Un vrai souffle enregistré,
@@ -97,10 +97,35 @@ sfx("whoosh/fs-683101-quick-woosh.ogg", 20.6, -10, "le devis part", 2 / 60)
 sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 20.9, -9, "envoyé à Mme Garnier")
 sfx("ding/kenney-interface-confirmation-002.ogg", 22.7, -11, "le carton Diktéo")
 
-# la musique un peu plus basse pendant la pile, pour laisser la place aux chocs
-tb = np.arange(N) / SR / B
-env = np.where(tb < 0, 1.0, 1.0).astype(np.float32)
-env = np.convolve(env, np.ones(int(.2 * SR)) / int(.2 * SR), mode="same").astype(np.float32)
+# ——— la voix : le peintre dicte ses 4 lignes (voix générée en local, choisie par voix/noter.py) ———
+# Traitée comme une vraie dictée au téléphone : coupe des graves, présence, petite pièce, compression douce.
+# Chaque phrase commence avec son bandeau ; si elle est plus longue que sa place, elle est resserrée (au plus ×1,2).
+voix = np.zeros((N, 2), np.float32)
+CHOIX = os.environ.get("VOIX_CHOIX", os.path.join(ICI, "voix", "prises", "choix.json"))
+DEBUTS = [2.7, 6, 10, 14]
+CHAINE = "highpass=f=110,lowpass=f=9000,equalizer=f=3000:t=q:w=1:g=3,acompressor=threshold=-20dB:ratio=3:attack=5:release=90,aecho=0.8:0.4:19:0.10"
+calage = []
+if os.path.exists(CHOIX) and os.environ.get("SANS_VOIX") != "1":
+    ch = json.load(open(CHOIX, encoding="utf-8"))["choix"]
+    for i, bt in enumerate(DEBUTS):
+        f = os.path.join(ICI, "voix", "prises", ch[str(i)])
+        brut = lire(f)
+        place = ((DEBUTS[i + 1] if i < 3 else 17.1) - bt) * B - .25
+        tempo = min(1.12, max(1.0, len(brut) / SR / place))
+        v = lire(f, af=f"atempo={tempo:.4f}," + CHAINE + ",silenceremove=start_periods=1:start_threshold=-45dB")
+        v = v / max(1e-6, np.abs(v).max()) * .9
+        a0 = int((bt + .08) * B * SR)
+        v = v[: N - a0]
+        voix[a0:a0 + len(v)] += v
+        calage.append(dict(phrase=i, prise=ch[str(i)], debut_b=bt + .08, duree_b=round(len(v) / SR / B, 3), tempo=round(tempo, 3)))
+        journal.append(((bt + .08) * B, f"voix, phrase {i + 1}", ch[str(i)], "voix générée en local (Chatterbox ou Kokoro), référence SIWIS CC BY 4.0", "CC BY 4.0"))
+    json.dump(calage, open(os.path.join(ICI, "voix", "calage.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+# la musique s'efface un peu sous la voix
+parle = (np.abs(voix).max(1) > .02).astype(np.float32)
+lisse = int(.35 * SR)
+parle = np.convolve(parle, np.ones(lisse) / lisse, mode="same")
+env = (1 - .45 * np.clip(parle * 1.5, 0, 1)).astype(np.float32)
+bruits += voix * .95
 mix = musique * env[:, None] * 10 ** (-7 / 20) + bruits
 mix /= max(1e-6, np.abs(mix).max()) / 0.9
 wav = os.path.join(ICI, "tmp", "son.wav")

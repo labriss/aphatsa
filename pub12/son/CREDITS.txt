@@ -12,6 +12,7 @@ Bruitages :
 - pop/fs-447910-plop.ogg
 - transition/fs-786514-swoosh-v2.ogg
 - transition/fs-850347-swipe-various.ogg
+- voix générée en local (Chatterbox ou Kokoro), référence SIWIS CC BY 4.0
 - whoosh/fs-169867-swoosh.ogg
 - whoosh/fs-264777-swoosh.ogg
 - whoosh/fs-683101-quick-woosh.ogg

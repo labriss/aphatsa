@@ -1,0 +1,30 @@
+[
+ {
+  "phrase": 0,
+  "prise": "K_p0_k2.wav",
+  "debut_b": 3.08,
+  "duree_b": 3.094,
+  "tempo": 1.2
+ },
+ {
+  "phrase": 1,
+  "prise": "K_p1_k0.wav",
+  "debut_b": 6.08,
+  "duree_b": 3.64,
+  "tempo": 1.177
+ },
+ {
+  "phrase": 2,
+  "prise": "K_p2_k1.wav",
+  "debut_b": 10.08,
+  "duree_b": 3.659,
+  "tempo": 1.061
+ },
+ {
+  "phrase": 3,
+  "prise": "K_p3_k2.wav",
+  "debut_b": 14.08,
+  "duree_b": 2.711,
+  "tempo": 1.2
+ }
+]

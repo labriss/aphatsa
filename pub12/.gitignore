@@ -4,3 +4,8 @@
 tmp/
 musique/
 plan.html
+voix_siwis/
+voix/prises/
+*.wav
+*.log
+*.mp3
