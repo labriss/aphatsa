@@ -13,7 +13,7 @@ SKILL = os.path.expanduser("~/.claude/skills/sound-effects/sfx")
 VIDEO, SORTIE = sys.argv[1], sys.argv[2]
 SR = 48000
 B = 60 / 125
-D = 30 * B
+D = 34 * B
 # Morceau choisi par variables d'environnement (défaut : « Smile », Mixkit #1076, choisie par l'utilisateur le 10 nov. 2026) : numéro, tempo mesuré, phase, temps sautés.
 PISTE = os.environ.get("PISTE", "134")
 BPM_P = float(os.environ.get("BPM_P", "125"))
@@ -66,10 +66,17 @@ for i, bt in enumerate((5, 7, 9, 11)):
     sfx("kit/click.ogg", bt, -11, "une phrase dictée")
     sfx("ding/kenney-interface-confirmation-001.ogg" if i % 2 else "pop/fs-447910-plop.ogg", bt + .9, -9, "le prix s'allume")
 sfx("impact/fs-177242-cinematic-impact.ogg", 13, -3, "le total frappe dans le cartouche")
-sfx("transition/fs-702773-swipe-wav.ogg", 15.5, -8, "le plan se plie", 2 / 60)
-sfx("whoosh/fs-683101-quick-woosh.ogg", 16.9, -6, "l'avion part", 2 / 60)
-sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 18, -8, "envoyé")
-sfx("ding/kenney-interface-confirmation-002.ogg", 20.5, -11, "le carton Diktéo")
+sfx("whoosh/fs-169867-swoosh.ogg", 14.4, -9, "le plan bascule en 3D", 2 / 60)
+sfx("riser/fs-685256-riser-sound-effect-short-wav.ogg", 15.0, -15, "les murs montent")
+sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 15.6, -6, "le chauffe-eau se pose")
+sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 17.1, -8, "la vanne se pose")
+sfx("pop/fs-447910-plop.ogg", 18.6, -9, "l'ancien ballon apparaît")
+sfx("whoosh/fs-683101-quick-woosh.ogg", 19.3, -10, "l'ancien ballon s'envole", 2 / 60)
+sfx("ding/kenney-interface-confirmation-001.ogg", 20.1, -9, "l'horloge de la main-d'œuvre")
+sfx("transition/fs-702773-swipe-wav.ogg", 21.6, -8, "tout se replie", 2 / 60)
+sfx("whoosh/fs-683101-quick-woosh.ogg", 23.4, -6, "l'avion part", 2 / 60)
+sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 24, -8, "envoyé")
+sfx("ding/kenney-interface-confirmation-002.ogg", 26.5, -11, "le carton Diktéo")
 
 # la musique un peu plus basse pendant la pile, pour laisser la place aux chocs
 tb = np.arange(N) / SR / B
@@ -89,7 +96,7 @@ with open(os.path.join(ICI, "son", "CREDITS.txt"), "w", encoding="utf-8") as f:
     for cr in sorted({j[3] for j in journal}):
         f.write(f"- {cr}\n")
 with open(os.path.join(ICI, "son", "SOUND.md"), "w", encoding="utf-8") as f:
-    f.write(f"# Son de la pub 8 (la pile)\n\nUsage : TikTok, Reels, Shorts, pubs en ligne. Musique : Mixkit #{PISTE}, Mixkit Stock Music Free License.\n\n")
+    f.write(f"# Son de la pub 10 (le plan devient le devis)\n\nUsage : TikTok, Reels, Shorts, pubs en ligne. Musique : Mixkit #{PISTE}, Mixkit Stock Music Free License.\n\n")
     f.write("| t (s) | moment | son | licence |\n|---|---|---|---|\n")
     for t, desc, fi, cr, li in sorted(journal):
         f.write(f"| {t:.3f} | {desc} | {fi} | {li} |\n")
