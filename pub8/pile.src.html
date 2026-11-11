@@ -55,6 +55,13 @@ const charge=Promise.all(Array.from({length:N_ECR},(_,i)=>new Promise(r=>{const 
 function rr(x,y,w,h,r){g.beginPath();g.roundRect(x,y,w,h,r);}
 function texte(t,x,y,size,col,poids=800,font='Archivo',align='center'){g.font=`${poids} ${size}px ${font}`;g.fillStyle=col;g.textAlign=align;g.textBaseline='middle';g.fillText(t,x,y);}
 // une légende, une seule à la fois, qui monte en douceur
+// « TU DICTES » : un badge avec le micro qui pulse, pendant que l'écran montre la dictée
+function badgeDicte(b,b0,b1,y){if(b<b0||b>b1+.3)return;const a=clamp((b-b0)*3)*(1-seg(b,b1,b1+.3));g.save();g.globalAlpha=a;g.translate(540,y);
+  g.fillStyle='rgba(10,8,6,.88)';rr(-190,-50,380,100,50);g.fill();
+  g.globalCompositeOperation='lighter';for(let k=0;k<2;k++){const ph=((b-b0)*1.4+k*.5)%1;g.strokeStyle=`rgba(255,138,61,${.7*(1-ph)})`;g.lineWidth=3;g.beginPath();g.arc(-130,0,34+ph*30,0,7);g.stroke();}
+  g.globalCompositeOperation='source-over';const gm=g.createLinearGradient(-160,-30,-100,30);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(-130,0,34,0,7);g.fill();
+  g.fillStyle='#fff';rr(-137,-18,14,26,7);g.fill();g.strokeStyle='#fff';g.lineWidth=3;g.beginPath();g.arc(-130,-4,13,.15*Math.PI,.85*Math.PI);g.stroke();
+  g.font='900 40px Archivo';g.textAlign='left';g.textBaseline='middle';g.fillStyle=O1;g.fillText('TU DICTES',-80,2);g.restore();}
 function legende(lignes,b,b0,b1,y=300,size=78,cols){
   if(b<b0-.1||b>b1+.4)return;
   const k=b0<=b?spring((b-b0)*B,13,.8):0,a=clamp(k*1.6)*(1-seg(b,b1,b1+.4));
@@ -122,8 +129,9 @@ function seek(T){
     g.fillStyle='#050505';rr(-70*sc,-ph/2+22*sc,140*sc,40*sc,20*sc);g.fill();
     g.restore();
   }
-  legende(['Et si tu les disais,','tout simplement ?'],b,14.6,18.6,240,74,[CREME,O1]);
-  legende(['Lignes, prix, TVA :','il s’écrit tout seul.'],b,19,23.6,240,70,[CREME,CREME]);
+  legende(['Et si tu les dictais,','tout simplement ?'],b,14.6,18.6,240,74,[CREME,O1]);
+  badgeDicte(b,15.6,23.4,470);
+  legende(['Tu parles :','le devis s’écrit tout seul.'],b,19,23.6,240,70,[CREME,O1]);
   legende(['Envoyé.','Depuis le chantier.'],b,24.3,27.2,240,78,[O1,CREME]);
 
   // 3 · le carton
@@ -139,7 +147,7 @@ function seek(T){
   }
   legende(['Ce soir,','t’as fini à 18 h.'],b,27.8,31,1010,82,[CREME,O1]);
   if(b>=31.2){const k=spring((b-31.2)*B,13,.8),a=clamp(k*1.6);g.save();g.globalAlpha=a;g.translate(0,(1-k)*30);
-    texte('3 devis offerts par mois',540,1000,64,CREME,800);texte('sans carte bancaire',540,1080,46,'#B9AFA1',600,'PublicSans');
+    texte('Tu dictes ton devis, Diktéo l’écrit.',540,880,46,CREME,700);texte('3 devis offerts par mois',540,1000,64,CREME,800);texte('sans carte bancaire',540,1080,46,'#B9AFA1',600,'PublicSans');
     const gr=g.createLinearGradient(290,1170,790,1270);gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);g.fillStyle=gr;rr(270,1170,540,104,34);g.fill();
     texte('dikteo.vercel.app',540,1223,46,'#fff',800,'PublicSans');g.restore();}
 }
