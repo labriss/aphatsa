@@ -13,7 +13,7 @@ SKILL = os.path.expanduser("~/.claude/skills/sound-effects/sfx")
 VIDEO, SORTIE = sys.argv[1], sys.argv[2]
 SR = 48000
 B = 60 / 125
-D = 34 * B
+D = 38 * B
 # Morceau choisi par variables d'environnement (défaut : « Smile », Mixkit #1076, choisie par l'utilisateur le 10 nov. 2026) : numéro, tempo mesuré, phase, temps sautés.
 PISTE = os.environ.get("PISTE", "134")
 BPM_P = float(os.environ.get("BPM_P", "125"))
@@ -66,17 +66,19 @@ for i, bt in enumerate((5, 7, 9, 11)):
     sfx("kit/click.ogg", bt, -11, "une phrase dictée")
     sfx("ding/kenney-interface-confirmation-001.ogg" if i % 2 else "pop/fs-447910-plop.ogg", bt + .9, -9, "le prix s'allume")
 sfx("impact/fs-177242-cinematic-impact.ogg", 13, -3, "le total frappe dans le cartouche")
-sfx("whoosh/fs-169867-swoosh.ogg", 14.4, -9, "le plan bascule en 3D", 2 / 60)
+sfx("whoosh/fs-169867-swoosh.ogg", 14.4, -9, "le plan bascule, la maison se lève", 2 / 60)
 sfx("riser/fs-685256-riser-sound-effect-short-wav.ogg", 15.0, -15, "les murs montent")
-sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 15.6, -6, "le chauffe-eau se pose")
-sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 17.1, -8, "la vanne se pose")
-sfx("pop/fs-447910-plop.ogg", 18.6, -9, "l'ancien ballon apparaît")
-sfx("whoosh/fs-683101-quick-woosh.ogg", 19.3, -10, "l'ancien ballon s'envole", 2 / 60)
-sfx("ding/kenney-interface-confirmation-001.ogg", 20.1, -9, "l'horloge de la main-d'œuvre")
-sfx("transition/fs-702773-swipe-wav.ogg", 21.6, -8, "tout se replie", 2 / 60)
-sfx("whoosh/fs-683101-quick-woosh.ogg", 23.4, -6, "l'avion part", 2 / 60)
-sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 24, -8, "envoyé")
-sfx("ding/kenney-interface-confirmation-002.ogg", 26.5, -11, "le carton Diktéo")
+sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 16.2, -10, "la bulle de la panne")
+sfx("whoosh/fs-683101-quick-woosh.ogg", 17.3, -10, "la caméra plonge", 2 / 60)
+sfx("whoosh/fs-169867-swoosh.ogg", 18.5, -9, "l'ancien ballon s'envole")
+sfx("impact/fs-177242-cinematic-impact.ogg", 20.0, -7, "le chauffe-eau neuf tombe")
+sfx("pop/fs-447910-plop.ogg", 21.4, -9, "la vanne se pose")
+sfx("ding/kenney-interface-confirmation-001.ogg", 22.9, -9, "l'horloge de la main-d'œuvre")
+sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 24.2, -6, "réparé")
+sfx("transition/fs-702773-swipe-wav.ogg", 25.4, -8, "tout se replie", 2 / 60)
+sfx("whoosh/fs-683101-quick-woosh.ogg", 27.2, -6, "l'avion part", 2 / 60)
+sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 27.8, -10, "envoyé")
+sfx("ding/kenney-interface-confirmation-002.ogg", 30.3, -11, "le carton Diktéo")
 
 # la musique un peu plus basse pendant la pile, pour laisser la place aux chocs
 tb = np.arange(N) / SR / B
