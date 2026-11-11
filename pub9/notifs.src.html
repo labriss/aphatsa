@@ -49,17 +49,20 @@ function papierPeint(chaud){const c=document.createElement('canvas');c.width=W;c
   for(const [x,y,r,c0] of lum){const l=f.createRadialGradient(x,y,0,x,y,r);l.addColorStop(0,`rgba(${c0},.38)`);l.addColorStop(1,`rgba(${c0},0)`);f.fillStyle=l;f.fillRect(0,0,W,H);}
   const d=f.getImageData(0,0,W,H),p=d.data;let s=chaud?11:7;for(let i=0;i<p.length;i+=4){s=(s*16807)%2147483647;const n=(s/2147483647-.5)*8;p[i]+=n;p[i+1]+=n;p[i+2]+=n;}f.putImageData(d,0,0);return c;}
 const NUIT=papierPeint(false),SOIR=papierPeint(true);
+// le fond flouté, vu à travers le verre des notifications
+function flou(src){const c=document.createElement('canvas');c.width=W;c.height=H;const f=c.getContext('2d');f.filter='blur(46px) saturate(1.4)';f.drawImage(src,0,0);return c;}
+const FLOU_NUIT=flou(NUIT),FLOU_SOIR=flou(SOIR);
 
 // ——— les notifications : qui écrit, quoi (rien de réel : noms et entreprises fictifs) ———
 const NOTIFS=[
-  {app:'Messages',ini:'M',col:'#4c7bd9',qui:'Mme Martin',txt:'Vous avez pu faire le devis ?'},
-  {app:'Messages',ini:'L',col:'#2f9e6b',qui:'M. Leroy',txt:'Je relance pour le devis de la salle de bain'},
-  {app:'E-mail',ini:'B',col:'#8a8f99',qui:'Bati-Négoce',txt:'Votre facture n° 4821 est disponible'},
-  {app:'Téléphone',ini:'M',col:'#4c7bd9',qui:'Mme Martin',txt:'Appel manqué'},
-  {app:'Messages',ini:'A',col:'#b5793a',qui:'Agence Rives Immo',txt:'Le devis pour l’appart, c’est pour quand ?'},
-  {app:'Téléphone',ini:'L',col:'#2f9e6b',qui:'M. Leroy',txt:'2 appels manqués'},
-  {app:'Messagerie',ini:'☏',col:'#6b6f78',qui:'Messagerie vocale',txt:'3 nouveaux messages'},
-  {app:'Messages',ini:'M',col:'#4c7bd9',qui:'Mme Martin',txt:'Bon, je vais demander à quelqu’un d’autre.',dur:true},
+  {app:'msg',qui:'Mme Martin',txt:'Vous avez pu faire le devis ?'},
+  {app:'msg',qui:'M. Leroy',txt:'Je relance pour le devis de la salle de bain'},
+  {app:'mail',qui:'Bati-Négoce',txt:'Votre facture n° 4821 est disponible'},
+  {app:'tel',qui:'Mme Martin',txt:'Appel manqué'},
+  {app:'msg',qui:'Agence Rives Immo',txt:'Le devis pour l’appart, c’est pour quand ?'},
+  {app:'tel',qui:'M. Leroy',txt:'2 appels manqués'},
+  {app:'vm',qui:'Messagerie vocale',txt:'3 nouveaux messages'},
+  {app:'msg',qui:'Mme Martin',txt:'Bon, je vais demander à quelqu’un d’autre.',dur:true},
 ];
 const T0=.8, PAS=1.5;     // une notification tous les 1,5 temps (0,75 s)
 NOTIFS.forEach((n,i)=>n.b=T0+i*PAS);
@@ -70,19 +73,52 @@ const B_BALAIE=B_DUR+2.4;                       // le geste qui balaie tout
 const ECRANS=[],N_ECR=375;
 const charge=Promise.all(Array.from({length:N_ECR},(_,i)=>new Promise(r=>{const im=new Image();im.onload=r;im.onerror=r;im.src=`../pub2/ecran/chauffagiste/ecran_${String(i+1).padStart(4,'0')}.png`;ECRANS.push(im);})));
 
-function carte(n,x,y,w,a,s=1,ombre=true){      // une notification, façon écran verrouillé
-  const h=150;g.save();g.globalAlpha=a;g.translate(x,y);g.scale(s,s);
-  if(ombre){g.shadowColor='rgba(0,0,0,.45)';g.shadowBlur=30;g.shadowOffsetY=10;}
-  g.fillStyle=n.dur?'rgba(70,24,20,.92)':'rgba(38,40,48,.86)';rr(-w/2,-h/2,w,h,38);g.fill();g.shadowColor='transparent';
-  g.fillStyle=n.col;rr(-w/2+28,-h/2+30,72,72,18);g.fill();texte(n.ini,-w/2+64,-h/2+67,40,'#fff',800,'Inter');
-  texte(n.qui,-w/2+124,-h/2+50,34,'#fff',700,'Inter','left');
-  texte('maintenant',w/2-30,-h/2+50,26,'rgba(255,255,255,.55)',500,'Inter','right');
-  let t=n.txt;g.font='500 32px Inter';while(g.measureText(t).width>w-160&&t.length>4)t=t.slice(0,-2);if(t!==n.txt)t=t.trim()+'…';
-  texte(t,-w/2+124,-h/2+98,32,n.dur?'#ffd2c8':'rgba(255,255,255,.88)',500,'Inter','left');
+// les icônes d'apps (dessinées : bulle, combiné, enveloppe, messagerie, Diktéo)
+const P_TEL=new Path2D('M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z');
+const P_DIK=new Path2D('M6.5 2.5H12a9 9 0 0 1 0 18H9.2L4.5 23V4.5a2 2 0 0 1 2-2ZM9.2 9.5a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1Zm3.1-2.5a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1Zm3.1 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Z');
+function icone(app,x,y,sz){
+  const gr=g.createLinearGradient(x,y,x,y+sz);
+  if(app==='mail'){gr.addColorStop(0,'#3aa0ff');gr.addColorStop(1,'#1066e8');}
+  else if(app==='dik'){gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);}
+  else{gr.addColorStop(0,'#62f37c');gr.addColorStop(1,'#14c23a');}
+  g.fillStyle=gr;rr(x,y,sz,sz,sz*.225);g.fill();
+  const k=sz/24;g.save();g.translate(x,y);g.fillStyle='#fff';g.strokeStyle='#fff';
+  if(app==='msg'){g.beginPath();g.ellipse(12*k,11.2*k,7.6*k,6.4*k,0,0,7);g.fill();g.beginPath();g.moveTo(6.2*k,14.4*k);g.lineTo(4.6*k,18.6*k);g.lineTo(9.6*k,16.4*k);g.fill();}
+  else if(app==='tel'){g.translate(5*k,5*k);g.scale(k*.6,k*.6);g.fill(P_TEL);}
+  else if(app==='mail'){g.fillRect(5*k,7.5*k,14*k,9.5*k);g.lineWidth=1.3*k;g.strokeStyle='#1a72ee';g.beginPath();g.moveTo(5.4*k,8*k);g.lineTo(12*k,13*k);g.lineTo(18.6*k,8*k);g.stroke();}
+  else if(app==='vm'){g.lineWidth=1.8*k;g.beginPath();g.arc(8.3*k,12*k,3*k,0,7);g.stroke();g.beginPath();g.arc(15.7*k,12*k,3*k,0,7);g.stroke();g.beginPath();g.moveTo(8.3*k,15*k);g.lineTo(15.7*k,15*k);g.stroke();}
+  else if(app==='dik'){g.translate(2.6*k,1.6*k);g.scale(k*.8,k*.8);g.fill(P_DIK,'evenodd');}
   g.restore();
 }
-function horloge(h,date,b,a=1){g.save();g.globalAlpha=a;texte(date,540,470,40,'rgba(255,255,255,.8)',600,'Inter');texte(h,540,610,240,'#fff',500,'Inter');g.restore();}
-
+// une notification d'écran verrouillé : verre dépoli (le fond flouté se voit à travers), icône, nom, heure, message
+function carte(n,x,y,w,a,s=1,fl=FLOU_NUIT){
+  const h=152;g.save();g.globalAlpha=a;
+  const m=g.getTransform();
+  g.translate(x,y);g.scale(s,s);
+  g.save();rr(-w/2,-h/2,w,h,46);g.clip();
+  g.setTransform(m);g.drawImage(fl,0,0);           // le fond flou, à sa place
+  g.restore();
+  g.fillStyle='rgba(255,255,255,.17)';rr(-w/2,-h/2,w,h,46);g.fill();
+  g.strokeStyle='rgba(255,255,255,.10)';g.lineWidth=1.5;rr(-w/2,-h/2,w,h,46);g.stroke();
+  icone(n.app,-w/2+26,-h/2+38,76);
+  texte(n.qui,-w/2+124,-h/2+52,34,'#fff',600,'Inter','left');
+  texte('maintenant',w/2-30,-h/2+52,28,'rgba(255,255,255,.62)',400,'Inter','right');
+  let t=n.txt;g.font='400 33px Inter';while(g.measureText(t).width>w-160&&t.length>4)t=t.slice(0,-2);if(t!==n.txt)t=t.trim()+'…';
+  texte(t,-w/2+124,-h/2+100,33,'rgba(255,255,255,.94)',400,'Inter','left');
+  g.restore();
+}
+// l'écran verrouillé : cadenas, date, heure, lampe et appareil photo, la barre du bas
+function verrou(h,b){
+  g.save();g.strokeStyle='#fff';g.fillStyle='#fff';g.lineWidth=5;g.beginPath();g.arc(540,128,15,Math.PI,0);g.stroke();rr(518,128,44,34,8);g.fill();g.restore();
+  texte('mardi 11 novembre',540,300,42,'rgba(255,255,255,.88)',600,'Inter');
+  texte(h,540,450,250,'#fff',600,'Inter');
+  for(const [x,glyphe] of [[160,'lampe'],[920,'photo']]){
+    g.save();g.fillStyle='rgba(255,255,255,.16)';g.beginPath();g.arc(x,1740,62,0,7);g.fill();g.fillStyle='#fff';g.strokeStyle='#fff';g.lineWidth=4;
+    if(glyphe==='lampe'){rr(x-12,1716,24,20,4);g.fill();rr(x-8,1738,16,30,5);g.stroke();}
+    else{rr(x-26,1725,52,36,8);g.stroke();g.beginPath();g.arc(x,1743,10,0,7);g.stroke();rr(x-10,1717,20,10,3);g.fill();}
+    g.restore();}
+  g.fillStyle='rgba(255,255,255,.85)';rr(400,1880,280,10,5);g.fill();
+}
 function seek(T){
   const t=((T%DN)+DN)%DN,b=t/B;
   g.setTransform(1,0,0,1,0,0);
@@ -96,52 +132,48 @@ function seek(T){
   if(b<B_BALAIE+1.2){
     const bal=easeOut(seg(b,B_BALAIE,B_BALAIE+1.1));     // le geste vers le haut
     g.save();g.translate(0,-bal*1900);g.globalAlpha=1-bal*.6;
-    horloge('22:14','mardi 11 novembre',b);
+    verrou('22:14',b);
     // les notifications : la dernière en haut de la pile, les anciennes descendent et se tassent
     const vis=NOTIFS.filter(n=>b>=n.b-.02);
     vis.slice().reverse().forEach((n,j)=>{
       const k=spring((b-n.b)*B,16,.7),entre=clamp(k);
-      const y0=900+j*160-(1-entre)*120, s=lerp(.9,1,entre)*(j>4?lerp(1,.94,clamp((j-4)/3)):1);
+      const y0=700+j*166-(1-entre)*120, s=lerp(.9,1,entre)*(j>4?lerp(1,.94,clamp((j-4)/3)):1);
       const a=clamp(entre*1.4)*(j>5?.7:1);
-      if(j>5)return;carte(n,540,y0,940,a,s);
+      if(j>(b>=B_DUR+.5?4:5))return;carte(n,540,y0,980,a,s);
     });
-    // le badge rouge qui grimpe
-    if(vis.length){const nb=vis.length+ (vis.length>=4?3:0)+(vis.length>=6?2:0);const k=spring((b-vis[vis.length-1].b)*B,18,.5);
-      g.save();g.translate(860,770);g.scale(.8+.2*k,.8+.2*k);g.fillStyle='#e5372b';g.beginPath();g.arc(0,0,44,0,7);g.fill();texte(String(nb),0,2,44,'#fff',800,'Inter');g.restore();
-      texte('notifications',700,772,30,'rgba(255,255,255,.7)',600,'Inter','right');}
     // la dernière fait mal : l'écran rougit un instant
     if(b>=B_DUR&&b<B_BALAIE){const a=.22*Math.exp(-(b-B_DUR)*1.2);g.fillStyle=`rgba(200,30,20,${a})`;g.fillRect(-40,0,W+80,H);}
     g.restore();
   }
-  legende(['POV : t’es artisan,','il est 22 h 14.'],b,0,3.6,190,76,['#fff',O1]);
-  legende(['Elle est partie','chez un autre.'],b,B_DUR+.6,B_BALAIE-.1,190,76,['#fff','#ff8a70']);
+  legende(['POV : t’es artisan,','il est 22 h 14.'],b,0,3.6,1300,76,['#fff',O1]);
+  legende(['Elle est partie','chez un autre.'],b,B_DUR+.6,B_BALAIE-.1,1545,70,['#fff','#ff8a70']);
   // la trace du doigt qui balaie
   if(b>=B_BALAIE-.2&&b<B_BALAIE+1){const u=seg(b,B_BALAIE-.2,B_BALAIE+.9),y=lerp(1650,700,easeOut(u));g.save();g.globalAlpha=Math.sin(u*Math.PI)*.85;
     const gr=g.createRadialGradient(540,y,0,540,y,70);gr.addColorStop(0,'rgba(255,255,255,.9)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.beginPath();g.arc(540,y,70,0,7);g.fill();g.restore();}
 
-  // 2 · Diktéo s'ouvre : la vraie dictée
+  // 2 · Diktéo s'ouvre en plein écran, comme une vraie app qu'on lance
   const bA=B_BALAIE+.6, bF=25.6;
   if(b>=bA&&b<bF+.8){
     const o=easeOut(seg(b,bA,bA+1)),f=ease(seg(b,bF-.4,bF+.6));
-    const s=lerp(.32,.76,o)*(1-.1*f),ph=1914*s*1.0,pw=897*s*1.0;
-    g.save();g.globalAlpha=clamp(o*1.5)*(1-f);g.translate(540,1110+(1-o)*300);
-    g.shadowColor='rgba(0,0,0,.7)';g.shadowBlur=70;g.shadowOffsetY=30;g.fillStyle='#0d0f0e';rr(-pw/2,-ph/2,pw,ph,70*s);g.fill();g.shadowColor='transparent';
-    g.save();rr(-pw/2,-ph/2,pw,ph,70*s);g.clip();
-    const fr=Math.round(clamp((b-(bA+.8))/(bF-.6-(bA+.8)))*(N_ECR-1)),im=ECRANS[fr];if(im&&im.complete)g.drawImage(im,-pw/2,-ph/2,pw,ph);g.restore();
-    g.restore();
+    const sc=lerp(.12,1,o), cy=lerp(1500,960,o), rad=lerp(120,0,o);
+    g.save();g.globalAlpha=clamp(o*2)*(1-f);g.translate(540,cy);g.scale(sc,sc);
+    g.save();rr(-540,-960,1080,1920,rad/sc);g.clip();
+    g.fillStyle='#0f1412';g.fillRect(-540,-960,1080,1920);
+    const fr=Math.round(clamp((b-(bA+.8))/(bF-.6-(bA+.8)))*(N_ECR-1)),im=ECRANS[fr];
+    if(im&&im.complete)g.drawImage(im,-450,-960,900,1920);
+    g.restore();g.restore();
   }
-  legende(['Et si ton devis','partait du chantier ?'],b,bA+.4,bA+4.4,150,70,['#fff',O1]);
-  legende(['Tu parles. Il s’écrit.','C’est envoyé.'],b,bA+4.8,bF-.4,150,70,['#fff',O1]);
+  legende(['Et si ton devis','partait du chantier ?'],b,bA+.8,bA+4.6,1080,72,['#fff',O1]);
 
   // 3 · le même écran, calme, en fin d'après-midi
   if(b>=bF){
     const k=easeOut(seg(b,bF,bF+.8));g.save();g.globalAlpha=k;
-    horloge('18:12','mardi 11 novembre',b);
+    verrou('18:12',b);
     const kn=spring((b-(bF+.7))*B,15,.7);
-    if(b>=bF+.7)carte({ini:'✓',col:'#2f9e6b',qui:'Diktéo',txt:'Mme Martin a signé votre devis · 886,60 €'},540,900-(1-clamp(kn))*120,940,clamp(kn*1.4),lerp(.9,1,clamp(kn)));
+    if(b>=bF+.7)carte({app:'dik',qui:'Diktéo',txt:'Mme Martin a signé votre devis · 886,60 €'},540,700-(1-clamp(kn))*120,980,clamp(kn*1.4),lerp(.9,1,clamp(kn)),FLOU_SOIR);
     g.restore();
   }
-  legende(['Le client signe.','Toi, t’es rentré.'],b,bF+1.4,bF+5.2,1140,76,['#fff',O1]);
+  legende(['Le client signe.','Toi, t’es rentré.'],b,bF+1.4,bF+5.2,1060,76,['#fff',O1]);
   // 4 · le carton
   if(b>=bF+5.6){
     const k=spring((b-(bF+5.6))*B,12,.8);g.save();g.globalAlpha=clamp(k*1.5);
