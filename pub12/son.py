@@ -61,12 +61,31 @@ for bt in (3, 6, 10, 14):
     sfx("kit/click.ogg", bt, -12, "une phrase dictée")
 for k in range(4):
     sfx("transition/fs-850347-swipe-various.ogg", 3.6 + .5 * k, -17, "le couteau lisse l'enduit")
+# Le rouleau : pas de « swipe » (trop aigu, il glisse en hauteur : on dirait un laser). Un vrai souffle enregistré,
+# filtré bas-médium et pulsé au rythme du manchon qui tourne : le frottement mat d'un rouleau chargé de peinture.
+SOUFFLE = "ambience/fs-329569-roomtone-bedroom-yew.ogg"
+
+
+def frottement(beat, duree_b, db, desc, k):
+    d = duree_b * B + .12
+    s = lire(os.path.join(SKILL, SOUFFLE), (1 + k * .61) % 17, d, af="highpass=f=220,lowpass=f=1500,lowpass=f=1500")
+    t = np.arange(len(s)) / SR
+    env = np.minimum(1, t / .05) * np.minimum(1, np.maximum(0, (d - t) / .14))
+    env *= 1 - .22 * (.5 + .5 * np.sin(2 * np.pi * 7.5 * t + k))
+    s = s * env[:, None]
+    s = s / max(1e-6, np.abs(s).max()) * 10 ** (db / 20)
+    a = int(beat * B * SR)
+    s = s[: N - a]
+    bruits[a:a + len(s)] += s
+    journal.append((beat * B, desc, SOUFFLE, INFO.get(SOUFFLE, {}).get("credit", SOUFFLE), INFO.get(SOUFFLE, {}).get("license", "?")))
+
+
 for j in range(6):
-    sfx("transition/fs-702773-swipe-wav.ogg", 6.6 + .5 * j, -14, "coup de rouleau, sous-couche")
+    frottement(6.6 + .5 * j, .5, -13, "coup de rouleau, sous-couche", j)
 for j in range(6):
-    sfx("transition/fs-702773-swipe-wav.ogg", 10.6 + .33 * j, -15, "coup de rouleau, 1re couche")
-for j in range(0, 6, 2):
-    sfx("transition/fs-702773-swipe-wav.ogg", 12.7 + .2 * j, -15, "2e couche")
+    frottement(10.6 + .33 * j, .33, -14, "coup de rouleau, 1re couche", 10 + j)
+for j in range(6):
+    frottement(12.7 + .2 * j, .2, -16, "2e couche", 20 + j)
 sfx("transition/fs-786514-swoosh-v2.ogg", 14.6, -11, "le ruban de masquage s'arrache")
 sfx("whoosh/fs-169867-swoosh.ogg", 15.6, -9, "la bâche glisse")
 sfx("click/kenney-interface-toggle-001.ogg", 17.1, -10, "les appliques s'allument")

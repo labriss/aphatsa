@@ -272,7 +272,7 @@ function boite(b){
   g.save();g.globalAlpha=app;const gm=g.createLinearGradient(dx-dS/2,dy-dS/2,dx+dS/2,dy+dS/2);gm.addColorStop(0,O1);gm.addColorStop(.55,O2);gm.addColorStop(1,O3);
   if(m>0)lueur('rgba(232,101,15,.5)',50*m);g.fillStyle=gm;rr(dx-dS/2,dy-dS/2,dS,dS,dR);g.fill();g.shadowColor='transparent';
   // l'onde de la voix quand une phrase commence
-  for(const ph of PHRASES){const p=(b-ph.b)*B;if(p>0&&p<1.1){g.strokeStyle=`rgba(255,138,61,${.5*(1-((p*2)%1))})`;g.lineWidth=3;g.beginPath();g.arc(dx,dy,46+((p*2)%1)*26,0,7);g.stroke();}}
+  for(const ph of PHRASES){const p=(b-ph.b)*B;if(p>0&&p<1.45*B+.1){g.strokeStyle=`rgba(255,138,61,${.5*(1-((p*2)%1))})`;g.lineWidth=3;g.beginPath();g.arc(dx,dy,46+((p*2)%1)*26,0,7);g.stroke();}}
   // l'icône dans le rond : micro, puis coche à l'envoi, puis la bulle Diktéo
   const ic=seg(b,B_ENV,B_ENV+.25),lg=seg(b,B_FIN-.25,B_FIN+.2);
   if(ic<1){g.save();g.globalAlpha*=1-ic;g.translate(dx,dy);g.fillStyle='#fff';rr(-9,-26,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.lineCap='round';g.beginPath();g.arc(0,-6,17,.15*Math.PI,.85*Math.PI);g.stroke();g.beginPath();g.moveTo(0,11);g.lineTo(0,20);g.stroke();g.restore();}
@@ -281,8 +281,13 @@ function boite(b){
   g.restore();
   if(m>0)return;
   // le contenu de la boîte, en fondu doux pendant qu'elle est ouverte
+  // la dictée en direct : « TU DICTES », puis les mots s'écrivent au rythme de la voix, avec un curseur
   PHRASES.forEach(ph=>{const a=seg(b,ph.b+.05,ph.b+.3)*(1-seg(b,ph.b+2.55,ph.b+2.85))*clamp(k);if(a<=0)return;g.save();g.globalAlpha=a;
-    texte(ph.dit,222,176,44,'#fff',700,'Archivo','left');texte(ph.dit2,222,242,44,ORANGE,700,'Archivo','left');g.restore();});
+    g.font='800 26px Archivo';g.fillStyle=ORANGE;g.textAlign='left';g.textBaseline='middle';g.letterSpacing='4px';g.fillText('TU DICTES',224,140);g.letterSpacing='0px';
+    const tout=ph.dit.length+ph.dit2.length,n=Math.floor(tout*easeOut(seg(b,ph.b+.15,ph.b+1.45))),n1=Math.min(n,ph.dit.length),n2=Math.max(0,n-ph.dit.length);
+    texte(ph.dit.slice(0,n1),222,196,44,'#fff',700,'Archivo','left');texte(ph.dit2.slice(0,n2),222,256,44,ORANGE,700,'Archivo','left');
+    if(n<tout||((b*B*2.4)%1)<.6){g.font='700 44px Archivo';const w=g.measureText(n2>0?ph.dit2.slice(0,n2):ph.dit.slice(0,n1)).width;g.fillStyle=n<tout?'#fff':'rgba(255,255,255,.6)';g.fillRect(226+w,n2>0?234:174,4,44);}
+    g.restore();});
   const at=seg(b,B_TOT+.2,B_TOT+.5)*(1-seg(b,B_ENV-.15,B_ENV+.1))*clamp(k);
   if(at>0){g.save();g.globalAlpha=at;texte('TOTAL DU DEVIS · TTC',590,172,34,'#f3dccb',700);lueur('rgba(255,138,61,.6)',26);texte('1 177,00 €',590,256,100,ORANGE,800,'JBMono');g.shadowColor='transparent';
     const gl=seg(b,B_GLINT,B_GLINT+1);if(gl>0&&gl<1){g.save();rr(90,115,900,230,52);g.clip();g.globalCompositeOperation='lighter';const x=lerp(0,1200,ease(gl));
@@ -298,7 +303,7 @@ function carton(b){
   const tx=540-260,ty=700;
   texte('Diktéo',tx+170,ty+72,138,'#fff',900,'Archivo','left');
   const sw=seg(b,B_FIN+.5,B_FIN+2.2);if(sw>0&&sw<1){g.save();g.globalCompositeOperation='lighter';const x=lerp(330,900,sw);const gl=g.createLinearGradient(x-80,0,x+80,0);gl.addColorStop(0,'rgba(255,255,255,0)');gl.addColorStop(.5,'rgba(255,240,220,.5)');gl.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gl;g.fillRect(x-80,ty-10,160,160);g.restore();}
-  texte('Tu dictes. Le chantier avance.',540,940,48,'#f3dccb',600,'Archivo');
+  texte('Tu dictes ton devis, Diktéo l’écrit.',540,940,48,'#f3dccb',600,'Archivo');
   texte('3 devis offerts par mois · sans carte',540,1060,44,'#fff',700,'Archivo');
   const gb=g.createLinearGradient(290,1150,790,1250);gb.addColorStop(0,O1);gb.addColorStop(.55,O2);gb.addColorStop(1,O3);g.fillStyle=gb;rr(270,1150,540,104,34);g.fill();
   texte('dikteo.vercel.app',540,1203,46,'#fff',800,'Archivo');g.restore();
