@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Diktéo · la pile</title>
+<style>
+/*FONTS*/
+html,body{margin:0;background:#050505;overflow:hidden}
+#c{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0}
+#ui{position:absolute;left:0;bottom:0;width:100%;padding:10px;background:#111;color:#ccc;font:14px sans-serif;display:flex;gap:10px;align-items:center;box-sizing:border-box}
+#ui input{flex:1}
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<div id="ui"><button id="lecture">Lecture</button><input id="curseurUI" type="range" min="0" max="1000" value="0"><span id="temps">0.00</span></div>
+<script>
+/* Pub 8 « la pile » : la liste des galères de l'artisan, dans ses mots, qui s'empilent jusqu'à « LES DEVIS ».
+   Puis une onde de voix balaie tout, et le vrai écran de Diktéo se remplit dans un téléphone. 121 BPM, 48 temps.
+   b0   « Artisan ? »                         b2…12  six galères tombent, une par deux temps
+   b13  « 22 h 07 » s'allume, la pile vacille  b16    « LES DEVIS. » s'écrase dessus
+   b19.5 l'onde de voix balaie la pile          b21    le téléphone monte : « Et si tu les disais ? »
+   b22–34 la vraie dictée, les lignes, le total b34   « Envoyé. Depuis le chantier. »
+   b38  carton : « Ce soir, t'as fini à 18 h. » puis l'offre */
+const W=1080,H=1920,B=60/121,NB=48,DN=NB*B;
+const cv=document.getElementById('c'),g=cv.getContext('2d');
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const lerp=(a,b,k)=>a+(b-a)*k;
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const ease=x=>(x=clamp(x),x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2);
+const easeOut=x=>1-Math.pow(1-clamp(x),3);
+function spring(t,w=14,z=.62){if(t<=0)return 0;const wd=w*Math.sqrt(1-z*z);return 1-Math.exp(-z*w*t)*(Math.cos(wd*t)+(z*w/wd)*Math.sin(wd*t));}
+const rnd=n=>{n=Math.sin(n*127.1+311.7)*43758.5453;return n-Math.floor(n);};
+const O1='#E8650F',O2='#C9480A',O3='#A8350A',CREME='#EDE6DA',ENCRE='#16120F';
+
+// ——— le fond : charbon chaud, une lumière douce venue d'en haut, grain fixe ———
+const fond=document.createElement('canvas');fond.width=W;fond.height=H;
+(()=>{const f=fond.getContext('2d');f.fillStyle='#120F0C';f.fillRect(0,0,W,H);
+  const l=f.createRadialGradient(540,700,0,540,700,1300);l.addColorStop(0,'rgba(120,70,30,.28)');l.addColorStop(1,'rgba(0,0,0,0)');f.fillStyle=l;f.fillRect(0,0,W,H);
+  const v=f.createRadialGradient(540,960,600,540,960,1300);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.65)');f.fillStyle=v;f.fillRect(0,0,W,H);
+  const d=f.getImageData(0,0,W,H),p=d.data;let s=7;for(let i=0;i<p.length;i+=4){s=(s*16807)%2147483647;const n=(s/2147483647-.5)*9;p[i]+=n;p[i+1]+=n;p[i+2]+=n;}f.putImageData(d,0,0);})();
+
+// ——— les galères : des blocs qui tombent et s'empilent ———
+const GALERES=['Le chantier.','Le camion.','Les fournisseurs.','Le client qui rappelle.','Les urgences.','La compta.'];
+const SOL=1700, HB=134;
+const blocs=GALERES.map((t,i)=>({t,b:2+i*2,size:76,h:HB}));
+blocs.push({t:'LES DEVIS.',b:16,size:150,h:220,devis:true});
+let y=SOL;blocs.forEach((k,i)=>{k.y=y-k.h/2;y-=k.h+6;k.dx=(rnd(i+3)-.5)*60;k.rot=(rnd(i+11)-.5)*.07;});
+function mesure(k){g.font=`800 ${k.size}px Archivo`;k.w=g.measureText(k.t).width+(k.devis?110:72);}
+
+// ——— le vrai écran de Diktéo (375 images capturées, 30 i/s) ———
+const ECRANS=[];const N_ECR=375;
+const charge=Promise.all(Array.from({length:N_ECR},(_,i)=>new Promise(r=>{const im=new Image();im.onload=()=>r();im.onerror=()=>r();im.src=`../pub2/ecran/chauffagiste/ecran_${String(i+1).padStart(4,'0')}.png`;ECRANS.push(im);})));
+
+function rr(x,y,w,h,r){g.beginPath();g.roundRect(x,y,w,h,r);}
+function texte(t,x,y,size,col,poids=800,font='Archivo',align='center'){g.font=`${poids} ${size}px ${font}`;g.fillStyle=col;g.textAlign=align;g.textBaseline='middle';g.fillText(t,x,y);}
+// une légende, une seule à la fois, qui monte en douceur
+function legende(lignes,b,b0,b1,y=300,size=78,cols){
+  if(b<b0-.1||b>b1+.4)return;
+  const k=b0<=b?spring((b-b0)*B,13,.8):0,a=clamp(k*1.6)*(1-seg(b,b1,b1+.4));
+  g.save();g.globalAlpha=a;lignes.forEach((l,i)=>texte(l,540,y+i*size*1.12+(1-k)*30,size,(cols&&cols[i])||CREME));g.restore();
+}
+
+function seek(T){
+  const t=((T%DN)+DN)%DN,b=t/B;
+  g.setTransform(1,0,0,1,0,0);g.drawImage(fond,0,0);
+  // secousse de la caméra aux impacts
+  let sx=0,sy=0;
+  for(const k of blocs){const d=(b-k.b-.6)*B;if(d>0&&d<.5){const a=(k.devis?22:6)*Math.exp(-d*9);sx+=Math.sin(d*90)*a;sy+=Math.cos(d*70)*a;}}
+  g.translate(sx,sy);
+
+  // 0 · « Artisan ? »
+  if(b<2.2){const k=spring(b*B,12,.6),a=1-seg(b,1.7,2.2);g.save();g.globalAlpha=a;g.translate(540,880);g.scale(.8+.2*k,.8+.2*k);
+    g.font='900 200px Archivo';const w1=g.measureText('Artisan ').width,w2=g.measureText('?').width;
+    texte('Artisan',-w2/2-6,0,200,CREME,900);texte('?',(w1+ -w2)/2+ w2/2+4,0,200,O1,900);g.restore();}
+
+  // 1 · la pile
+  const vacille=b<13?0:b<16?Math.sin((b-13)*Math.PI*2.2)*.012*(b-13):b<19.5?Math.sin((b-16)*Math.PI*1.6)*.03:0;
+  const souffle=seg(b,19.5,21.2);       // l'onde de voix balaie de gauche à droite
+  const xOnde=lerp(-200,1300,easeOut(souffle));
+  blocs.forEach((k,i)=>{
+    if(b<k.b-.05)return;
+    mesure(k);
+    const chute=clamp((b-k.b)*B/.36),yy=chute<1?lerp(-260,k.y,chute*chute):k.y+(1-spring((b-k.b)*B-.36,22,.45))*(k.devis?-28:-12)*0;
+    let x=540+k.dx,yb=chute<1?yy:k.y,rot=k.rot;
+    // la pile oscille autour de sa base
+    const hBase=SOL-k.y;x+=Math.sin(vacille)*hBase;rot+=vacille;
+    // le dernier arrivé brille, les autres pâlissent un peu
+    const recent=b<k.b+2.2&&!(blocs[i+1]&&b>=blocs[i+1].b);
+    // soufflé par l'onde : il part vers la droite en tournant
+    let a=1;
+    if(souffle>0&&x-k.w/2<xOnde+80){const u=clamp((xOnde+80-(x-k.w/2))/900);x+=u*u*1400;yb-=u*(300+i*40)+Math.sin(u*3)*40;rot+=u*(1.4+rnd(i)*1.2)*(i%2?1:-1);a=1-u;}
+    if(a<=0)return;
+    g.save();g.globalAlpha=a;g.translate(x,yb);g.rotate(rot);
+    g.shadowColor='rgba(0,0,0,.55)';g.shadowBlur=30;g.shadowOffsetY=14;
+    if(k.devis){const gr=g.createLinearGradient(-k.w/2,-k.h/2,k.w/2,k.h/2);gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);g.fillStyle=gr;}
+    else g.fillStyle=recent?CREME:'#BDB3A3';
+    rr(-k.w/2,-k.h/2,k.w,k.h,k.devis?30:20);g.fill();g.shadowColor='transparent';
+    texte(k.t,0,4,k.size,k.devis?'#FFF7EF':ENCRE);
+    g.restore();
+  });
+  // l'heure s'allume au-dessus de la pile
+  if(b>=13&&b<19.8){const k=spring((b-13)*B,12,.7),a=clamp(k*1.5)*(1-seg(b,19.3,19.8));g.save();g.globalAlpha=a;g.shadowColor='rgba(232,101,15,.7)';g.shadowBlur=40;
+    texte('22 h 07',540,330,130,O1,800,'JBMono');g.restore();}
+  // l'onde de voix
+  if(souffle>0&&souffle<1){g.save();for(let i=0;i<46;i++){const x=xOnde-i*22;if(x<-30||x>1110)continue;const h=60+Math.abs(Math.sin(i*1.7+t*14)*Math.sin(i*.6))*520*(1-i/46);
+    g.fillStyle=`rgba(232,101,15,${.9*(1-i/46)})`;rr(x-7,1080-h/2,14,h,7);g.fill();}g.restore();}
+
+  // 2 · le téléphone et le vrai écran
+  if(b>=20.6&&b<39.5){
+    const monte=easeOut(seg(b,20.6,22)),sort=ease(seg(b,38.2,39.5));
+    const sc=lerp(.86,.92,seg(b,22,38)),py=lerp(2300,1180,monte)+sort*1300;
+    const pw=640*sc,ph=1366*sc;
+    g.save();g.translate(540,py);
+    g.shadowColor='rgba(0,0,0,.7)';g.shadowBlur=80;g.shadowOffsetY=40;
+    const gr=g.createLinearGradient(-pw/2,-ph/2,pw/2,ph/2);gr.addColorStop(0,'#2b2622');gr.addColorStop(.4,'#0d0c0b');gr.addColorStop(1,'#1a1714');
+    g.fillStyle=gr;rr(-pw/2-20,-ph/2-20,pw+40,ph+40,96*sc);g.fill();g.shadowColor='transparent';
+    g.save();rr(-pw/2,-ph/2,pw,ph,80*sc);g.clip();
+    const f=Math.round(clamp((b-22)/12)*(N_ECR-1)),im=ECRANS[f];
+    if(im&&im.complete)g.drawImage(im,-pw/2,-ph/2,pw,ph);
+    g.restore();
+    g.fillStyle='#050505';rr(-70*sc,-ph/2+22*sc,140*sc,40*sc,20*sc);g.fill();
+    g.restore();
+  }
+  legende(['Et si tu les disais,','tout simplement ?'],b,21,26.2,240,74,[CREME,O1]);
+  legende(['Lignes, prix, TVA :','il s’écrit tout seul.'],b,27,32.6,240,70,[CREME,CREME]);
+  legende(['Envoyé.','Depuis le chantier.'],b,34,38,240,78,[O1,CREME]);
+
+  // 3 · le carton
+  if(b>=38.8){
+    const k=spring((b-38.8)*B,11,.8);
+    g.save();g.globalAlpha=clamp(k*1.5);g.translate(0,(1-k)*40);
+    // la tuile du logo
+    const tx=540-260,ty=640;const gr=g.createLinearGradient(tx,ty,tx+140,ty+140);gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);
+    g.fillStyle=gr;rr(tx,ty,140,140,40);g.fill();
+    g.save();g.translate(tx+18,ty+16);g.scale(4.4,4.4);g.fillStyle='#fff';g.fill(new Path2D('M6.5 2.5H12a9 9 0 0 1 0 18H9.2L4.5 23V4.5a2 2 0 0 1 2-2ZM9.2 9.5a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1Zm3.1-2.5a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1Zm3.1 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Z'),'evenodd');g.restore();
+    texte('Diktéo',tx+170,ty+72,138,CREME,900,'Archivo','left');
+    g.restore();
+  }
+  legende(['Ce soir,','t’as fini à 18 h.'],b,39.3,42.6,1010,82,[CREME,O1]);
+  if(b>=42.8){const k=spring((b-42.8)*B,12,.8),a=clamp(k*1.6);g.save();g.globalAlpha=a;g.translate(0,(1-k)*30);
+    texte('3 devis offerts par mois',540,1000,64,CREME,800);texte('sans carte bancaire',540,1080,46,'#B9AFA1',600,'PublicSans');
+    const gr=g.createLinearGradient(290,1170,790,1270);gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);g.fillStyle=gr;rr(270,1170,540,104,34);g.fill();
+    texte('dikteo.vercel.app',540,1223,46,'#fff',800,'PublicSans');g.restore();}
+}
+window.seek=seek;
+const render=location.search.includes('render');
+if(render){document.getElementById('ui').style.display='none';}
+else{const fit=()=>{const k=Math.min(innerWidth/1080,(innerHeight-40)/1920);cv.style.transform=`scale(${k})`;};addEventListener('resize',fit);fit();
+  let t0=performance.now(),run=false,off=0;document.getElementById('lecture').onclick=()=>{run=!run;t0=performance.now()-off*1000;};
+  document.getElementById('curseurUI').oninput=e=>{off=e.target.value/1000*DN;t0=performance.now()-off*1000;};
+  (function loop(){if(run)off=((performance.now()-t0)/1000)%DN;document.getElementById('temps').textContent=off.toFixed(2);document.getElementById('curseurUI').value=off/DN*1000;seek(off);requestAnimationFrame(loop);})();}
+Promise.all([charge,document.fonts.ready]).then(()=>{seek(0);window.VIDEO={w:W,h:H,duration:DN};});
+</script>
+</body>
+</html>
