@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Diktéo · le rouleau</title>
+<style>
+/*FONTS*/
+html,body{margin:0;background:#050505;overflow:hidden}
+#c{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0}
+#ui{position:absolute;left:0;bottom:0;width:100%;padding:10px;background:#111;color:#ccc;font:14px sans-serif;display:flex;gap:10px;align-items:center;box-sizing:border-box}
+#ui input{flex:1}
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<div id="ui"><button id="lecture">Lecture</button><input id="curseurUI" type="range" min="0" max="1000" value="0"><span id="temps">0.00</span></div>
+<script>
+/* Pub 12 « le rouleau » : un mur pourri devient une belle pièce, phrase après phrase.
+   Le peintre dicte ; chaque phrase est un vrai geste du chantier, filmé de face, au rythme de la musique.
+   85 BPM (1 temps = 0,706 s), 28 temps (19,8 s).
+   b0   « PEINTRE ? » bombé sur le mur pourri, b0.75 « Tes devis, encore le dimanche soir ? » (tout décalé d'un temps)
+   b2   « Rebouchage des fissures » : le couteau lisse les trous, l'enduit remplit les fissures
+   b5   « Sous-couche » : six longs coups de rouleau blanc, colonne après colonne (le tag disparaît dessous)
+   b9   « Deux couches de mat velours » : la terracotta descend, puis la 2e couche remonte
+   b13  « Protection et nettoyage » : le scotch s'arrache, la bâche glisse, le parquet apparaît
+   b16  les appliques s'allument, le cadre se pose, la plante ; on recule : une belle pièce
+   b17.6 le total, coup de lumière    b19.6 envoyé à Mme Garnier    b21.6 carton */
+const W=1080,H=1920,B=60/85,NB=28,DN=NB*B;
+const cv=document.getElementById('c');let g=cv.getContext('2d');
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const lerp=(a,b,k)=>a+(b-a)*k;
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const ease=x=>(x=clamp(x),x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2);
+const easeOut=x=>1-Math.pow(1-clamp(x),3);
+const smooth=x=>(x=clamp(x),x*x*(3-2*x));
+function spring(t,w=14,z=.62){if(t<=0)return 0;const wd=w*Math.sqrt(1-z*z);return 1-Math.exp(-z*w*t)*(Math.cos(wd*t)+(z*w/wd)*Math.sin(wd*t));}
+const rnd=n=>{n=Math.sin(n*127.1+311.7)*43758.5453;return n-Math.floor(n);};
+const nz=(x,s=0)=>{const i=Math.floor(x),f=x-i,u=f*f*(3-2*f);return lerp(rnd(i+s*57.3),rnd(i+1+s*57.3),u);};
+const O1='#E8650F',O2='#C9480A',O3='#A8350A',ORANGE='#ff8a3d';
+function rr(x,y,w,h,r,c=g){c.beginPath();c.roundRect(x,y,w,h,r);}
+function texte(t,x,y,size,col,poids=700,font='Archivo',align='center',c=g){c.font=`${poids} ${size}px ${font}`;c.fillStyle=col;c.textAlign=align;c.textBaseline='middle';c.fillText(t,x,y);}
+function lueur(col,flou,c=g){c.shadowColor=col;c.shadowBlur=flou;}
+function toile(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return [c,c.getContext('2d')];}
+let GRAINE=7;const R=()=>{GRAINE=(GRAINE*16807)%2147483647;return GRAINE/2147483647;};
+function grain(f,w,h,amp,coul=[1,1,1]){const d=f.getImageData(0,0,w,h),p=d.data;for(let i=0;i<p.length;i+=4){if(!p[i+3])continue;const n=(R()-.5)*amp;p[i]+=n*coul[0];p[i+1]+=n*coul[1];p[i+2]+=n*coul[2];}f.putImageData(d,0,0);}
+
+// ——— le monde : un mur de 1280 × 1470 (x de -100 à 1180), plafond au-dessus, plinthe et parquet en dessous ———
+const MX=-100,MW=1280,MH=1470,SOL=1530;
+function blob(f,cx,cy,r,s,dent=.35,n=120){f.beginPath();for(let i=0;i<=n;i++){const a=i/n*Math.PI*2,k=1-dent/2+dent*(nz(a*3,s)*.7+nz(a*11,s+3)*.3)+(rnd(s+i*1.3)-.5)*dent*.12;const x=cx+Math.cos(a)*r*k,y=cy+Math.sin(a)*r*k*1.15;i?f.lineTo(x,y):f.moveTo(x,y);}f.closePath();}
+// les fissures sont gardées en mémoire : l'enduit les suivra trait pour trait
+const FISS=[];
+function fissure(x,y,a,n,w,s,groupe){
+  const pts=[[x,y]];for(let i=0;i<n;i++){a+=(rnd(s+i*1.7)-.5)*.9;x+=Math.cos(a)*(7+rnd(s+i)*9);y+=Math.sin(a)*(7+rnd(s+i)*9);pts.push([x,y]);
+    if(rnd(s+i*3.1)<.06&&w>1.4)fissure(x,y,a+(rnd(s+i)<.5?-1:1)*(.6+rnd(s+i*2)*.6),n*.45|0,w*.6,s+i*13,groupe);}
+  FISS.push({pts,w,groupe});}
+function traceFiss(f,pts,w,u,col,lw,dx=0,dy=0){const n=Math.max(2,Math.ceil(pts.length*u));f.strokeStyle=col;f.lineCap='round';f.lineJoin='round';
+  for(let i=1;i<n&&i<pts.length;i++){f.lineWidth=Math.max(.7,w*(1-i/pts.length))*lw;f.beginPath();f.moveTo(pts[i-1][0]+dx,pts[i-1][1]+dy);f.lineTo(pts[i][0]+dx,pts[i][1]+dy);f.stroke();}}
+// les quatre trous du papier peint, et la fissure qui part de chacun
+const TROUS=[[860,330,140,21],[150,1000,160,25],[620,1300,150,29],[420,150,110,33]];
+TROUS.forEach(([x,y,r,s],k)=>fissure(x+r*.3,y+r*.2,rnd(s)*6.28,30,3.2,s*7,k));
+[[0,420,.5,60,3.6,101],[1080,700,2.6,55,3.2,203],[560,980,-1.2,45,2.8,307],[300,40,1.3,40,2.6,409]].forEach(([x,y,a,n,w,s],k)=>fissure(x,y,a,n,w,s,k));
+
+const MUR=(()=>{const [c,f]=toile(MW,MH);f.translate(-MX,0);
+  f.fillStyle='#3a3428';f.fillRect(MX,0,MW,MH);
+  for(let x=MX-20;x<MX+MW;x+=180){f.fillStyle='rgba(255,236,190,.04)';f.fillRect(x+18,0,64,MH);f.fillStyle='rgba(0,0,0,.07)';f.fillRect(x+96,0,5,MH);}
+  for(let j=-1;j<8;j++)for(let i=-2;i<8;i++){const x=i*180+140+(j%2?90:0),y=j*230+60;f.save();f.translate(x,y);f.fillStyle='rgba(215,195,150,.075)';f.strokeStyle='rgba(215,195,150,.08)';f.lineWidth=3;
+    for(let k=0;k<4;k++){f.rotate(Math.PI/2);f.beginPath();f.moveTo(0,-8);f.bezierCurveTo(22,-26,12,-58,0,-74);f.bezierCurveTo(-12,-58,-22,-26,0,-8);f.fill();f.beginPath();f.arc(36,-36,7,0,7);f.fill();}
+    f.beginPath();f.arc(0,0,40,0,7);f.stroke();f.restore();}
+  for(let i=0;i<14;i++){const x=MX+R()*MW,y=R()*MH,r=150+R()*380,gr=f.createRadialGradient(x,y,0,x,y,r);const cl=R()<.5;gr.addColorStop(0,cl?'rgba(190,170,120,.09)':'rgba(15,10,4,.22)');gr.addColorStop(1,'rgba(0,0,0,0)');f.fillStyle=gr;f.fillRect(MX,0,MW,MH);}
+  for(const [x,y,r,s] of [[780,560,170,2],[230,620,130,5],[880,1100,190,8],[330,1330,150,11],[120,220,90,14]]){
+    f.save();blob(f,x,y,r,s,.4);const gr=f.createRadialGradient(x,y,r*.2,x,y,r);gr.addColorStop(0,'rgba(70,48,18,.12)');gr.addColorStop(.85,'rgba(70,45,15,.3)');gr.addColorStop(1,'rgba(40,25,8,.45)');f.fillStyle=gr;f.fill();
+    f.strokeStyle='rgba(45,28,8,.55)';f.lineWidth=3;f.filter='blur(1.5px)';f.stroke();f.filter='none';f.restore();
+    const gr2=f.createLinearGradient(0,y+r*.8,0,y+r*2.4);gr2.addColorStop(0,'rgba(45,28,8,.35)');gr2.addColorStop(1,'rgba(45,28,8,0)');f.fillStyle=gr2;f.fillRect(x-r*.3+R()*20,y+r*.8,6+R()*10,r*1.6);}
+  for(const [x,y,r,s] of TROUS){
+    f.save();blob(f,x,y,r,s,.42,160);f.save();f.clip();
+    const gp=f.createLinearGradient(x-r,y-r,x+r,y+r);gp.addColorStop(0,'#5a544a');gp.addColorStop(1,'#37332c');f.fillStyle=gp;f.fillRect(x-2*r,y-2*r,4*r,4*r);
+    for(let i=0;i<260;i++){f.fillStyle=`rgba(${R()<.5?'20,16,10':'150,140,120'},${.15+R()*.25})`;f.beginPath();f.arc(x+(R()-.5)*2.4*r,y+(R()-.5)*2.6*r,.8+R()*2.6,0,7);f.fill();}
+    f.restore();f.save();f.clip();f.translate(4,6);blob(f,x,y,r,s,.42,160);f.strokeStyle='rgba(0,0,0,.55)';f.lineWidth=10;f.filter='blur(5px)';f.stroke();f.restore();
+    blob(f,x,y,r,s,.42,160);f.strokeStyle='rgba(225,212,180,.45)';f.lineWidth=3;f.stroke();f.restore();}
+  for(const fi of FISS){traceFiss(f,fi.pts,fi.w,1,'rgba(150,135,105,.35)',1,1.5,1.5);traceFiss(f,fi.pts,fi.w,1,'rgba(8,5,2,.95)',1.15);}
+  for(const [cx,cy,n] of [[MX+40,60,420],[MX+MW-30,MH-30,500],[MX+20,MH-40,300]])for(let i=0;i<n;i++){const a=R()*6.28,d=Math.pow(R(),2)*260;f.fillStyle=`rgba(${10+R()*20|0},${12+R()*14|0},6,${.2+R()*.5})`;f.beginPath();f.arc(cx+Math.cos(a)*d,cy+Math.sin(a)*d,.6+R()*2.4,0,7);f.fill();}
+  for(const [x,y,a] of [[690,250,.3],[120,980,-.5]]){f.save();f.translate(x,y);f.rotate(a);f.fillStyle='rgba(200,175,100,.22)';f.fillRect(-55,-14,110,28);f.restore();}
+  const gb=f.createLinearGradient(0,900,0,MH);gb.addColorStop(0,'rgba(8,5,2,0)');gb.addColorStop(1,'rgba(8,5,2,.55)');f.fillStyle=gb;f.fillRect(MX,0,MW,MH);
+  f.setTransform(1,0,0,1,0,0);grain(f,MW,MH,16);return c;})();
+
+// une peinture au rouleau : couleur, peau d'orange, reprises verticales d'une colonne à l'autre
+function peinture(cA,cB,amp,stries,teinte,veines=1){const [c,f]=toile(MW,MH);
+  const gr=f.createLinearGradient(0,0,0,MH);gr.addColorStop(0,cA);gr.addColorStop(1,cB);f.fillStyle=gr;f.fillRect(0,0,MW,MH);
+  for(let x=0;x<MW;x+=MW/6){for(let k=0;k<3;k++){const xx=x+R()*MW/6;f.fillStyle=`rgba(${R()<.5?'255,240,220':'0,0,0'},${stries*(.5+R())})`;f.fillRect(xx,0,8+R()*30,MH);}
+    const gx=f.createLinearGradient(x,0,x+MW/6,0);gx.addColorStop(0,`rgba(0,0,0,${stries})`);gx.addColorStop(.08,'rgba(0,0,0,0)');gx.addColorStop(.92,'rgba(255,240,220,0)');gx.addColorStop(1,`rgba(255,240,220,${stries})`);f.fillStyle=gx;f.fillRect(x,0,MW/6,MH);}
+  const d=f.getImageData(0,0,MW,MH),p=d.data,col=new Float32Array(MW).map(()=>(R()-.5)*6*veines);
+  for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){const i=(y*MW+x)*4,n=(R()-.5)*amp+col[x]*(.5+.5*Math.sin(y/53+x));p[i]+=n*teinte[0];p[i+1]+=n*teinte[1];p[i+2]+=n*teinte[2];}
+  f.putImageData(d,0,0);return c;}
+let TEX=null;
+function preparer(){if(TEX)return;
+  TEX={prim:peinture('#b4ab9d','#a3998b',10,.02,[1,1,1],.6),c1:peinture('#8f4a32','#7a3f2b',14,.04,[1,.8,.7],1),c2:peinture('#94503a','#7d432f',8,.006,[1,.8,.7],.25),
+    parquet:(()=>{const [c,f]=toile(MW,700);for(let r=0;r<12;r++){let x=-R()*300;while(x<MW){const L=280+R()*360,t=R();const gr=f.createLinearGradient(0,r*60,0,r*60+60);const base=[120+t*40,70+t*25,38+t*15];
+        gr.addColorStop(0,`rgb(${base[0]+12|0},${base[1]+8|0},${base[2]+4|0})`);gr.addColorStop(1,`rgb(${base[0]-14|0},${base[1]-10|0},${base[2]-6|0})`);f.fillStyle=gr;f.fillRect(x,r*60,L,60);
+        f.strokeStyle='rgba(30,14,4,.6)';f.lineWidth=2;f.strokeRect(x,r*60,L,60);for(let k=0;k<6;k++){f.strokeStyle=`rgba(40,20,6,${.12+R()*.12})`;f.lineWidth=1;f.beginPath();const yy=r*60+8+R()*44;f.moveTo(x,yy);f.bezierCurveTo(x+L*.3,yy+(R()-.5)*8,x+L*.7,yy+(R()-.5)*8,x+L,yy);f.stroke();}x+=L;}}
+      grain(f,MW,700,10);return c;})(),
+    bache:(()=>{const [c,f]=toile(MW,700);f.fillStyle='#55575a';f.fillRect(0,0,MW,700);
+      for(let i=0;i<70;i++){const x=R()*MW,y=R()*700,w=60+R()*260,h=20+R()*70;const gr=f.createLinearGradient(x,y,x+w*.3,y+h);gr.addColorStop(0,`rgba(230,235,240,${.05+R()*.12})`);gr.addColorStop(1,'rgba(0,0,0,.12)');f.fillStyle=gr;f.beginPath();f.ellipse(x,y,w,h,R()*3,0,7);f.fill();}
+      for(let i=0;i<220;i++){f.fillStyle=R()<.5?`rgba(200,190,170,${.3+R()*.4})`:`rgba(120,60,35,${.3+R()*.4})`;f.beginPath();f.arc(R()*MW,R()*700,1+R()*4,0,7);f.fill();}
+      grain(f,MW,700,12);return c;})()};
+}
+
+// ——— le rouleau : manchon gorgé de peinture (couleur au choix), monture d'acier, manche ———
+function rouleau(x,cy,L,Rr,tour,coul,manche=true){
+  g.save();g.lineCap='round';g.lineJoin='round';const yb=cy+L/2;
+  if(manche){
+    g.strokeStyle='#5e646b';g.lineWidth=11;g.beginPath();g.moveTo(x,cy-L/2-8);g.lineTo(x,cy-L/2-22);g.lineTo(x+Rr+16,cy-L/2-22);g.lineTo(x+Rr+16,yb+40);g.lineTo(x+150,yb+200);g.stroke();
+    g.strokeStyle='#d9dee3';g.lineWidth=3.5;g.stroke();
+    g.strokeStyle='#9aa1a8';g.lineWidth=26;g.beginPath();g.moveTo(x+150,yb+200);g.lineTo(x+178,yb+236);g.stroke();
+    lueur('rgba(0,0,0,.6)',30);g.shadowOffsetY=14;g.strokeStyle='#18181b';g.lineWidth=44;g.beginPath();g.moveTo(x+178,yb+236);g.lineTo(x+430,yb+580);g.stroke();g.shadowColor='transparent';
+    g.strokeStyle='rgba(255,255,255,.16)';g.lineWidth=6;g.beginPath();g.moveTo(x+172,yb+240);g.lineTo(x+420,yb+578);g.stroke();}
+  g.save();g.globalAlpha=.5;g.filter='blur(14px)';g.fillStyle='#000';rr(x-Rr+16,cy-L/2+18,Rr*2,L,Rr*.5);g.fill();g.restore();
+  const gr=g.createLinearGradient(x-Rr,0,x+Rr,0);gr.addColorStop(0,coul[0]);gr.addColorStop(.22,coul[1]);gr.addColorStop(.42,coul[2]);gr.addColorStop(.55,coul[3]);gr.addColorStop(1,coul[0]);
+  g.fillStyle=gr;rr(x-Rr,cy-L/2,Rr*2,L,Math.min(14,Rr*.3));g.fill();
+  g.save();rr(x-Rr,cy-L/2,Rr*2,L,Math.min(14,Rr*.3));g.clip();
+  for(let i=0;i<26;i++){const a=i/26*Math.PI*2+tour,c=Math.cos(a);if(c<=0)continue;const xx=x+Math.sin(a)*Rr;g.strokeStyle=`rgba(${i%3?'40,20,10':'255,240,225'},${.2*c})`;g.lineWidth=1.5+2*c;g.beginPath();
+    for(let y=cy-L/2;y<=cy+L/2;y+=Math.max(8,L/40)){const dx=(rnd(i*31+Math.floor(y/9))-.5)*3*c;y===cy-L/2?g.moveTo(xx+dx,y):g.lineTo(xx+dx,y);}g.stroke();}
+  const gs=g.createLinearGradient(x-Rr*.5,0,x,0);gs.addColorStop(0,'rgba(255,245,230,0)');gs.addColorStop(.6,'rgba(255,245,230,.5)');gs.addColorStop(1,'rgba(255,245,230,0)');g.fillStyle=gs;g.fillRect(x-Rr*.5,cy-L/2,Rr*.5,L);
+  g.restore();g.fillStyle='rgba(20,10,4,.8)';rr(x-Rr*.92,cy-L/2-6,Rr*1.84,9,4);g.fill();rr(x-Rr*.92,yb-3,Rr*1.84,9,4);g.fill();g.restore();}
+// le rouleau couché (il monte et descend le long du mur)
+function rouleauV(cx,y,L,Rr,coul){g.save();g.translate(cx,y);g.rotate(Math.PI/2);g.scale(1,-1);rouleau(0,0,L,Rr,y/Rr,coul);g.restore();}
+const BLANC=['#8c8478','#d8d0c4','#fffaf2','#ece4d8'],TERRA=['#4a1a0a','#94401f','#d77a50','#b2532c'];
+
+// le couteau à enduire : lame d'acier, manche
+function couteau(x,y,a){g.save();g.translate(x,y);g.rotate(a);lueur('rgba(0,0,0,.6)',24);g.shadowOffsetY=10;
+  const gl=g.createLinearGradient(-90,0,90,0);gl.addColorStop(0,'#8e959c');gl.addColorStop(.45,'#eef2f5');gl.addColorStop(1,'#7b828a');g.fillStyle=gl;g.beginPath();g.moveTo(-95,0);g.lineTo(95,0);g.lineTo(34,-110);g.lineTo(-34,-110);g.closePath();g.fill();g.shadowColor='transparent';
+  g.fillStyle='rgba(205,198,185,.95)';g.beginPath();g.moveTo(-95,0);g.lineTo(95,0);g.lineTo(80,-22);g.lineTo(-80,-22);g.closePath();g.fill();
+  g.fillStyle='#b9bec3';rr(-22,-140,44,34,6);g.fill();g.fillStyle='#d2551a';rr(-26,-300,52,166,22);g.fill();g.fillStyle='rgba(255,255,255,.2)';rr(-18,-292,10,150,5);g.fill();g.restore();}
+
+// ——— les gestes, dans l'ordre ———
+const PHRASES=[
+  {b:3, dit:'« Rebouchage des fissures,', dit2:'forfait 180 euros. »'},
+  {b:6, dit:'« Sous-couche, 32 m²,', dit2:'7 euros le mètre. »'},
+  {b:10, dit:'« Deux couches de mat velours,', dit2:'18 euros le mètre. »'},
+  {b:14,dit:'« Protection et nettoyage,', dit2:'90 euros. »'},
+];
+const B_REB=3.6, B_PRIM=6.6, B_C1=10.6, B_C2=12.7, B_SCOTCH=14.6, B_BACHE=15.6, B_LUM=17.1, B_CADRE=17.7, B_PLANTE=18.2, B_TOT=18.6, B_GLINT=19.2, B_ENV=20.6, B_FIN=22.6;
+const DC_PRIM=.5, DC_C1=.33, DC_C2=.2;
+// une couche passée en six colonnes : la peinture suit le rouleau
+function couche(tex,bs,dc,b,haut,coul,mouille){
+  const n=6,cw=MW/n;let actif=null;
+  for(let j=0;j<n;j++){const u=seg(b,bs+j*dc,bs+(j+1)*dc);if(u<=0)break;
+    const y=haut?lerp(-160,MH+120,smooth(u)):lerp(MH+120,-160,smooth(u));
+    const x0=MX+j*cw,x1=x0+cw;g.save();g.beginPath();
+    // le bord droit de la colonne, un peu irrégulier, comme un vrai bord de rouleau
+    const y0=haut?0:clamp(y,0,MH),y1=haut?clamp(y,0,MH):MH;
+    g.moveTo(x0-3,y0);for(let yy=y0;yy<=y1;yy+=20)g.lineTo(x1+4+(nz(yy/40,j+bs)-.5)*8,yy);g.lineTo(x1+4,y1);g.lineTo(x0-3,y1);g.closePath();g.clip();
+    g.drawImage(tex,MX,0);
+    // reflet humide de la colonne fraîche
+    const hum=1-seg(b,bs+(j+1)*dc,bs+(j+1)*dc+2);if(hum>0&&mouille>0){g.globalCompositeOperation='screen';const gh=g.createLinearGradient(x0,0,x1,0);gh.addColorStop(0,'rgba(255,235,215,0)');gh.addColorStop(.3,`rgba(255,235,215,${mouille*hum})`);gh.addColorStop(.5,'rgba(255,235,215,0)');g.fillStyle=gh;g.fillRect(x0,y0,cw,y1-y0);}
+    g.restore();
+    if(u<1)actif=[x0+cw/2,y,cw];}
+  if(actif)rouleauV(actif[0],actif[1],actif[2]+14,44,coul);
+}
+// une goutte qui coule
+function coulure(x,y0,len,k,w,c1,c2){if(k<=0)return;const L=len*k;g.save();
+  const gr=g.createLinearGradient(x-w,0,x+w,0);gr.addColorStop(0,c2);gr.addColorStop(.4,c1);gr.addColorStop(1,c2);g.fillStyle=gr;
+  g.beginPath();g.moveTo(x-w*.8,y0-4);g.quadraticCurveTo(x-w*.45,y0+L*.5,x-w*.55,y0+L);g.arc(x,y0+L,w*.95,Math.PI,0,true);g.quadraticCurveTo(x+w*.45,y0+L*.5,x+w*.8,y0-4);g.closePath();g.fill();
+  g.fillStyle='rgba(255,240,220,.6)';g.beginPath();g.ellipse(x-w*.3,y0+L-w*.1,w*.22,w*.35,0,0,7);g.fill();g.restore();}
+
+// ——— le décor final : appliques, cadre, plante ———
+function applique(x,y,on){g.save();
+  if(on>0){g.globalCompositeOperation='screen';for(const [dy,ry,a] of [[-1,1,1],[1,1,.8]]){const gr=g.createRadialGradient(x,y+dy*60,10,x,y+dy*140,380);gr.addColorStop(0,`rgba(255,200,140,${.38*on*a})`);gr.addColorStop(.45,`rgba(255,150,80,${.16*on*a})`);gr.addColorStop(1,'rgba(255,140,60,0)');g.fillStyle=gr;g.fillRect(x-400,y+dy*140-400,800,800);}g.globalCompositeOperation='source-over';}
+  const gb=g.createLinearGradient(x-40,0,x+40,0);gb.addColorStop(0,'#5b3a12');gb.addColorStop(.5,'#e3b56a');gb.addColorStop(1,'#6b4615');g.fillStyle=gb;
+  g.beginPath();g.moveTo(x-46,y-40);g.lineTo(x+46,y-40);g.lineTo(x+26,y+30);g.lineTo(x-26,y+30);g.closePath();g.fill();
+  g.fillStyle='#3a2508';rr(x-10,y+26,20,22,4);g.fill();if(on>0){g.fillStyle=`rgba(255,235,200,${on})`;g.beginPath();g.ellipse(x,y-40,44,7,0,0,7);g.fill();}
+  g.restore();}
+function cadre(b){if(b<B_CADRE)return;const k=spring((b-B_CADRE)*B,12,.5),y=lerp(-500,620,clamp(k,0,1.2)),sw=Math.sin((b-B_CADRE)*B*7)*Math.exp(-(b-B_CADRE)*B*3)*.05;
+  g.save();g.translate(540,y-230);g.rotate(sw);g.translate(0,230);
+  lueur('rgba(0,0,0,.55)',40);g.shadowOffsetX=14;g.shadowOffsetY=22;g.fillStyle='#2a170b';rr(-190,-240,380,480,6);g.fill();g.shadowColor='transparent';
+  g.fillStyle='#e9dfcf';g.fillRect(-160,-210,320,420);
+  // l'œuvre : un soleil couchant sur des collines
+  g.save();g.beginPath();g.rect(-120,-170,240,340);g.clip();const ga=g.createLinearGradient(0,-170,0,170);ga.addColorStop(0,'#f2c79a');ga.addColorStop(1,'#e49a66');g.fillStyle=ga;g.fillRect(-120,-170,240,340);
+  g.fillStyle=O1;g.beginPath();g.arc(20,-20,62,0,7);g.fill();g.fillStyle='#b4532c';g.beginPath();g.moveTo(-130,60);g.quadraticCurveTo(-40,-10,40,50);g.quadraticCurveTo(100,10,130,30);g.lineTo(130,180);g.lineTo(-130,180);g.fill();
+  g.fillStyle='#7a2f15';g.beginPath();g.moveTo(-130,110);g.quadraticCurveTo(10,50,130,120);g.lineTo(130,180);g.lineTo(-130,180);g.fill();g.restore();
+  g.strokeStyle='rgba(255,230,200,.18)';g.lineWidth=3;g.strokeRect(-186,-236,372,472);g.restore();}
+function plante(b){if(b<B_PLANTE)return;const k=spring((b-B_PLANTE)*B,13,.55);g.save();g.translate(170,SOL+150);g.scale(clamp(k,0,1.1),clamp(k,0,1.1));
+  lueur('rgba(0,0,0,.6)',30);g.shadowOffsetY=12;const gp=g.createLinearGradient(-70,0,70,0);gp.addColorStop(0,'#6b2b12');gp.addColorStop(.5,'#c0602c');gp.addColorStop(1,'#5a230e');g.fillStyle=gp;
+  g.beginPath();g.moveTo(-75,-110);g.lineTo(75,-110);g.lineTo(55,40);g.lineTo(-55,40);g.closePath();g.fill();g.shadowColor='transparent';
+  for(let i=0;i<11;i++){const a=-Math.PI/2+(i-5)*.26+Math.sin(b*.9+i)*.03,L=170+rnd(i)*170;g.save();g.translate(0,-110);g.rotate(a+Math.PI/2);
+    const gl=g.createLinearGradient(0,0,0,-L);gl.addColorStop(0,'#1d3a1c');gl.addColorStop(1,i%2?'#4f7a3a':'#3d6630');g.fillStyle=gl;g.beginPath();g.moveTo(0,0);g.quadraticCurveTo(38,-L*.5,0,-L);g.quadraticCurveTo(-38,-L*.5,0,0);g.fill();
+    g.strokeStyle='rgba(200,230,170,.25)';g.lineWidth=2;g.beginPath();g.moveTo(0,0);g.lineTo(0,-L*.95);g.stroke();g.restore();}
+  g.restore();}
+
+// ——— la caméra : de près sur le mur, puis on recule pour voir la pièce finie ———
+function camera(b){const pr=ease(seg(b,B_LUM-.2,B_TOT+.6));const ba=seg(b,B_PRIM-.5,B_C2+1.6);return {x:540+(1-pr)*70*Math.sin(ba*Math.PI*3-Math.PI/2)*Math.sin(ba*Math.PI),y:lerp(lerp(780,1200,ease(seg(b,B_SCOTCH-.7,B_SCOTCH)))-110*ease(seg(b,B_BACHE+.9,B_LUM)),880,pr),z:lerp(1.1+.04*smooth(b/16),.86,pr)};}
+
+function scene(b,t){
+  const cam=camera(b);g.setTransform(1,0,0,1,0,0);g.fillStyle='#0a0806';g.fillRect(0,0,W,H);
+  g.translate(540,960);g.scale(cam.z,cam.z);g.translate(-cam.x,-cam.y);
+  const fini=ease(seg(b,B_LUM,B_LUM+1));
+  // le plafond et sa corniche
+  g.fillStyle='#17130f';g.fillRect(MX-200,-700,MW+400,700);g.fillStyle='#2b241d';g.fillRect(MX-200,-36,MW+400,36);g.fillStyle='#3a3128';g.fillRect(MX-200,-12,MW+400,12);
+  // le mur : pourri, puis rebouché, puis peint
+  g.drawImage(MUR,MX,0);
+  // l'accroche bombée
+  {const rev=clamp(.45+seg(b,0,.45)*.55),fade=1-.9*seg(b,2.8,3.3);
+    g.save();g.globalAlpha=fade;g.translate(540,760);g.rotate(-.06);g.save();g.beginPath();g.rect(-560,-200,1120*rev,420);g.clip();
+    g.font='900 162px Archivo';g.textAlign='center';g.textBaseline='middle';
+    g.save();g.filter='blur(16px)';g.fillStyle='rgba(232,101,15,.55)';g.fillText('PEINTRE ?',0,0);g.restore();
+    g.save();g.filter='blur(3px)';g.fillStyle='#ff7a1f';g.fillText('PEINTRE ?',0,0);g.restore();
+    g.fillStyle='#f06a10';g.fillText('PEINTRE ?',0,0);
+    for(let i=0;i<500;i++){const xx=(rnd(i*3.3)-.5)*1060,yy=(rnd(i*7.1)-.5)*250;g.fillStyle=`rgba(240,110,20,${rnd(i)*.5})`;g.fillRect(xx,yy,2,2);}
+    g.restore();
+    // la question, bombée en blanc cassé sous le tag : la galère des devis du peintre
+    {const r2=seg(b,.75,1.25);if(r2>0){g.save();g.beginPath();g.rect(-560,210,1120*r2,260);g.clip();g.font='800 74px Archivo';g.textAlign='center';g.textBaseline='middle';
+      for(const [l,y] of [['Tes devis, encore',290],['le dimanche soir ?',382]]){g.save();g.filter='blur(10px)';g.fillStyle='rgba(225,210,190,.28)';g.fillText(l,0,y);g.restore();g.save();g.filter='blur(1.5px)';g.fillStyle='#e6d8c4';g.fillText(l,0,y);g.restore();}
+      for(let i=0;i<300;i++){g.fillStyle=`rgba(225,212,195,${rnd(i+9)*.35})`;g.fillRect((rnd(i*5.3)-.5)*900,230+rnd(i*2.9)*200,2,2);}g.restore();}}
+    for(const [dx,len,s] of [[-420,100,1],[-300,60,2],[-150,130,3],[-30,80,4],[120,110,5],[260,50,6],[330,140,7]])coulure(dx,66,len,easeOut(seg(b,.35+s*.08,2.3+s*.1)),7,'#f06a10','#9a3a06');
+    g.restore();}
+  // 1 · le rebouchage : le couteau lisse chaque trou, l'enduit remplit les fissures
+  if(b>=B_REB&&b<B_PRIM+3.2){
+    for(const fi of FISS){const u=seg(b,B_REB+fi.groupe*.5+.1,B_REB+fi.groupe*.5+.75);if(u<=0)continue;traceFiss(g,fi.pts,fi.w,u,'rgba(110,104,94,.95)',2.6);traceFiss(g,fi.pts,fi.w,u,'rgba(190,182,166,.35)',.9,-1,-1);}
+    TROUS.forEach(([x,y,r,s],k)=>{const u=seg(b,B_REB+k*.5,B_REB+k*.5+.5);if(u<=0)return;
+      g.save();blob(g,x,y,r*1.04,s,.42,160);g.clip();const xs=lerp(x-r*1.6,x+r*1.6,ease(u));g.beginPath();g.rect(x-r*2,y-r*2,xs-(x-r*2),r*4);g.clip();
+      const ge=g.createLinearGradient(x-r,y-r,x+r,y+r);ge.addColorStop(0,'#77716a');ge.addColorStop(1,'#5a554d');g.fillStyle=ge;g.fillRect(x-r*2,y-r*2,r*4,r*4);
+      // les traînées du couteau dans l'enduit frais
+      g.strokeStyle='rgba(255,255,255,.03)';g.lineWidth=2;for(let i=-4;i<=4;i++){g.beginPath();g.moveTo(x-r*1.5,y+i*r*.28);g.quadraticCurveTo(x,y+i*r*.28-20,x+r*1.5,y+i*r*.28+10);g.stroke();}g.restore();
+      if(u>0&&u<1)couteau(xs,y+20,-.35+Math.sin(u*Math.PI)*.15);});
+  }
+  // 2 · la sous-couche blanche, six longs coups de rouleau
+  if(b>=B_PRIM)couche(TEX.prim,B_PRIM,DC_PRIM,b,true,BLANC,.18);
+  // 3 · le mat velours : la 1re couche descend, la 2e remonte et rend la couleur profonde
+  if(b>=B_C1)couche(TEX.c1,B_C1,DC_C1,b,true,TERRA,.3);
+  if(b>=B_C2)couche(TEX.c2,B_C2,DC_C2,b,false,TERRA,.28);
+  // la plinthe et le scotch de masquage
+  g.fillStyle='#d9d2c4';g.fillRect(MX,MH,MW,SOL-MH);g.fillStyle='rgba(0,0,0,.25)';g.fillRect(MX,MH,MW,6);g.fillStyle='rgba(255,255,255,.25)';g.fillRect(MX,MH+12,MW,3);
+  {const p=seg(b,B_SCOTCH,B_SCOTCH+.9),xr=lerp(MX-60,MX+MW+80,ease(p));
+    if(p<1){g.save();g.fillStyle='#e0c47a';g.fillRect(Math.max(MX,xr),MH-26,MX+MW-Math.max(MX,xr),46);g.fillStyle='rgba(255,255,255,.22)';g.fillRect(Math.max(MX,xr),MH-24,MX+MW-Math.max(MX,xr),6);g.fillStyle='rgba(0,0,0,.18)';g.fillRect(Math.max(MX,xr),MH+16,MX+MW-Math.max(MX,xr),4);
+      // la bande arrachée qui s'enroule
+      if(p>0){g.translate(xr,MH);g.fillStyle='#cdb06a';lueur('rgba(0,0,0,.5)',20);g.shadowOffsetY=12;g.beginPath();g.moveTo(0,-26);g.quadraticCurveTo(-60,-150,-260,-210);g.lineTo(-260,-166);g.quadraticCurveTo(-80,-110,0,20);g.closePath();g.fill();g.shadowColor='transparent';
+        g.fillStyle='rgba(255,255,255,.2)';g.beginPath();g.moveTo(0,-12);g.quadraticCurveTo(-60,-120,-190,-150);g.lineTo(-190,-144);g.quadraticCurveTo(-62,-112,0,-4);g.fill();}
+      g.restore();}}
+  // le parquet, et la bâche qui glisse
+  g.drawImage(TEX.parquet,MX,SOL);
+  {const p=ease(seg(b,B_BACHE,B_BACHE+1.1));const dx=p*1500;g.save();g.translate(dx,0);g.drawImage(TEX.bache,MX,SOL+(p>0?-6*Math.sin(p*Math.PI):0));
+    g.fillStyle='rgba(0,0,0,.35)';g.fillRect(MX-20,SOL,24,700);g.restore();
+    if(p>0&&p<1){g.save();g.globalAlpha=.6*Math.sin(p*Math.PI);for(let i=0;i<40;i++){const x=MX+dx+rnd(i)*-200,y=SOL+rnd(i*3)*500,v=(b-B_BACHE)*B;g.fillStyle='rgba(220,210,190,.5)';g.beginPath();g.arc(x-v*120*rnd(i*5),y-v*200*rnd(i*7),1.5+rnd(i*9)*2.5,0,7);g.fill();}g.restore();}}
+  g.fillStyle='rgba(0,0,0,.35)';g.fillRect(MX,SOL,MW,10);
+  // la pièce prend vie
+  if(b>=B_LUM-.3){const on=easeOut(seg(b,B_LUM,B_LUM+.35))*(1+.05*Math.sin(b*9)*Math.exp(-(b-B_LUM)*2));applique(170,520,on);applique(910,520,on);}
+  cadre(b);plante(b);
+  // la lumière : lampe de chantier froide au début, chaude et douce à la fin
+  g.setTransform(1,0,0,1,0,0);
+  const fl=1+.02*Math.sin(t*23)*Math.sin(t*7.3)*(1-fini);
+  const gv=g.createRadialGradient(lerp(420,540,fini),lerp(700,900,fini),120,540,900,1450*fl);gv.addColorStop(0,'rgba(0,0,0,0)');gv.addColorStop(.55,`rgba(0,0,0,${lerp(.3,.18,fini)})`);gv.addColorStop(1,`rgba(0,0,0,${lerp(.82,.7,fini)})`);g.fillStyle=gv;g.fillRect(0,0,W,H);
+  // la sous-couche blanche est éclairée par une lampe, pas par un projecteur : on la garde douce la nuit
+  g.save();g.globalCompositeOperation='multiply';g.fillStyle=`rgba(${lerp(185,255,fini)|0},${lerp(190,235,fini)|0},${lerp(200,215,fini)|0},1)`;g.fillRect(0,0,W,H);g.restore();
+}
+
+// ——— un seul élément du début à la fin : le rond orange du micro ———
+// il s'ouvre en bandeau pour chaque phrase, se referme en rond, devient le cartouche du total, la coche de l'envoi,
+// puis glisse et grandit pour devenir le carré du logo Diktéo (transition par forme commune, jamais de coupe)
+const FENETRES=[[3,8.6,'big'],[10,12.6,'big'],[14,16.6,'big'],[B_TOT,B_FIN-.55,'tot']];
+const GEO={big:[60,110,960,200,44],tot:[90,115,900,230,52]};
+function ouvert(b){let k=0,typ='big';for(const [a,e,t] of FENETRES){const v=spring(Math.max(0,(b-a))*B,13,.78)*(1-ease(seg(b,e,e+.4)));if(b>=a&&v>k){k=v;typ=t;}if(b>=a&&b<e+.4)typ=t;}return [clamp(k,0,1.04),typ];}
+function boite(b){
+  if(b<2.55)return;
+  const app=easeOut(seg(b,2.55,2.95));
+  const [k,typ]=ouvert(b);
+  // le rond : au fil de la pub il reste à gauche ; à la fin il devient le logo
+  const m=ease(seg(b,B_FIN-.5,B_FIN+.35));
+  const dS=lerp(92,140,m),dR=lerp(46,40,m),dx=lerp(150,280+70,m),dy=lerp(210,700+70,m)+(1-app)*-40;
+  // la boîte sombre qui s'ouvre autour du rond
+  if(k>.002&&m<1){const [X,Y,Wd,Hd,Rd]=GEO[typ];const x=lerp(dx-dS/2,X,k),y=lerp(dy-dS/2,Y,k),w=lerp(dS,Wd,k),h=lerp(dS,Hd,k),r=lerp(dR,Rd,clamp(k));
+    g.save();g.globalAlpha=app*(1-m);g.fillStyle='rgba(14,8,4,.86)';rr(x,y,w,h,r);g.fill();g.strokeStyle=`rgba(255,138,61,${.25*clamp(k)})`;g.lineWidth=2;rr(x,y,w,h,r);g.stroke();g.restore();}
+  // le rond orange
+  g.save();g.globalAlpha=app;const gm=g.createLinearGradient(dx-dS/2,dy-dS/2,dx+dS/2,dy+dS/2);gm.addColorStop(0,O1);gm.addColorStop(.55,O2);gm.addColorStop(1,O3);
+  if(m>0)lueur('rgba(232,101,15,.5)',50*m);g.fillStyle=gm;rr(dx-dS/2,dy-dS/2,dS,dS,dR);g.fill();g.shadowColor='transparent';
+  // l'onde de la voix quand une phrase commence
+  for(const ph of PHRASES){const p=(b-ph.b)*B;if(p>0&&p<1.1){g.strokeStyle=`rgba(255,138,61,${.5*(1-((p*2)%1))})`;g.lineWidth=3;g.beginPath();g.arc(dx,dy,46+((p*2)%1)*26,0,7);g.stroke();}}
+  // l'icône dans le rond : micro, puis coche à l'envoi, puis la bulle Diktéo
+  const ic=seg(b,B_ENV,B_ENV+.25),lg=seg(b,B_FIN-.25,B_FIN+.2);
+  if(ic<1){g.save();g.globalAlpha*=1-ic;g.translate(dx,dy);g.fillStyle='#fff';rr(-9,-26,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.lineCap='round';g.beginPath();g.arc(0,-6,17,.15*Math.PI,.85*Math.PI);g.stroke();g.beginPath();g.moveTo(0,11);g.lineTo(0,20);g.stroke();g.restore();}
+  if(ic>0&&lg<1){g.save();g.globalAlpha*=(1-lg);g.translate(dx,dy);g.scale(dS/112,dS/112);g.strokeStyle='#fff';g.lineWidth=12;g.lineCap='round';g.lineJoin='round';const kk=ease(seg(b,B_ENV+.1,B_ENV+.7));g.beginPath();g.moveTo(-26,2);if(kk<.4)g.lineTo(lerp(-26,-8,kk/.4),lerp(2,22,kk/.4));else{g.lineTo(-8,22);g.lineTo(lerp(-8,28,(kk-.4)/.6),lerp(22,-22,(kk-.4)/.6));}g.stroke();g.restore();}
+  if(lg>0){g.save();g.globalAlpha*=lg;g.translate(dx-dS/2+dS*18/140,dy-dS/2+dS*16/140);g.scale(4.4*dS/140,4.4*dS/140);g.fillStyle='#fff';g.fill(new Path2D('M6.5 2.5H12a9 9 0 0 1 0 18H9.2L4.5 23V4.5a2 2 0 0 1 2-2ZM9.2 9.5a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1Zm3.1-2.5a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1Zm3.1 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Z'),'evenodd');g.restore();}
+  g.restore();
+  if(m>0)return;
+  // le contenu de la boîte, en fondu doux pendant qu'elle est ouverte
+  PHRASES.forEach(ph=>{const a=seg(b,ph.b+.05,ph.b+.3)*(1-seg(b,ph.b+2.55,ph.b+2.85))*clamp(k);if(a<=0)return;g.save();g.globalAlpha=a;
+    texte(ph.dit,222,176,44,'#fff',700,'Archivo','left');texte(ph.dit2,222,242,44,ORANGE,700,'Archivo','left');g.restore();});
+  const at=seg(b,B_TOT+.2,B_TOT+.5)*(1-seg(b,B_ENV-.15,B_ENV+.1))*clamp(k);
+  if(at>0){g.save();g.globalAlpha=at;texte('TOTAL DU DEVIS · TTC',590,172,34,'#f3dccb',700);lueur('rgba(255,138,61,.6)',26);texte('1 177,00 €',590,256,100,ORANGE,800,'JBMono');g.shadowColor='transparent';
+    const gl=seg(b,B_GLINT,B_GLINT+1);if(gl>0&&gl<1){g.save();rr(90,115,900,230,52);g.clip();g.globalCompositeOperation='lighter';const x=lerp(0,1200,ease(gl));
+      const gs=g.createLinearGradient(x-120,0,x+120,0);gs.addColorStop(0,'rgba(255,240,220,0)');gs.addColorStop(.5,'rgba(255,240,220,.25)');gs.addColorStop(1,'rgba(255,240,220,0)');g.translate(x,230);g.transform(1,0,-.4,1,0,0);g.translate(-x,-230);g.fillStyle=gs;g.fillRect(x-120,100,240,260);g.restore();}
+    const d=(b-B_GLINT-.5)*B;if(d>0&&d<.8){const s=Math.sin(d/.8*Math.PI);g.fillStyle=`rgba(255,235,210,${.6*s})`;for(const [sx,sy,sz] of [[890,210,30],[340,290,18]]){g.beginPath();g.moveTo(sx,sy-sz);g.quadraticCurveTo(sx,sy,sx+sz,sy);g.quadraticCurveTo(sx,sy,sx,sy+sz);g.quadraticCurveTo(sx,sy,sx-sz,sy);g.quadraticCurveTo(sx,sy,sx,sy-sz);g.fill();}}
+    g.restore();}
+  const ae=seg(b,B_ENV+.1,B_ENV+.4)*clamp(k);
+  if(ae>0){g.save();g.globalAlpha=ae;texte('Envoyé à',240,192,58,'#fff',800,'Archivo','left');texte('Mme Garnier.',240,266,64,ORANGE,900,'Archivo','left');g.restore();}
+}
+
+function carton(b){
+  const k=spring((b-B_FIN)*B,12,.8);g.save();g.globalAlpha=clamp(k*1.5);g.translate(0,(1-k)*36);
+  const tx=540-260,ty=700;
+  texte('Diktéo',tx+170,ty+72,138,'#fff',900,'Archivo','left');
+  const sw=seg(b,B_FIN+.5,B_FIN+2.2);if(sw>0&&sw<1){g.save();g.globalCompositeOperation='lighter';const x=lerp(330,900,sw);const gl=g.createLinearGradient(x-80,0,x+80,0);gl.addColorStop(0,'rgba(255,255,255,0)');gl.addColorStop(.5,'rgba(255,240,220,.5)');gl.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gl;g.fillRect(x-80,ty-10,160,160);g.restore();}
+  texte('Tu dictes. Le chantier avance.',540,940,48,'#f3dccb',600,'Archivo');
+  texte('3 devis offerts par mois · sans carte',540,1060,44,'#fff',700,'Archivo');
+  const gb=g.createLinearGradient(290,1150,790,1250);gb.addColorStop(0,O1);gb.addColorStop(.55,O2);gb.addColorStop(1,O3);g.fillStyle=gb;rr(270,1150,540,104,34);g.fill();
+  texte('dikteo.vercel.app',540,1203,46,'#fff',800,'Archivo');g.restore();
+}
+
+function seek(T){
+  preparer();
+  const t=((T%DN)+DN)%DN,b=t/B;
+  g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;
+  scene(b,t);
+  g.setTransform(1,0,0,1,0,0);
+  if(b>=B_FIN-.6){g.fillStyle=`rgba(10,5,2,${.8*ease(seg(b,B_FIN-.6,B_FIN+.4))})`;g.fillRect(0,0,W,H);}
+  boite(b);if(b>=B_FIN)carton(b);
+}
+window.seek=seek;
+const render=location.search.includes('render');
+if(render){document.getElementById('ui').style.display='none';}
+else{const fit=()=>{const k=Math.min(innerWidth/1080,(innerHeight-40)/1920);cv.style.transform=`scale(${k})`;};addEventListener('resize',fit);fit();
+  let t0=performance.now(),run=false,off=0;document.getElementById('lecture').onclick=()=>{run=!run;t0=performance.now()-off*1000;};
+  document.getElementById('curseurUI').oninput=e=>{off=e.target.value/1000*DN;t0=performance.now()-off*1000;};
+  (function loop(){if(run)off=((performance.now()-t0)/1000)%DN;document.getElementById('temps').textContent=off.toFixed(2);document.getElementById('curseurUI').value=off/DN*1000;seek(off);requestAnimationFrame(loop);})();}
+document.fonts.ready.then(async()=>{await Promise.all([...document.fonts].map(f=>f.load().catch(()=>{})));preparer();seek(0);window.VIDEO={w:W,h:H,duration:DN};});
+</script>
+</body>
+</html>
