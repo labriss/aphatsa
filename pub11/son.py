@@ -13,7 +13,7 @@ SKILL = os.path.expanduser("~/.claude/skills/sound-effects/sfx")
 VIDEO, SORTIE = sys.argv[1], sys.argv[2]
 SR = 48000
 B = 60 / 144
-D = 34 * B
+D = 28 * B
 # Morceau choisi par variables d'environnement (défaut : « Smile », Mixkit #1076, choisie par l'utilisateur le 10 nov. 2026) : numéro, tempo mesuré, phase, temps sautés.
 PISTE = os.environ.get("PISTE", "801")
 BPM_P = float(os.environ.get("BPM_P", "143.55"))
@@ -60,18 +60,19 @@ SOBRE = False
 # le vrai écran se remplit, l'envoi, le carton.
 sfx("riser/fs-685256-riser-sound-effect-short-wav.ogg", 0, -16, "le néon grésille")
 sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 0.4, -8, "« ÉLECTRICIEN ? » s'allume")
-sfx("whoosh/fs-169867-swoosh.ogg", 3.0, -12, "le tableau sort de l'ombre", 2 / 60)
+sfx("whoosh/fs-169867-swoosh.ogg", 3.9, -12, "la maison apparaît", 2 / 60)
 for bt in (5, 7, 9, 11):
     sfx("kit/click.ogg", bt, -11, "une phrase dictée")
-    sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", bt + .3, -7, "le disjoncteur claque")
-sfx("impact/fs-177242-cinematic-impact.ogg", 14.2, -4, "l'interrupteur général")
-sfx("riser/fs-685256-riser-sound-effect-short-wav.ogg", 14.5, -14, "le compteur déroule le total")
-sfx("whoosh/fs-683101-quick-woosh.ogg", 16.6, -10, "la caméra recule", 2 / 60)
-for i in range(5):
-    sfx("pop/fs-447910-plop.ogg", 18.0 + i * .6, -14, "une fenêtre s'allume")
-sfx("whoosh/fs-169867-swoosh.ogg", 21.8, -6, "le devis part du toit", 2 / 60)
-sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 23.4, -8, "envoyé")
-sfx("ding/kenney-interface-confirmation-002.ogg", 26.2, -11, "le carton Diktéo")
+sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 5.5, -6, "le tableau se pose")
+for i in range(12):
+    sfx("pop/fs-447910-plop.ogg", 7.3 + i * .11, -17, "une prise")
+sfx("whoosh/fs-683101-quick-woosh.ogg", 9.3, -12, "le câble de terre descend", 2 / 60)
+sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 10.6, -8, "le piquet de terre")
+sfx("ding/kenney-interface-confirmation-001.ogg", 11.4, -10, "l'horloge")
+sfx("impact/fs-177242-cinematic-impact.ogg", 13.6, -5, "le général : la maison s'allume")
+sfx("whoosh/fs-169867-swoosh.ogg", 17, -7, "le devis part", 2 / 60)
+sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 17.8, -8, "envoyé")
+sfx("ding/kenney-interface-confirmation-002.ogg", 21, -11, "le carton Diktéo")
 
 # la musique un peu plus basse pendant la pile, pour laisser la place aux chocs
 tb = np.arange(N) / SR / B
@@ -91,7 +92,7 @@ with open(os.path.join(ICI, "son", "CREDITS.txt"), "w", encoding="utf-8") as f:
     for cr in sorted({j[3] for j in journal}):
         f.write(f"- {cr}\n")
 with open(os.path.join(ICI, "son", "SOUND.md"), "w", encoding="utf-8") as f:
-    f.write(f"# Son de la pub 11 (le tableau)\n\nUsage : TikTok, Reels, Shorts, pubs en ligne. Musique : Mixkit #{PISTE}, Mixkit Stock Music Free License.\n\n")
+    f.write(f"# Son de la pub 11 (le chantier)\n\nUsage : TikTok, Reels, Shorts, pubs en ligne. Musique : Mixkit #{PISTE}, Mixkit Stock Music Free License.\n\n")
     f.write("| t (s) | moment | son | licence |\n|---|---|---|---|\n")
     for t, desc, fi, cr, li in sorted(journal):
         f.write(f"| {t:.3f} | {desc} | {fi} | {li} |\n")

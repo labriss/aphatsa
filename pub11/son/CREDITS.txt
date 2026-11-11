@@ -3,6 +3,7 @@ Musique : « Happy Home » (Mixkit), Mixkit #801, Mixkit Stock Music Free Licens
 Bruitages :
 - "Classic Click" by adh.dreaming (https://freesound.org/people/adh.dreaming/sounds/671105/), CC0
 - ding/fs-571513-soft-notifications-bell-ding-d.ogg
+- ding/kenney-interface-confirmation-001.ogg
 - ding/kenney-interface-confirmation-002.ogg
 - impact/fs-177242-cinematic-impact.ogg
 - impact/kenney-impact-impactsoft-heavy-000.ogg

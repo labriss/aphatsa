@@ -15,15 +15,12 @@ html,body{margin:0;background:#050505;overflow:hidden}
 <canvas id="c" width="1080" height="1920"></canvas>
 <div id="ui"><button id="lecture">Lecture</button><input id="curseurUI" type="range" min="0" max="1000" value="0"><span id="temps">0.00</span></div>
 <script>
-/* Pub 11 « le tableau » : pour les électriciens. Chaque phrase dictée enclenche un disjoncteur ; l'interrupteur général
-   allume toute la maison, et le devis part.
-   144 BPM (1 temps = 0,417 s), 34 temps (14,2 s).
-   b0   le néon « ÉLECTRICIEN ? » grésille et s'allume dans le noir    b3 le tableau sort de l'ombre
-   b5…11 quatre phrases dictées : un disjoncteur claque à chacune, son prix s'imprime sur l'étiquette
-   b14  l'interrupteur général : éclair, le compteur déroule le total
-   b19  la caméra recule : c'est une maison, les fenêtres s'allument une à une
-   b27  le devis part du toit comme un éclair                         b30.5 « Envoyé à M. Benali »   b34 carton */
-const W=1080,H=1920,B=60/144,NB=34,DN=NB*B;
+/* Pub 11 « le chantier » : pour les électriciens. La maison de M. Benali en coupe ; chaque phrase dictée fait apparaître
+   le vrai travail à sa place : le tableau sur le mur, les 12 prises une à une, le câble de terre jusqu'au piquet, l'horloge.
+   144 BPM (1 temps = 0,417 s), 28 temps (11,7 s).
+   b0 néon « ÉLECTRICIEN ? » + « Encore un devis à taper ce soir ? »   b4 la maison apparaît   b5…11 les quatre lignes
+   b13.5 le général : les pièces s'allument, le total s'affiche   b17 le devis part   b21 carton */
+const W=1080,H=1920,B=60/144,NB=28,DN=NB*B;
 const cv=document.getElementById('c'),g=cv.getContext('2d');
 const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
 const lerp=(a,b,k)=>a+(b-a)*k;
@@ -36,44 +33,6 @@ const O1='#E8650F',O2='#C9480A',O3='#A8350A',ORANGE='#ff8a3d',ARC='#bfe3ff',CHAU
 function rr(x,y,w,h,r){g.beginPath();g.roundRect(x,y,w,h,r);}
 function texte(t,x,y,size,col,poids=700,font='Archivo',align='center'){g.font=`${poids} ${size}px ${font}`;g.fillStyle=col;g.textAlign=align;g.textBaseline='middle';g.fillText(t,x,y);}
 function lueur(col,flou){g.shadowColor=col;g.shadowBlur=flou;}
-
-// ——— le mur du local technique : béton sombre, grain ———
-const BETON=(()=>{const c=document.createElement('canvas');c.width=1400;c.height=2200;const f=c.getContext('2d');
-  f.fillStyle='#16130f';f.fillRect(0,0,1400,2200);
-  const d=f.getImageData(0,0,1400,2200),p=d.data;let s=7;
-  for(let i=0;i<p.length;i+=4){s=(s*16807)%2147483647;const n=(s/2147483647-.5)*16;p[i]+=n;p[i+1]+=n;p[i+2]+=n*.9;}
-  f.putImageData(d,0,0);
-  for(let i=0;i<260;i++){s=(s*16807)%2147483647;const x=s%1400;s=(s*16807)%2147483647;const y=s%2200;s=(s*16807)%2147483647;f.fillStyle=`rgba(0,0,0,${.15+(s%100)/400})`;f.beginPath();f.arc(x,y,1+(s%4),0,7);f.fill();}
-  return c;})();
-
-// ——— le monde : la pièce (le local du tableau) est au centre d'une grande maison ———
-const PIECE={x:-60,y:-700,w:1200,h:2660};
-const MAISON={x:-1000,y:-1400,w:3080,h:3800};
-const FENETRES=[ // ordre d'allumage
-  {x:-800,y:500,w:500,h:800},{x:1380,y:500,w:500,h:800},
-  {x:-800,y:-1320,w:500,h:500},{x:290,y:-1320,w:500,h:500},{x:1380,y:-1320,w:500,h:500},
-];
-const TB={x:150,y:640,w:780,h:1040};          // le tableau électrique
-const MOD_Y=TB.y+330, MOD_H=300;               // la rangée de modules
-const GEN={x:TB.x+60,w:170};                   // l'interrupteur général (à gauche)
-const MODS=[0,1,2,3].map(i=>({x:TB.x+256+i*118,w:108}));
-const ITEMS=[
-  {b:5, dit:'« Tableau 3 rangées,', dit2:'480 euros. »', prix:'480 €'},
-  {b:7, dit:'« Douze prises,', dit2:'32 euros pièce. »', prix:'384 €'},
-  {b:9, dit:'« Mise à la terre,', dit2:'150 euros. »', prix:'150 €'},
-  {b:11,dit:'« Main-d’œuvre, 6 heures', dit2:'à 55 euros. »', prix:'330 €'},
-];
-const B_GEN=14, B_RECUL=16.6, B_ENV=21.8, B_TXT=23.4, B_FIN=26.2;
-const TOTAL=1478.40;
-
-// caméra : serrée sur le néon, puis le tableau, puis recul sur la maison entière
-const camAt=b=>{
-  const K=[[0,{x:540,y:420,z:1.06}],[2.4,{x:540,y:440,z:1.02}],[4.2,{x:540,y:1000,z:1}],[13,{x:540,y:1010,z:1.02}],[14,{x:540,y:1060,z:1.12}],
-    [B_RECUL,{x:540,y:1010,z:1}],[B_RECUL+3,{x:540,y:350,z:.205}],[B_ENV+1,{x:540,y:200,z:.19}],[B_FIN,{x:540,y:-300,z:.17}]];
-  if(b<=K[0][0])return K[0][1];for(let i=1;i<K.length;i++)if(b<K[i][0]){const [b0,a]=K[i-1],[b1,c]=K[i],k=ease((b-b0)/(b1-b0));
-    // le recul se fait en échelle logarithmique, sinon il paraît brutal à la fin
-    return {x:lerp(a.x,c.x,k),y:lerp(a.y,c.y,k),z:Math.exp(lerp(Math.log(a.z),Math.log(c.z),k))};}
-  return K[K.length-1][1];};
 
 // un arc électrique entre deux points (éclair en zigzag, déterministe par image)
 function eclair(x1,y1,x2,y2,seed,larg=3,amp=40,col=ARC){
@@ -135,7 +94,7 @@ function tableau(b,t){
   else{g.fillStyle='rgba(255,255,255,.05)';texte('— — —',lx+lw-30,ly+lh/2,50,'rgba(255,255,255,.08)',800,'JBMono','right');}
   // les câbles qui partent du haut de chaque module vers le haut du coffret
   const tous=b>=B_GEN+.2;
-  MODS.forEach((m,i)=>{const it=ITEMS[i],on=b>=it.b+.35;const cx=m.x+m.w/2,col=['#c0392b','#2c6fd6','#e3b21b','#33a35a'][i];
+  MODS.forEach((m,i)=>{const on=b>=T_TAB+.5+i*.1;const cx=m.x+m.w/2,col=['#c0392b','#2c6fd6','#e3b21b','#33a35a'][i];
     g.save();g.strokeStyle=col;g.lineWidth=10;g.lineCap='round';g.beginPath();g.moveTo(cx,MOD_Y);g.bezierCurveTo(cx,MOD_Y-60,cx,y+230,cx-10*i,y+200);g.stroke();
     if(on){// le courant qui court dans le câble
       g.globalCompositeOperation='lighter';g.setLineDash([22,46]);g.lineDashOffset=-(t*260)%68;g.strokeStyle=tous?'rgba(255,230,180,.95)':'rgba(255,220,160,.7)';g.lineWidth=5;lueur('rgba(255,200,120,.9)',14);
@@ -143,121 +102,164 @@ function tableau(b,t){
     g.restore();});
   // modules
   module(GEN,ease(seg(b,B_GEN,B_GEN+.35)),true,tous);
-  MODS.forEach((m,i)=>module(m,ease(seg(b,ITEMS[i].b+.1,ITEMS[i].b+.4)),false,true));
+  MODS.forEach((m,i)=>module(m,ease(seg(b,T_TAB+.4+i*.1,T_TAB+.6+i*.1)),false,true));
   // les étiquettes sous les modules : le prix s'y imprime
   const ey=MOD_Y+MOD_H+40;
   g.fillStyle='#d3cec3';rr(x+36,ey,w-72,96,10);g.fill();g.strokeStyle='rgba(0,0,0,.18)';g.lineWidth=2;rr(x+36,ey,w-72,96,10);g.stroke();
   texte('ARRIVÉE',GEN.x+GEN.w/2,ey+48,22,'#6c675f',800,'Archivo');
-  MODS.forEach((m,i)=>{const it=ITEMS[i];if(b<it.b+.5)return;const k=spring((b-it.b-.5)*B,16,.6),fl=Math.exp(-(b-it.b-.5)*B*5);
-    g.save();g.translate(m.x+m.w/2,ey+48);g.scale(lerp(1.6,1,clamp(k)),lerp(1.6,1,clamp(k)));g.globalAlpha*=clamp(k*2);lueur(`rgba(232,101,15,${.5*fl})`,30*fl);
-    texte(it.prix,0,0,30,O3,800,'JBMono');g.restore();});
+
   // plaque « Tableau » + le logo sous les étiquettes
   texte('LOGEMENT M. BENALI',x+w/2,y+h-60,24,'#77726a',800,'Archivo');
 }
 
-// ——— la maison, vue de l'extérieur la nuit ———
 const CIEL=(()=>{const c=document.createElement('canvas');c.width=W;c.height=H;const f=c.getContext('2d');
   const gr=f.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#030712');gr.addColorStop(.6,'#0b1730');gr.addColorStop(1,'#16223a');f.fillStyle=gr;f.fillRect(0,0,W,H);
   for(let i=0;i<220;i++){const x=rnd(i*3.1)*W,y=rnd(i*5.7)*H*.8,r=rnd(i*9.3)*1.6+.3;f.fillStyle=`rgba(255,255,255,${.25+rnd(i*1.7)*.6})`;f.beginPath();f.arc(x,y,r,0,7);f.fill();}
   return c;})();
-function fenetre(f,a,t,i){
-  const {x,y,w,h}=f;
-  g.fillStyle='#07090d';g.fillRect(x,y,w,h);
-  if(a>0){const gr=g.createLinearGradient(0,y,0,y+h);gr.addColorStop(0,`rgba(232,180,120,${.85*a})`);gr.addColorStop(1,`rgba(200,120,60,${.85*a})`);g.fillStyle=gr;g.fillRect(x,y,w,h);
-    // une silhouette de lampe au plafond
-    g.fillStyle=`rgba(120,60,20,${.6*a})`;g.fillRect(x+w/2-4,y,8,h*.18);g.beginPath();g.moveTo(x+w/2-60,y+h*.18+50);g.lineTo(x+w/2+60,y+h*.18+50);g.lineTo(x+w/2+24,y+h*.18);g.lineTo(x+w/2-24,y+h*.18);g.fill();
-    g.save();g.globalCompositeOperation='lighter';const gl=g.createRadialGradient(x+w/2,y+h/2,0,x+w/2,y+h/2,w*1.4);gl.addColorStop(0,`rgba(255,170,90,${.35*a})`);gl.addColorStop(1,'rgba(255,140,60,0)');g.fillStyle=gl;g.fillRect(x-w,y-h*.6,w*3,h*2.2);g.restore();}
-  g.strokeStyle='#2b2a28';g.lineWidth=26;g.strokeRect(x,y,w,h);g.lineWidth=16;g.beginPath();g.moveTo(x+w/2,y);g.lineTo(x+w/2,y+h);g.moveTo(x,y+h*.45);g.lineTo(x+w,y+h*.45);g.stroke();
-}
-function maison(b,t,allume){
-  const {x,y,w,h}=MAISON;
-  // le toit
-  g.fillStyle='#1d1b1a';g.beginPath();g.moveTo(x-180,y+40);g.lineTo(x+w/2,y-1150);g.lineTo(x+w+180,y+40);g.closePath();g.fill();
-  g.strokeStyle='#2c2927';g.lineWidth=40;g.stroke();
-  // cheminée
-  g.fillStyle='#24211f';g.fillRect(x+w*.72,y-900,260,700);
-  // la façade
-  const gf=g.createLinearGradient(0,y,0,y+h);gf.addColorStop(0,'#2a2724');gf.addColorStop(1,'#1c1a18');g.fillStyle=gf;g.fillRect(x,y,w,h);
-  // l'enduit : quelques lignes
-  g.strokeStyle='rgba(0,0,0,.25)';g.lineWidth=8;for(let yy=y+300;yy<y+h;yy+=300){g.beginPath();g.moveTo(x,yy);g.lineTo(x+w,yy);g.stroke();}
-  FENETRES.forEach((f,i)=>fenetre(f,allume[i],t,i));
-  // le sol
-  g.fillStyle='#0c0c0b';g.fillRect(x-6000,y+h,w+12000,9000);
+// ——— le chantier, en vrai : la maison de M. Benali en coupe, chaque ligne dictée apparaît à sa place ———
+const TB={x:150,y:640,w:780,h:1040};          // le tableau électrique (dessiné en grand, posé en petit)
+const MOD_Y=TB.y+330, MOD_H=300;
+const GEN={x:TB.x+60,w:170};
+const MODS=[0,1,2,3].map(i=>({x:TB.x+256+i*118,w:108}));
+const ITEMS=[
+  {b:5, dit:'« Tableau électrique 3 rangées,', dit2:'480 euros. »'},
+  {b:7, dit:'« Douze prises,', dit2:'32 euros pièce. »'},
+  {b:9, dit:'« Mise à la terre,', dit2:'150 euros. »'},
+  {b:11,dit:'« Main-d’œuvre, 6 heures', dit2:'à 55 euros. »'},
+];
+const T_TAB=5.3, T_PRI=7.3, T_TER=9.3, T_MO=11.3, B_GEN=13.5, B_ENV=17, B_TXT=17.8, B_FIN=21;
+const TOTAL=1478.40;
+// la maison en coupe
+const MAISON={x:70,y:560,w:940,h:1040};               // murs extérieurs ; le sol est à y=1600
+const PIECES=[ // x,y,w,h, nom
+  [94,584,434,476,'Chambre'],[552,584,434,476,'Bureau'],[94,1084,434,492,'Entrée'],[552,1084,434,492,'Cuisine']];
+const POS_TAB={x:150,y:1150,s:180/780};               // le tableau, sur le mur de l'entrée
+const PRISES=[[150,1022],[300,1022],[460,1022],[620,1022],[790,1022],[940,1022],[380,1540],[480,1540],[620,1540],[740,1540],[860,1540],[950,1540]];
+const TERRE={x:240,haut:1390};
+
+// une prise murale
+function prise(x,y,k,lum){if(k<=0)return;g.save();g.translate(x,y);g.scale(k,k);
+  g.fillStyle='rgba(0,0,0,.35)';rr(-22,-20,48,48,10);g.fill();
+  const gr=g.createLinearGradient(-24,-24,24,24);gr.addColorStop(0,'#e7e2d8');gr.addColorStop(1,'#b9b3a7');g.fillStyle=gr;rr(-24,-24,48,48,10);g.fill();
+  g.fillStyle='#cfc9bd';g.beginPath();g.arc(0,0,15,0,7);g.fill();g.fillStyle='#3a3631';g.beginPath();g.arc(-6,0,3.4,0,7);g.arc(6,0,3.4,0,7);g.fill();
+  if(lum>0){g.globalCompositeOperation='lighter';const gl=g.createRadialGradient(0,0,0,0,0,60);gl.addColorStop(0,`rgba(255,190,120,${.35*lum})`);gl.addColorStop(1,'rgba(255,160,80,0)');g.fillStyle=gl;g.beginPath();g.arc(0,0,60,0,7);g.fill();}
+  g.restore();}
+// l'étiquette d'un travail : son nom et son prix, posée à côté de l'objet
+let FADE=1;
+function etiquette(nom,prix,x,y,b0,b){if(b<b0||FADE<=0)return;const k=spring((b-b0)*B,15,.6),fl=Math.exp(-(b-b0)*B*4),vieux=b>b0+2.2?.55:1;
+  g.font='700 36px Archivo';const w1=g.measureText(nom).width;g.font='800 46px JBMono';const w2=g.measureText(prix).width,w=w1+w2+76;
+  const cx=clamp(x,w/2+20,1060-w/2);
+  g.save();g.globalAlpha*=clamp(k*1.6)*vieux*FADE;g.translate(cx,y);g.scale(.7+.3*clamp(k),.7+.3*clamp(k));
+  g.fillStyle='rgba(12,10,8,.88)';rr(-w/2,-40,w,80,28);g.fill();g.strokeStyle=`rgba(255,138,61,${.45+.5*fl})`;g.lineWidth=2.5;rr(-w/2,-40,w,80,28);g.stroke();
+  texte(nom,-w/2+26,2,36,'#f3ece2',700,'Archivo','left');lueur(`rgba(255,138,61,${.4+.4*fl})`,16+30*fl);texte(prix,w/2-26,2,46,ORANGE,800,'JBMono','right');g.restore();}
+
+function maisonCoupe(b,t,lum){
+  // le sol, en coupe : terre, cailloux
+  const gs=g.createLinearGradient(0,1600,0,1920);gs.addColorStop(0,'#2a1f17');gs.addColorStop(1,'#140e0a');g.fillStyle=gs;g.fillRect(0,1600,W,320);
+  for(let i=0;i<70;i++){g.fillStyle=`rgba(0,0,0,${.2+rnd(i)*.3})`;g.beginPath();g.ellipse(rnd(i*3.3)*W,1620+rnd(i*7.7)*290,4+rnd(i*2.1)*9,3+rnd(i*5.5)*5,0,0,7);g.fill();}
+  g.fillStyle='#3a3026';g.fillRect(0,1596,W,8);
+  // le toit et les combles
+  g.fillStyle='#1f1b18';g.beginPath();g.moveTo(30,590);g.lineTo(540,290);g.lineTo(1050,590);g.closePath();g.fill();
+  g.strokeStyle='#38322c';g.lineWidth=22;g.lineJoin='round';g.stroke();
+  // la structure
+  const {x,y,w,h}=MAISON;g.fillStyle='#38322c';g.fillRect(x,y,w,h);
+  // les pièces : sombres, puis éclairées quand le général est enclenché
+  PIECES.forEach(([px,py,pw,ph,nom],i)=>{const a=lum[i];
+    const gr=g.createLinearGradient(0,py,0,py+ph);gr.addColorStop(0,lerp(0,1,a)>0?`rgb(${lerp(22,74,a)|0},${lerp(20,56,a)|0},${lerp(18,40,a)|0})`:'#161412');gr.addColorStop(1,`rgb(${lerp(16,52,a)|0},${lerp(14,38,a)|0},${lerp(13,28,a)|0})`);
+    g.fillStyle=gr;g.fillRect(px,py,pw,ph);
+    // la suspension et son cône de lumière
+    const lx=px+pw/2;g.strokeStyle='#4a423a';g.lineWidth=3;g.beginPath();g.moveTo(lx,py);g.lineTo(lx,py+70);g.stroke();
+    g.fillStyle=a>0?`rgb(${lerp(70,255,a)|0},${lerp(64,214,a)|0},${lerp(58,160,a)|0})`:'#46403a';g.beginPath();g.moveTo(lx-34,py+100);g.lineTo(lx+34,py+100);g.lineTo(lx+14,py+70);g.lineTo(lx-14,py+70);g.closePath();g.fill();
+    if(a>0){g.save();g.globalCompositeOperation='lighter';g.beginPath();g.moveTo(lx-30,py+100);g.lineTo(lx+30,py+100);g.lineTo(lx+pw*.48,py+ph);g.lineTo(lx-pw*.48,py+ph);g.closePath();
+      const gc=g.createLinearGradient(0,py+100,0,py+ph);gc.addColorStop(0,`rgba(255,200,130,${.28*a})`);gc.addColorStop(1,'rgba(255,170,90,0)');g.fillStyle=gc;g.fill();g.restore();}
+    texte(nom.toUpperCase(),px+pw-20,py+30,20,`rgba(230,215,195,${.35+.3*a})`,800,'Archivo','right');
+  });
+  // quelques meubles en silhouette, pour lire les pièces
+  g.fillStyle='rgba(0,0,0,.35)';
+  g.fillRect(130,960,250,60);g.fillRect(130,920,40,100);                         // le lit
+  g.fillRect(700,900,240,20);g.fillRect(712,920,14,100);g.fillRect(916,920,14,100); // le bureau
+  g.fillRect(560,1470,420,70);g.fillRect(560,1300,420,50);                         // la cuisine
+  g.fillRect(410,1200,16,300);g.beginPath();g.arc(418,1200,22,0,7);g.fill();      // le portemanteau
 }
 
+// la dictée en direct : « TU DICTES », les mots s'écrivent au rythme de la voix, curseur, micro qui pulse
+function dictee(it,b,mx,my,tx,y0,size){
+  const L1=it.dit.length,L2=it.dit2.length,u=seg(b,it.b+.05,it.b+1.3),n=Math.floor(u*(L1+L2));
+  const s1=it.dit.slice(0,Math.min(n,L1)),s2=it.dit2.slice(0,Math.max(0,n-L1));
+  texte('TU DICTES',tx,y0-2,30,ORANGE,900,'Archivo','left');
+  texte(s1,tx,y0+54,size,'#fff',700,'Archivo','left');if(s2)texte(s2,tx,y0+54+size*1.3,size,ORANGE,700,'Archivo','left');
+  if(u<1||Math.floor(b*3)%2===0){g.font=`700 ${size}px Archivo`;const yy=s2?y0+54+size*1.3:y0+54,ww=g.measureText(s2||s1).width;g.fillStyle=s2?ORANGE:'#fff';g.fillRect(tx+ww+6,yy-size*.45,4,size*.9);}
+  if(u<1){g.save();g.globalCompositeOperation='lighter';for(let k=0;k<2;k++){const ph=((b-it.b)*1.6+k*.5)%1;g.strokeStyle=`rgba(255,138,61,${.7*(1-ph)})`;g.lineWidth=3;g.beginPath();g.arc(mx,my,46+ph*36,0,7);g.stroke();}g.restore();}
+}
 function seek(T){
   const t=((T%DN)+DN)%DN,b=t/B;
   g.setTransform(1,0,0,1,0,0);
-  const cam=camAt(b);
   g.drawImage(CIEL,0,0);
-  g.save();g.translate(540,960);g.scale(cam.z,cam.z);g.translate(-cam.x,-cam.y);
-  // la maison autour (visible au recul) ; les fenêtres s'allument une à une
-  const allume=FENETRES.map((f,i)=>{const b0=B_RECUL+1.4+i*.6;const k=seg(b,b0,b0+.25);return b>=b0?clamp(k+(rnd(i+Math.floor(t*30))<.3&&k<1?-.5:0)):0;});
-  maison(b,t,allume);
-  // la pièce du tableau : le mur de béton, éclairé par le néon puis par le tableau
-  g.save();g.beginPath();g.rect(PIECE.x,PIECE.y,PIECE.w,PIECE.h);g.clip();
-  g.drawImage(BETON,PIECE.x-100,PIECE.y-100);
-  // le néon : grésille au début, puis tient
-  const flick=b<1.6?(rnd(Math.floor(t*24))>.45-b*.25?1:.15):1;
-  const neonA=(b<.15?0:flick)*Math.max(1-seg(b,3.8,4.6),.75*seg(b,B_RECUL+.5,B_RECUL+2));
-  // la lumière du néon sur le mur
-  if(neonA>0){const gl=g.createRadialGradient(540,330,40,540,480,900);gl.addColorStop(0,`rgba(255,150,70,${.45*neonA})`);gl.addColorStop(1,'rgba(255,120,40,0)');g.fillStyle=gl;g.fillRect(PIECE.x,PIECE.y,PIECE.w,PIECE.h);}
-  // la lumière du tableau quand tout est enclenché
-  const kg=seg(b,B_GEN+.2,B_GEN+1.5);
-  {const base=.12+.5*seg(b,2.8,4.4);const gl=g.createRadialGradient(540,1150,100,540,1150,1100);gl.addColorStop(0,`rgba(255,225,190,${.6*base*(.5+.5*kg)})`);gl.addColorStop(1,'rgba(255,220,180,0)');g.fillStyle=gl;g.fillRect(PIECE.x,PIECE.y,PIECE.w,PIECE.h);}
-  // le tableau sort de l'ombre
-  g.save();g.globalAlpha=seg(b,2.6,4.2);tableau(b,t);g.restore();
-  // l'ombre sur les bords de la pièce
-  const vg=g.createRadialGradient(540,1000,500,540,1000,1350);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.75)');g.fillStyle=vg;g.fillRect(PIECE.x,PIECE.y,PIECE.w,PIECE.h);
-  // le néon lui-même : tube orange, cœur blanc
-  if(neonA>0){g.save();g.font='900 100px Archivo';g.textAlign='center';g.textBaseline='middle';g.lineJoin='round';g.globalAlpha=neonA;
-    g.globalCompositeOperation='lighter';
-    for(const [lw,col,bl] of [[26,'rgba(255,100,30,.35)',60],[14,'rgba(255,130,50,.9)',30],[5,'rgba(255,240,220,1)',8]]){g.strokeStyle=col;g.lineWidth=lw;lueur('rgba(255,110,40,1)',bl);g.strokeText('ÉLECTRICIEN ?',540,330);}
-    g.restore();}
-  // la phrase de contexte, sous le néon
-  if(b>1&&b<4.6){const k=spring((b-1)*B,15,.7);g.save();g.globalAlpha=clamp(k*1.6)*(1-seg(b,3.8,4.6));g.translate(0,(1-clamp(k))*16);lueur('rgba(0,0,0,.9)',20);texte('Encore un devis à taper ce soir ?',540,470,52,'#f3e6d6',800,'Archivo');g.restore();}
-  // les claquements : éclair + étincelles à chaque disjoncteur
-  ITEMS.forEach((it,i)=>{const d=(b-(it.b+.3))*B;if(d<0||d>.6)return;const m=MODS[i],cx=m.x+m.w/2,cy=MOD_Y+MOD_H*.36;
-    if(d<.18)for(let k=0;k<3;k++)eclair(cx,cy,cx+(rnd(i*9+k)-.5)*260,cy-80-rnd(i+k*3)*160,i*50+k*7+Math.floor(t*40),2.4,30);
-    etincelles(cx,cy,i*31,d/.6,1);
-    // flash blanc sur le module
-    g.save();g.globalCompositeOperation='lighter';const fl=g.createRadialGradient(cx,cy,0,cx,cy,220);fl.addColorStop(0,`rgba(220,240,255,${.45*(1-d/.6)})`);fl.addColorStop(1,'rgba(200,230,255,0)');g.fillStyle=fl;g.fillRect(cx-220,cy-220,440,440);g.restore();});
-  // l'interrupteur général : arcs entre tous les modules, gros flash
-  {const d=(b-(B_GEN+.2))*B;if(d>=0&&d<.9){const pts=[GEN,...MODS].map(m=>[m.x+m.w/2,MOD_Y+MOD_H*.4]);
-    if(d<.45)for(let i=0;i<pts.length-1;i++)eclair(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],i*17+Math.floor(t*40),3,60);
-    etincelles(GEN.x+GEN.w/2,MOD_Y+MOD_H*.4,99,d/.9,1.8,[255,210,150]);}}
-  g.restore(); // fin du clip de la pièce
-  // le cadre de l'ouverture (on le voit au recul)
-  g.strokeStyle='#2b2a28';g.lineWidth=40;g.strokeRect(PIECE.x,PIECE.y,PIECE.w,PIECE.h);
-  // le devis part du toit : un éclair orange monte dans la nuit
-  if(b>=B_ENV){const d=(b-B_ENV)*B,u=easeOut(seg(b,B_ENV,B_ENV+2.2));const x0=540,y0=MAISON.y-1150;
-    const yTop=lerp(y0,y0-9000,u);
-    g.save();g.globalCompositeOperation='lighter';
-    const tr=g.createLinearGradient(0,y0,0,yTop);tr.addColorStop(0,'rgba(255,138,61,0)');tr.addColorStop(1,`rgba(255,180,110,${.9*(1-seg(b,B_ENV+2,B_ENV+3))})`);
-    g.strokeStyle=tr;g.lineWidth=300;lueur('rgba(255,138,61,1)',160);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0,yTop);g.stroke();
-    // la tête : une étoile de lumière
-    const gl=g.createRadialGradient(x0,yTop,0,x0,yTop,1600);gl.addColorStop(0,`rgba(255,240,220,${1-seg(b,B_ENV+2,B_ENV+3)})`);gl.addColorStop(.2,`rgba(255,160,80,${.6*(1-seg(b,B_ENV+2,B_ENV+3))})`);gl.addColorStop(1,'rgba(255,120,40,0)');g.fillStyle=gl;g.fillRect(x0-1600,yTop-1600,3200,3200);
-    // l'onde au départ, sur le toit
-    if(d<.8){g.strokeStyle=`rgba(255,180,110,${1-d/.8})`;g.lineWidth=40*(1-d/.8)+6;g.beginPath();g.ellipse(x0,y0,200+d*3000,(200+d*3000)*.3,0,0,7);g.stroke();}
-    g.restore();}
-  g.restore(); // fin de la caméra
+  const kz=1+.04*seg(b,4,B_ENV);g.save();g.translate(540,1000);g.scale(kz,kz);g.translate(-540,-1000);
+  const voile=1-ease(seg(b,3.8,4.8));     // l'accroche dans le noir, puis la maison apparaît
+  // les pièces s'allument une à une au général
+  const lum=PIECES.map((p,i)=>{const b0=B_GEN+.25+i*.22;return clamp(seg(b,b0,b0+.3)-(rnd(i+Math.floor(t*30))<.35&&b<b0+.3?.4:0));});
+  FADE=1-seg(b,B_GEN,B_GEN+.5);
+  maisonCoupe(b,t,lum);
+  // 1 · le tableau se pose sur le mur de l'entrée
+  if(b>=T_TAB){const k=clamp(spring((b-T_TAB)*B,13,.6),0,1.1),d=(b-T_TAB)*B;
+    g.save();g.globalAlpha=clamp(k*2);g.translate(POS_TAB.x,POS_TAB.y-(1-k)*80);g.scale(POS_TAB.s,POS_TAB.s);g.translate(-TB.x,-TB.y);tableau(b,t);g.restore();
+    if(d>.2&&d<.9)etincelles(POS_TAB.x+90,POS_TAB.y+120,7,(d-.2)/.7,1);
+    etiquette('Tableau 3 rangées','480 €',360,1110,T_TAB+.4,b);}
+  // 2 · les douze prises, une à une
+  let n=0;PRISES.forEach(([x,y],i)=>{const b0=T_PRI+i*.11;if(b<b0)return;n++;const k=clamp(spring((b-b0)*B,18,.5),0,1.2);
+    prise(x,y,k,Math.max(...lum)>0?lum[i<6?(i<3?0:1):(i<8?2:3)]:0);const d=(b-b0)*B;if(d<.4)etincelles(x,y,i*11,d/.4,.35,[255,200,140]);});
+  if(b>=T_PRI)etiquette(n<12?`${n} prise${n>1?'s':''}`:'12 prises','384 €',770,700,T_PRI,b);
+  // 3 · la mise à la terre : le câble vert et jaune descend du tableau jusqu'au piquet dans le sol
+  if(b>=T_TER){const u=ease(seg(b,T_TER,T_TER+1));const P=[[TERRE.x,TERRE.haut],[TERRE.x,1600],[TERRE.x,1660]],L=1660-TERRE.haut,yb=TERRE.haut+L*u;
+    g.save();g.lineCap='round';g.strokeStyle='#2f9e4a';g.lineWidth=12;g.beginPath();g.moveTo(TERRE.x,TERRE.haut);g.lineTo(TERRE.x,yb);g.stroke();
+    g.strokeStyle='#e8c83a';g.lineWidth=12;g.setLineDash([16,16]);g.beginPath();g.moveTo(TERRE.x,TERRE.haut);g.lineTo(TERRE.x,yb);g.stroke();g.restore();
+    const kp=ease(seg(b,T_TER+.7,T_TER+1.3));if(kp>0){const gp=g.createLinearGradient(TERRE.x-8,0,TERRE.x+8,0);gp.addColorStop(0,'#7a3f17');gp.addColorStop(.5,'#e59a5c');gp.addColorStop(1,'#7a3f17');g.fillStyle=gp;g.fillRect(TERRE.x-8,1650,16,190*kp);
+      if(kp>=1){g.strokeStyle='#b8b0a4';g.lineWidth=6;for(const [w2,yy] of [[60,1860],[40,1878],[20,1896]]){g.beginPath();g.moveTo(TERRE.x-w2/2,yy);g.lineTo(TERRE.x+w2/2,yy);g.stroke();}
+        const d=(b-T_TER-1.3)*B;if(d<.8){g.save();g.globalCompositeOperation='lighter';g.strokeStyle=`rgba(120,230,140,${.8*(1-d/.8)})`;g.lineWidth=4;g.beginPath();g.ellipse(TERRE.x,1850,30+d*220,(30+d*220)*.35,0,0,7);g.stroke();g.restore();}}}
+    if(u<1)etincelles(TERRE.x,yb,33+Math.floor(t*6),(t*6)%1,.3,[150,240,160]);
+    etiquette('Mise à la terre','150 €',600,1760,T_TER+.5,b);}
+  // 4 · la main-d'œuvre : une horloge dans les combles, qui tourne jusqu'à 6 h
+  if(b>=T_MO){const k=clamp(spring((b-T_MO)*B,13,.55),0,1.1),R=56*k,cx=330,cy=480;const kh=ease(seg(b,T_MO,T_MO+1.3));
+    g.save();g.fillStyle='rgba(12,10,8,.92)';g.beginPath();g.arc(cx,cy,R,0,7);g.fill();lueur('rgba(255,138,61,.7)',18);g.strokeStyle=ORANGE;g.lineWidth=6;g.stroke();g.shadowBlur=0;
+    g.strokeStyle='#d8cfc2';g.lineWidth=3;for(let i=0;i<12;i++){const a=i/12*Math.PI*2;g.beginPath();g.moveTo(cx+Math.cos(a)*R*.74,cy+Math.sin(a)*R*.74);g.lineTo(cx+Math.cos(a)*R*.86,cy+Math.sin(a)*R*.86);g.stroke();}
+    const am=-Math.PI/2+kh*Math.PI*12,ah=-Math.PI/2+kh*Math.PI;g.lineCap='round';g.strokeStyle='#fff';g.lineWidth=5;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Math.cos(am)*R*.66,cy+Math.sin(am)*R*.66);g.stroke();
+    g.strokeStyle=ORANGE;g.lineWidth=7;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Math.cos(ah)*R*.44,cy+Math.sin(ah)*R*.44);g.stroke();g.restore();
+    etiquette('Main-d’œuvre 6 h','330 €',640,480,T_MO+.3,b);}
+  // le général : arcs et étincelles sur le tableau
+  {const d=(b-(B_GEN+.1))*B;if(d>=0&&d<.6)etincelles(POS_TAB.x+40,POS_TAB.y+95,99,d/.6,1.2,[255,210,150]);}
+  // le devis part : une étincelle orange quitte le tableau, traverse la maison et file dans la nuit
+  if(b>=B_ENV){const u=ease(seg(b,B_ENV,B_ENV+1.6));const pts=[[POS_TAB.x+90,POS_TAB.y],[POS_TAB.x+90,700],[540,420],[540,-200]];
+    const at=v=>{const L=pts.length-1,s=Math.min(L-1e-6,v*L),i=Math.floor(s),k=s-i;return [lerp(pts[i][0],pts[i+1][0],k),lerp(pts[i][1],pts[i+1][1],k)];};
+    g.save();g.globalCompositeOperation='lighter';g.lineCap='round';g.beginPath();for(let i=0;i<=40;i++){const [px,py]=at(Math.max(0,u-.35)+(Math.min(u,.35))*i/40);i?g.lineTo(px,py):g.moveTo(px,py);}
+    g.strokeStyle='rgba(255,170,100,.55)';g.lineWidth=6;lueur('rgba(255,138,61,.9)',18);g.stroke();
+    const [hx,hy]=at(u),gl=g.createRadialGradient(hx,hy,0,hx,hy,70);gl.addColorStop(0,'rgba(255,240,220,.95)');gl.addColorStop(.3,'rgba(255,160,80,.5)');gl.addColorStop(1,'rgba(255,120,40,0)');g.fillStyle=gl;g.beginPath();g.arc(hx,hy,70,0,7);g.fill();g.restore();}
+  g.restore(); // fin du léger zoom
 
-  // l'éclair blanc de l'interrupteur général (plein écran)
-  {const d=(b-(B_GEN+.2))*B;if(d>=0&&d<.5){g.save();g.globalCompositeOperation='lighter';g.fillStyle=`rgba(255,230,200,${.3*(1-d/.5)})`;g.fillRect(0,0,W,H);g.restore();}}
+  // l'accroche : le néon dans le noir, puis il s'efface et la maison apparaît
+  if(voile>0){g.save();g.globalAlpha=voile;g.fillStyle='#0b0907';g.fillRect(0,0,W,H);
+    const flick=b<1.6?(rnd(Math.floor(t*24))>.45-b*.25?1:.15):1,neonA=b<.15?0:flick;
+    const gl=g.createRadialGradient(540,800,40,540,900,900);gl.addColorStop(0,`rgba(255,150,70,${.4*neonA})`);gl.addColorStop(1,'rgba(255,120,40,0)');g.fillStyle=gl;g.fillRect(0,0,W,H);
+    g.font='900 104px Archivo';g.textAlign='center';g.textBaseline='middle';g.lineJoin='round';g.globalAlpha=voile*neonA;g.globalCompositeOperation='lighter';
+    for(const [lw,col,bl] of [[26,'rgba(255,100,30,.35)',60],[14,'rgba(255,130,50,.9)',30],[5,'rgba(255,240,220,1)',8]]){g.strokeStyle=col;g.lineWidth=lw;lueur('rgba(255,110,40,1)',bl);g.strokeText('ÉLECTRICIEN ?',540,820);}
+    g.restore();
+    if(b>1){const k=spring((b-1)*B,15,.7);g.save();g.globalAlpha=clamp(k*1.6)*voile;g.translate(0,(1-clamp(k))*16);texte('Encore un devis à taper ce soir ?',540,980,54,'#f3e6d6',800,'Archivo');g.restore();}}
 
   // la phrase dite, en haut : une seule à la fois, avec le micro
-  ITEMS.forEach((it,i)=>{const b1=i<3?ITEMS[i+1].b-.15:B_GEN-.4;if(b<it.b-.05||b>b1+.2)return;
+  ITEMS.forEach((it,i)=>{const b1=i<ITEMS.length-1?ITEMS[i+1].b-.15:B_GEN-.3;if(b<it.b-.05||b>b1+.2)return;
     const k=spring((b-it.b)*B,15,.75),a=clamp(k*1.6)*(1-seg(b,b1,b1+.2));g.save();g.globalAlpha=a;
-    g.fillStyle='rgba(10,8,6,.8)';rr(70,110,940,190,40);g.fill();
-    const gm=g.createLinearGradient(110,150,190,230);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(150,205,44,0,7);g.fill();
-    g.fillStyle='#fff';rr(141,180,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(150,200,17,.15*Math.PI,.85*Math.PI);g.stroke();
-    texte(it.dit,220,175,46,'#fff',700,'Archivo','left');texte(it.dit2,220,240,46,ORANGE,700,'Archivo','left');g.restore();});
-  // la phrase de la maison, au recul
-  {const a=seg(b,B_RECUL+3.2,B_RECUL+3.7)*(1-seg(b,B_ENV-.4,B_ENV));if(a>0){const k=spring((b-B_RECUL-3.2)*B,14,.7);g.save();g.globalAlpha=a;g.translate(0,(1-k)*30);lueur('rgba(0,0,0,.9)',30);
-    texte('Tout est branché.',540,1560,76,'#fff',800);texte('Le devis aussi.',540,1650,76,ORANGE,800);g.restore();}}
+    g.fillStyle='rgba(10,8,6,.88)';rr(70,80,940,236,40);g.fill();
+    const gm=g.createLinearGradient(110,143,190,223);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(150,198,44,0,7);g.fill();
+    g.fillStyle='#fff';rr(141,173,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(150,193,17,.15*Math.PI,.85*Math.PI);g.stroke();
+    dictee(it,b,150,198,220,130,44);g.restore();});
+  // le total, en grand, sur un écran de compteur
+  if(b>=B_GEN+.3&&b<B_ENV+.8){const kg=easeOut(seg(b,B_GEN+.5,B_GEN+2.3)),a=clamp((b-B_GEN-.3)*3)*(1-seg(b,B_ENV+.2,B_ENV+.8)),val=TOTAL*kg;
+    const txt=val.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}).replace(/ | /g,' ')+' €',fl=kg>=1?Math.exp(-(b-B_GEN-2.3)*B*3):0;
+    g.save();g.globalAlpha=a;g.fillStyle='rgba(8,9,8,.92)';rr(110,100,860,180,30);g.fill();g.strokeStyle='rgba(255,138,61,.35)';g.lineWidth=2;rr(110,100,860,180,30);g.stroke();
+    texte('TOTAL TTC',150,190,30,'rgba(255,190,140,.8)',800,'Archivo','left');lueur(`rgba(255,138,61,${.6+.4*fl})`,18+40*fl);texte(txt,930,194,82,ORANGE,800,'JBMono','right');g.restore();}
   // l'envoi
-  if(b>=B_TXT&&b<B_FIN+.2){const k=spring((b-B_TXT)*B,14,.6),a=clamp(k*1.6)*(1-seg(b,B_FIN-.3,B_FIN+.2));g.save();g.globalAlpha=a;g.translate(540,1560);g.scale(.8+.2*clamp(k),.8+.2*clamp(k));lueur('rgba(255,138,61,.7)',40);
-    texte('Envoyé à M. Benali.',0,0,68,'#fff',800);texte('Avant de remballer.',0,92,68,ORANGE,800);g.restore();}
+  if(b>=B_TXT&&b<B_FIN+.2){const k=ease(seg(b,B_TXT,B_TXT+.6)),a=k*(1-seg(b,B_FIN-.3,B_FIN+.2));g.save();g.globalAlpha=a;g.fillStyle='rgba(10,8,6,.85)';rr(150,1680+(1-k)*20,780,190,40);g.fill();
+    texte('Envoyé à M. Benali.',540,1740+(1-k)*20,64,'#fff',800);texte('Avant de remballer.',540,1820+(1-k)*20,64,ORANGE,800);g.restore();}
   // le carton
   if(b>=B_FIN){const k=spring((b-B_FIN)*B,12,.8);g.save();g.fillStyle=`rgba(5,6,10,${.82*clamp(k*1.5)})`;g.fillRect(0,0,W,H);g.globalAlpha=clamp(k*1.5);g.translate(0,(1-k)*36);
     const tx=540-260,ty=700;const gr=g.createLinearGradient(tx,ty,tx+140,ty+140);gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);
@@ -265,7 +267,7 @@ function seek(T){
     g.save();g.translate(tx+18,ty+16);g.scale(4.4,4.4);g.fillStyle='#fff';g.fill(new Path2D('M6.5 2.5H12a9 9 0 0 1 0 18H9.2L4.5 23V4.5a2 2 0 0 1 2-2ZM9.2 9.5a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1Zm3.1-2.5a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1Zm3.1 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Z'),'evenodd');g.restore();
     texte('Diktéo',tx+170,ty+72,138,'#fff',900,'Archivo','left');
     const sw=seg(b,B_FIN+.5,B_FIN+2.2);if(sw>0&&sw<1){g.save();g.globalCompositeOperation='lighter';const x=lerp(200,900,sw);const gl=g.createLinearGradient(x-80,0,x+80,0);gl.addColorStop(0,'rgba(255,255,255,0)');gl.addColorStop(.5,'rgba(255,240,220,.5)');gl.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gl;g.fillRect(x-80,ty-10,160,160);g.restore();}
-    texte('Le devis dicté devant le tableau.',540,940,46,'#e8ddd0',600,'Archivo');
+    texte('Tu dictes ton devis, Diktéo l’écrit.',540,940,46,'#f1e7da',700,'Archivo');
     texte('3 devis offerts par mois · sans carte',540,1060,44,'#fff',700,'Archivo');
     const gb=g.createLinearGradient(290,1150,790,1250);gb.addColorStop(0,O1);gb.addColorStop(.55,O2);gb.addColorStop(1,O3);g.fillStyle=gb;rr(270,1150,540,104,34);g.fill();
     texte('dikteo.vercel.app',540,1203,46,'#fff',800,'Archivo');g.restore();}
