@@ -18,10 +18,10 @@ html,body{margin:0;background:#050505;overflow:hidden}
 /* Pub 18 « le copeau » (menuisiers). Vue de dessus : un plateau de chêne brut sur l'établi, la nuit, sous la lampe.
    Le menuisier dicte : à chaque phrase, le rabot passe, la planche sort lisse derrière lui, et la phrase s'écrit sur le
    copeau qui se déroule ; le prix se grave au fer au bout de la passe. Puis l'huile : le fil du bois s'allume,
-   le total se grave en braises. 128 BPM (1 temps = 0,469 s), 42 temps (19,7 s).
+   le total se grave en braises. 140 BPM (1 temps = 0,429 s), 46 temps (19,7 s).
    b0 « MENUISIER ? » au crayon    b1.6 « Tes devis, encore le soir à la main ? »    b3.6 « TU DICTES »
    b5, 10.5, 16, 21.5 : une passe de rabot par phrase    b27 l'huile    b29.5 le total gravé    b32.5 envoyé    b34.5 logo, carton */
-const W=1080,H=1920,B=60/128,NB=42,DN=NB*B;
+const W=1080,H=1920,B=60/140,NB=46,DN=NB*B;
 const cv=document.getElementById('c');let g=cv.getContext('2d');
 const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
 const lerp=(a,b,k)=>a+(b-a)*k;
@@ -72,13 +72,13 @@ function preparer(){
 
 // ——— ce que le menuisier dicte : une passe de rabot par phrase ———
 const PHRASES=[
-  {b:5,   copeau:'« Dépose de l’ancien placard, forfait', prix:'120 €'},
-  {b:10.5,copeau:'« Placard sur mesure en chêne massif,', prix:'1 450 €'},
-  {b:16,  copeau:'« Quincaillerie et portes coulissantes,', prix:'180 €'},
-  {b:21.5,copeau:'« Pose et finitions, une journée,', prix:'320 €'},
+  {b:5.5, copeau:'« Dépose de l’ancien placard, forfait', prix:'120 €'},
+  {b:11.5,copeau:'« Placard sur mesure en chêne massif,', prix:'1 450 €'},
+  {b:17.5,copeau:'« Quincaillerie et portes coulissantes,', prix:'180 €'},
+  {b:23.5,copeau:'« Pose et finitions, une journée,', prix:'320 €'},
 ];
-const PASSE=3.6;                                 // le rabot traverse en 3,6 temps (1,7 s)
-const B_HUILE=27, B_TOT=29.5, B_ENV=32.5, B_FIN=34.5;
+const PASSE=3.9;                                 // le rabot traverse en 3,6 temps (1,7 s)
+const B_HUILE=29.5, B_TOT=32.3, B_ENV=35.5, B_FIN=37.7;
 const xRabot=(i,b)=>lerp(-200,W+230,smooth(seg(b,PHRASES[i].b+.3,PHRASES[i].b+.3+PASSE)));
 
 // le rabot vu de dessus : semelle de fonte, poignée de bois, bouton avant, lame
@@ -129,7 +129,7 @@ function crayon(txt,x,y,size,b0,b,dur,col='#2b2a2c',rot=-.03){const u=seg(b,b0,b
   g.restore();}
 
 // ——— le bandeau « TU DICTES » : le micro, ses barres de voix ; à la fin il devient la coche puis le logo ———
-function micro(b){if(b<3.4)return;const app=easeOut(seg(b,3.4,4))*(1-seg(b,B_HUILE,B_HUILE+.5)+seg(b,B_ENV-.4,B_ENV));if(app<=0)return;const m=ease(seg(b,B_FIN-.6,B_FIN+.5));
+function micro(b){if(b<3.7)return;const app=easeOut(seg(b,3.7,4.3))*(1-seg(b,B_HUILE,B_HUILE+.5)+seg(b,B_ENV-.4,B_ENV));if(app<=0)return;const m=ease(seg(b,B_FIN-.6,B_FIN+.5));
   const env=seg(b,B_ENV,B_ENV+.5);
   // le bandeau s'allonge pour l'envoi, puis se resserre en carré (le logo)
   const larg=lerp(lerp(480,860,ease(env)),140,m),haut=lerp(112,140,m),cx=lerp(540,280+70,m),cy=lerp(176,700+70,m),rad=lerp(56,40,m);
@@ -161,14 +161,14 @@ function seek(T_){
   // le plateau : brut, puis raboté bande après bande, puis huilé
   g.drawImage(BRUT,PX,PY);
   PHRASES.forEach((ph,i)=>{const xr=xRabot(i,b);if(b<ph.b+.3)return;const xx=clamp(xr-PX,0,PW);if(xx>0)g.drawImage(RABOTE,0,BH*i,xx,BH,PX,PY+BH*i,xx,BH);});
-  const hu=seg(b,B_HUILE,B_HUILE+2.2);
+  const hu=seg(b,B_HUILE,B_HUILE+2.4);
   if(hu>0){// le chiffon passe en diagonale : derrière lui, le bois huilé
     const xd=lerp(-500,W+600,ease(hu));g.save();g.beginPath();g.moveTo(PX,PY);g.lineTo(xd+200,PY);g.lineTo(xd-300,PY+PH);g.lineTo(PX,PY+PH);g.closePath();g.clip();g.drawImage(HUILE,PX,PY);g.restore();}
   // le bord du plateau
   g.strokeStyle='rgba(255,230,190,.12)';g.lineWidth=3;g.strokeRect(PX+1.5,PY+1.5,PW-3,PH-3);
   // l'accroche
-  if(b<5){const fa=1-seg(b,3.4,4.2);g.save();g.globalAlpha=fa;crayon('MENUISIER ?',540,820,128,.05,b,.5);
-    crayon('Tes devis, encore',540,1010,66,1.6,b,.5,'#2b2a2c',-.025);crayon('le soir à la main ?',540,1100,66,2.1,b,.5,'#2b2a2c',-.025);g.restore();}
+  if(b<5.5){const fa=1-seg(b,3.7,4.6);g.save();g.globalAlpha=fa;crayon('MENUISIER ?',540,820,128,.05,b,.5);
+    crayon('Tes devis, encore',540,1010,66,1.75,b,.55,'#2b2a2c',-.025);crayon('le soir à la main ?',540,1100,66,2.3,b,.55,'#2b2a2c',-.025);g.restore();}
   // les copeaux (ils s'effacent quand l'huile passe), le rabot, les prix gravés
   PHRASES.forEach((ph,i)=>{if(b<ph.b+.3)return;const a=1-seg(b,B_HUILE+.2+i*.25,B_HUILE+1+i*.25);if(a>0)copeau(i,b,a);
     const xr=xRabot(i,b);if(xr>-200&&xr<W+230){rabot(xr,PY+BH*i+BH/2);
@@ -176,7 +176,7 @@ function seek(T_){
       g.save();for(let k=0;k<10;k++){const tt=((b*B*3+k*.1)%1),x=xr+20-tt*140,y=PY+BH*i+BH/2+(rnd(k)-.5)*120*tt;g.fillStyle=`rgba(225,190,140,${.6*(1-tt)})`;g.beginPath();g.ellipse(x,y,4,2,rnd(k*3)*3,0,7);g.fill();}g.restore();}
     const bp=ph.b+.3+PASSE*.92;g.save();g.globalAlpha*=1-.88*seg(b,B_HUILE+.3,B_HUILE+1.6);prixGrave(ph.prix,PX+PW-30,PY+BH*i+BH/2,bp,b);g.restore();});
   // le coup de lumière sur le bois huilé
-  const cl=seg(b,B_HUILE+2.2,B_HUILE+4.2);if(cl>0&&cl<1){g.save();g.beginPath();g.rect(PX,PY,PW,PH);g.clip();g.globalCompositeOperation='screen';const x=lerp(-500,W+500,ease(cl));
+  const cl=seg(b,B_HUILE+2.4,B_HUILE+4.6);if(cl>0&&cl<1){g.save();g.beginPath();g.rect(PX,PY,PW,PH);g.clip();g.globalCompositeOperation='screen';const x=lerp(-500,W+500,ease(cl));
     const gs=g.createLinearGradient(x-220,0,x+220,0);gs.addColorStop(0,'rgba(255,220,170,0)');gs.addColorStop(.5,'rgba(255,225,180,.22)');gs.addColorStop(1,'rgba(255,220,170,0)');g.translate(x,980);g.transform(1,0,-.5,1,0,0);g.translate(-x,-980);g.fillStyle=gs;g.fillRect(x-220,0,440,2000);g.restore();}
   // le total, gravé en grand au milieu du plateau huilé
   if(b>=B_TOT){texteGrave('TOTAL TTC',540,880,48,B_TOT,b);prixGraveCentre('2 277,00 €',540,990,120,B_TOT+.6,b);}

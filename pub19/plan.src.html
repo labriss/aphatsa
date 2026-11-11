@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Diktéo · la tournée</title>
+<style>
+/*FONTS*/
+html,body{margin:0;background:#050505;overflow:hidden}
+#c{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0}
+#ui{position:absolute;left:0;bottom:0;width:100%;padding:10px;background:#111;color:#ccc;font:14px sans-serif;display:flex;gap:10px;align-items:center;box-sizing:border-box}
+#ui input{flex:1}
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<div id="ui"><button id="lecture">Lecture</button><input id="curseurUI" type="range" min="0" max="1000" value="0"><span id="temps">0.00</span></div>
+<script>
+/* Pub 19 « la tournée » (multiservice). Un plan de ville la nuit, vu du ciel ; un petit utilitaire enchaîne 5 interventions.
+   À chaque arrêt l'artisan dicte en 2 secondes, le devis part, une épingle s'allume ; la trace orange de la tournée
+   se dessine. À la fin la caméra recule : la tournée de la journée a dessiné la bulle de Diktéo.
+   75 BPM (1 temps = 0,8 s), 25 temps (20 s).
+   b0 « MULTISERVICE ? »   b1.5 « 5 chantiers, 5 devis… ce soir ? »   b4, 8, 12, 16, 20 : les 5 arrêts
+   b24 la caméra recule : c'est le logo   b27 « 5 devis envoyés depuis le camion. »   b29.5 carton */
+const W=1080,H=1920,B=60/75,NB=25,DN=NB*B;
+const cv=document.getElementById('c');let g=cv.getContext('2d');
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const lerp=(a,b,k)=>a+(b-a)*k;
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const ease=x=>(x=clamp(x),x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2);
+const easeOut=x=>1-Math.pow(1-clamp(x),3);
+const smooth=x=>(x=clamp(x),x*x*(3-2*x));
+function spring(t,w=14,z=.62){if(t<=0)return 0;const wd=w*Math.sqrt(1-z*z);return 1-Math.exp(-z*w*t)*(Math.cos(wd*t)+(z*w/wd)*Math.sin(wd*t));}
+const rnd=n=>{n=Math.sin(n*127.1+311.7)*43758.5453;return n-Math.floor(n);};
+const O1='#E8650F',O2='#C9480A',O3='#A8350A',ORANGE='#ff8a3d';
+function rr(x,y,w,h,r,c=g){c.beginPath();c.roundRect(x,y,w,h,r);}
+function texte(t,x,y,size,col,poids=700,font='Archivo',align='center',c=g){c.font=`${poids} ${size}px ${font}`;c.fillStyle=col;c.textAlign=align;c.textBaseline='middle';c.fillText(t,x,y);}
+function lueur(col,flou,c=g){c.shadowColor=col;c.shadowBlur=flou;}
+function toile(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return [c,c.getContext('2d')];}
+let GRAINE=19;const R=()=>{GRAINE=(GRAINE*16807)%2147483647;return GRAINE/2147483647;};
+
+// ——— le contour de la bulle Diktéo (unités du logo 24×24) → la route de la journée ———
+const K=52,LOX=540-12.75*K,LOY=980-12.75*K;const U=(u,v)=>[LOX+u*K,LOY+v*K];
+const ROUTE=(()=>{const P=[];const ligne=(a,b,n)=>{for(let i=0;i<n;i++)P.push([lerp(a[0],b[0],i/n),lerp(a[1],b[1],i/n)]);};
+  const arc=(cx,cy,r,a0,a1,n)=>{for(let i=0;i<n;i++){const a=lerp(a0,a1,i/n);P.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r]);}};
+  ligne([6.5,2.5],[12,2.5],30);arc(12,11.5,9,-Math.PI/2,Math.PI/2,120);ligne([12,20.5],[9.2,20.5],16);ligne([9.2,20.5],[4.5,23],24);ligne([4.5,23],[4.5,4.5],90);arc(6.5,4.5,2,Math.PI,Math.PI*1.5,16);P.push([6.5,2.5]);
+  const Q=P.map(p=>U(p[0],p[1]));const L=[0];for(let i=1;i<Q.length;i++)L.push(L[i-1]+Math.hypot(Q[i][0]-Q[i-1][0],Q[i][1]-Q[i-1][1]));return {Q,L,T:L[L.length-1]};})();
+function surRoute(f){const d=clamp(f)*ROUTE.T;let i=1;while(i<ROUTE.L.length-1&&ROUTE.L[i]<d)i++;const k=(d-ROUTE.L[i-1])/Math.max(1e-6,ROUTE.L[i]-ROUTE.L[i-1]);const a=ROUTE.Q[i-1],b=ROUTE.Q[i];return [lerp(a[0],b[0],k),lerp(a[1],b[1],k),Math.atan2(b[1]-a[1],b[0]-a[0])];}
+
+// ——— les 5 interventions ———
+const ARRETS=[
+  {f:.10,b:3, dit:'« Serrure changée,', dit2:'95 euros. »', prix:'95 €'},
+  {f:.30,b:6, dit:'« Fuite sous l’évier,', dit2:'80 euros. »', prix:'80 €'},
+  {f:.50,b:9,dit:'« Trois étagères posées,', dit2:'120 euros. »', prix:'120 €'},
+  {f:.70,b:12,dit:'« Une prise remplacée,', dit2:'45 euros. »', prix:'45 €'},
+  {f:.88,b:15,dit:'« Meuble monté,', dit2:'70 euros. »', prix:'70 €'},
+];
+const B_DEPART=2.2,B_RECUL=17.6,B_PHRASE=20.2,B_FIN=22.4,ARRET=1.7;
+// position de l'utilitaire le long de la route : il roule entre les arrêts, s'arrête 2,4 temps à chacun
+function avance(b){const pts=[[B_DEPART,0]];ARRETS.forEach(a=>{pts.push([a.b,a.f]);pts.push([a.b+ARRET,a.f]);});pts.push([B_RECUL-.2,1]);
+  if(b<=pts[0][0])return 0;for(let i=1;i<pts.length;i++)if(b<pts[i][0]){const [b0,f0]=pts[i-1],[b1,f1]=pts[i];return lerp(f0,f1,f0===f1?0:ease((b-b0)/(b1-b0)));}return 1;}
+
+// ——— le plan de la ville, dessiné une fois ———
+const MX0=-700,MY0=-500,MW=2480,MH=2960;
+let PLAN=null;
+function preparer(){const [c,f]=toile(MW,MH);f.translate(-MX0,-MY0);
+  f.fillStyle='#0c0f14';f.fillRect(MX0,MY0,MW,MH);
+  // le fleuve
+  f.save();f.strokeStyle='#101a26';f.lineWidth=150;f.lineCap='round';f.beginPath();for(let y=MY0;y<=MY0+MH;y+=40){const x=-380+Math.sin(y/420)*160;y===MY0?f.moveTo(x,y):f.lineTo(x,y);}f.stroke();f.restore();
+  // les îlots : blocs d'immeubles avec quelques fenêtres allumées, parcs
+  const pas=118;for(let gx=MX0;gx<MX0+MW;gx+=pas)for(let gy=MY0;gy<MY0+MH;gy+=pas){const jx=(R()-.5)*16,jy=(R()-.5)*16;const x=gx+12+jx,y=gy+12+jy,w=pas-24,h=pas-24;
+    if(Math.abs(x+w/2-(-380+Math.sin((y+h/2)/420)*160))<120)continue;
+    const parc=R()<.08;f.fillStyle=parc?'#101a14':`rgb(${22+R()*8|0},${24+R()*8|0},${30+R()*8|0})`;rr(x,y,w,h,6,f);f.fill();
+    if(!parc){for(let k=0;k<6;k++){f.fillStyle=`rgba(255,${190+R()*40|0},120,${.15+R()*.35})`;f.fillRect(x+8+R()*(w-16),y+8+R()*(h-16),3,3);}}
+    else{for(let k=0;k<5;k++){f.fillStyle='rgba(40,70,45,.7)';f.beginPath();f.arc(x+10+R()*(w-20),y+10+R()*(h-20),6+R()*8,0,7);f.fill();}}}
+  // la route de la tournée est aussi une vraie rue (on ne la devine pas encore)
+  f.strokeStyle='#1a1f27';f.lineWidth=26;f.lineJoin='round';f.lineCap='round';f.beginPath();ROUTE.Q.forEach((p,i)=>i?f.lineTo(p[0],p[1]):f.moveTo(p[0],p[1]));f.stroke();
+  // lampadaires
+  for(let i=0;i<500;i++){const x=MX0+R()*MW,y=MY0+R()*MH;const gr=f.createRadialGradient(x,y,0,x,y,16);gr.addColorStop(0,'rgba(255,200,130,.35)');gr.addColorStop(1,'rgba(255,200,130,0)');f.fillStyle=gr;f.fillRect(x-16,y-16,32,32);}
+  PLAN=c;}
+
+// ——— l'utilitaire vu de dessus : carrosserie claire, bande orange, phares ———
+function utilitaire(x,y,a,phares){g.save();g.translate(x,y);g.rotate(a);
+  if(phares>0){g.save();g.globalCompositeOperation='lighter';const gp=g.createRadialGradient(70,0,10,180,0,170);gp.addColorStop(0,`rgba(255,240,200,${.35*phares})`);gp.addColorStop(1,'rgba(255,240,200,0)');g.fillStyle=gp;g.beginPath();g.moveTo(40,-20);g.lineTo(280,-110);g.lineTo(280,110);g.lineTo(40,20);g.closePath();g.fill();g.restore();}
+  g.save();g.fillStyle='rgba(0,0,0,.6)';g.filter='blur(10px)';rr(-58,-26,124,60,12);g.fill();g.restore();
+  const gc=g.createLinearGradient(0,-28,0,28);gc.addColorStop(0,'#cfd3d8');gc.addColorStop(.5,'#f4f5f6');gc.addColorStop(1,'#b8bdc3');g.fillStyle=gc;rr(-60,-28,120,56,10);g.fill();
+  g.fillStyle='#1b2028';rr(26,-22,22,44,6);g.fill();g.fillStyle='rgba(120,160,200,.35)';rr(30,-18,14,36,4);g.fill();
+  g.fillStyle=O2;g.fillRect(-56,-4,78,8);
+  g.fillStyle='#fff7e0';g.fillRect(58,-24,4,10);g.fillRect(58,14,4,10);g.fillStyle='#ff4a2a';g.fillRect(-62,-24,3,8);g.fillRect(-62,16,3,8);
+  g.restore();}
+// une épingle d'intervention, avec son prix
+function epingle(x,y,b0,b,prix){if(b<b0)return;const k=spring((b-b0)*B,13,.5);g.save();g.translate(x,y);
+  const d=(b-b0)*B;if(d<.8){g.strokeStyle=`rgba(255,160,80,${.8*(1-d/.8)})`;g.lineWidth=4;g.beginPath();g.arc(0,0,20+d*120,0,7);g.stroke();}
+  g.scale(clamp(k,0,1.2),clamp(k,0,1.2));lueur('rgba(232,101,15,.7)',30);const gr=g.createLinearGradient(-20,-70,20,-20);gr.addColorStop(0,O1);gr.addColorStop(1,O3);g.fillStyle=gr;
+  g.beginPath();g.arc(0,-52,26,Math.PI*.82,Math.PI*.18);g.lineTo(0,0);g.closePath();g.fill();g.shadowColor='transparent';
+  g.strokeStyle='#fff';g.lineWidth=5;g.lineCap='round';g.lineJoin='round';g.beginPath();g.moveTo(-10,-52);g.lineTo(-3,-45);g.lineTo(11,-60);g.stroke();
+  g.restore();
+  // le prix, petit, à côté
+  if(b>b0+.5){g.save();g.globalAlpha=easeOut(seg(b,b0+.5,b0+1));g.font='800 40px JBMono';const w=g.measureText(prix).width;g.fillStyle='rgba(12,14,18,.82)';rr(x+28,y-74,w+28,52,26);g.fill();texte(prix,x+42+w/2,y-47,40,ORANGE,800,'JBMono');g.restore();}}
+
+function seek(T_){
+  if(!PLAN)preparer();
+  const t=((T_%DN)+DN)%DN,b=t/B;
+  const f=avance(b),[vx,vy,va]=surRoute(f);
+  // caméra : suit l'utilitaire de près, puis recule pour montrer toute la tournée
+  const rec=ease(seg(b,B_RECUL,B_RECUL+1.9));
+  const cx=lerp(lerp(540,vx,smooth(seg(b,0,B_DEPART))),540,rec),cy=lerp(lerp(980,vy,smooth(seg(b,0,B_DEPART))),980,rec);
+  const z=lerp(lerp(1.0,1.7,smooth(seg(b,1,B_DEPART+1))),.95,rec);
+  g.setTransform(1,0,0,1,0,0);g.fillStyle='#0c0f14';g.fillRect(0,0,W,H);
+  g.translate(540,960);g.scale(z,z);g.translate(-cx,-cy);
+  g.drawImage(PLAN,MX0,MY0);
+  // la trace orange de la tournée, jusqu'à l'utilitaire
+  if(f>0){g.save();g.lineJoin='round';g.lineCap='round';const n=ROUTE.L.findIndex(l=>l>=f*ROUTE.T);
+    for(const [w,col,bl] of [[30,'rgba(232,101,15,.25)',30],[12,'rgba(255,138,61,.95)',14],[4,'rgba(255,230,200,.9)',0]]){g.strokeStyle=col;g.lineWidth=w;lueur('rgba(232,101,15,.6)',bl);g.beginPath();
+      for(let i=0;i<=(n<0?ROUTE.Q.length-1:n);i++){const p=ROUTE.Q[i];i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]);}g.lineTo(vx,vy);g.stroke();}g.restore();}
+  // à la fin, la bulle se remplit : la tournée était le logo
+  const rem=seg(b,B_RECUL+1.6,B_RECUL+2.5);
+  if(rem>0){g.save();g.globalAlpha=.85*rem;const gr=g.createLinearGradient(...U(4,2),...U(21,23));gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);g.fillStyle=gr;
+    g.beginPath();ROUTE.Q.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();g.fill();
+    // les barres de la voix dans la bulle
+    g.fillStyle='#fff';g.globalAlpha=rem;for(const [x,y0,y1] of [[9.2,9.5,12.5],[12.3,7,15],[15.4,9,13]]){const [px,py]=U(x,y0),[,py1]=U(x,y1);rr(px-K*.5+K*.5-K*.5,py,K,py1-py,K/2);g.fill();}g.restore();}
+  // les épingles
+  ARRETS.forEach(a=>{const [px,py]=surRoute(a.f);epingle(px,py,a.b+1.35,b,a.prix);});
+  // l'utilitaire (il disparaît quand la bulle se remplit)
+  if(rem<1){g.save();g.globalAlpha=1-rem;const roule=ARRETS.every(a=>!(b>=a.b&&b<a.b+ARRET));utilitaire(vx,vy,va,b>B_DEPART-.5?(roule?1:.4):0);g.restore();}
+  // l'accroche, écrite sur la ville
+  g.setTransform(1,0,0,1,0,0);
+  const gv=g.createRadialGradient(540,960,300,540,960,1300);gv.addColorStop(0,'rgba(0,0,0,0)');gv.addColorStop(1,'rgba(0,0,0,.7)');g.fillStyle=gv;g.fillRect(0,0,W,H);
+  if(b<2.7){const fa=1-seg(b,2.0,2.6);g.save();g.globalAlpha=fa;const k=spring(b*B,13,.6);g.translate(540,820);g.scale(.9+.1*clamp(k),.9+.1*clamp(k));lueur('rgba(232,101,15,.6)',40);texte('MULTISERVICE ?',0,0,100,'#fff',900);g.shadowColor='transparent';
+    const k2=seg(b,1.0,1.3);g.globalAlpha=fa*k2;texte('5 chantiers, 5 devis…',0,150,62,'#f3dccb',700);texte('ce soir ?',0,230,62,ORANGE,800);g.restore();}
+  // la bulle de dictée, au-dessus de l'utilitaire à chaque arrêt
+  ARRETS.forEach(a=>{const b0=a.b,b1=a.b+1.6;if(b<b0-.05||b>b1+.3)return;const k=spring((b-b0)*B,15,.75),al=clamp(k*1.6)*(1-seg(b,b1,b1+.3));
+    g.save();g.globalAlpha=al;g.translate(0,(1-clamp(k))*30);g.fillStyle='rgba(12,14,18,.88)';rr(80,1180,920,210,46);g.fill();g.strokeStyle='rgba(255,138,61,.3)';g.lineWidth=2;rr(80,1180,920,210,46);g.stroke();
+    const gm=g.createLinearGradient(124,1240,204,1320);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(168,1285,44,0,7);g.fill();
+    const p=(b-b0)*B;if(p<1.2){g.strokeStyle=`rgba(255,138,61,${.5*(1-((p*2)%1))})`;g.lineWidth=3;g.beginPath();g.arc(168,1285,44+((p*2)%1)*26,0,7);g.stroke();}
+    g.fillStyle='#fff';rr(159,1259,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.lineCap='round';g.beginPath();g.arc(168,1279,17,.15*Math.PI,.85*Math.PI);g.stroke();g.beginPath();g.moveTo(168,1296);g.lineTo(168,1305);g.stroke();
+    g.font='800 26px Archivo';g.fillStyle=ORANGE;g.textAlign='left';g.textBaseline='middle';g.letterSpacing='4px';g.fillText('TU DICTES',240,1218);g.letterSpacing='0px';
+    const tout=a.dit.length+a.dit2.length,n=Math.floor(tout*seg(b,b0+.1,b0+1.15)),n1=Math.min(n,a.dit.length),n2=Math.max(0,n-a.dit.length);
+    texte(a.dit.slice(0,n1),238,1272,48,'#fff',700,'Archivo','left');texte(a.dit2.slice(0,n2),238,1336,48,ORANGE,700,'Archivo','left');
+    if(n<tout||((b*B*2.4)%1)<.6){g.font='700 48px Archivo';const w=g.measureText(n2>0?a.dit2.slice(0,n2):a.dit.slice(0,n1)).width;g.fillStyle='#fff';g.fillRect(242+w,n2>0?1312:1248,4,48);}
+    // « envoyé » qui s'allume à droite quand la phrase est finie
+    const ok=seg(b,b0+1.25,b0+1.45);if(ok>0){g.globalAlpha=al*ok;g.fillStyle='rgba(232,101,15,.18)';rr(800,1300,170,60,30);g.fill();texte('Envoyé ✓',885,1331,30,ORANGE,800);}
+    g.restore();});
+  // la phrase de la fin
+  if(b>=B_PHRASE&&b<B_FIN+.3){const k=spring((b-B_PHRASE)*B,14,.7),al=clamp(k*1.6)*(1-seg(b,B_FIN-.3,B_FIN+.3));g.save();g.globalAlpha=al;g.translate(0,(1-clamp(k))*30);
+    g.fillStyle='rgba(12,14,18,.82)';rr(110,1560,860,190,46);g.fill();texte('5 devis envoyés',540,1625,64,'#fff',800);texte('depuis le camion.',540,1700,58,ORANGE,800);g.restore();}
+  if(b>=B_FIN-.4){g.fillStyle=`rgba(10,8,6,${.82*ease(seg(b,B_FIN-.4,B_FIN+.5))})`;g.fillRect(0,0,W,H);}
+  if(b>=B_FIN)carton(b);
+}
+function carton(b){const k=spring((b-B_FIN)*B,12,.8);g.save();g.globalAlpha=clamp(k*1.5);g.translate(0,(1-k)*36);
+  const tx=540-260,ty=700;const gr=g.createLinearGradient(tx,ty,tx+140,ty+140);gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);
+  lueur('rgba(232,101,15,.6)',50);g.fillStyle=gr;rr(tx,ty,140,140,40);g.fill();g.shadowColor='transparent';
+  g.save();g.translate(tx+18,ty+16);g.scale(4.4,4.4);g.fillStyle='#fff';g.fill(new Path2D('M6.5 2.5H12a9 9 0 0 1 0 18H9.2L4.5 23V4.5a2 2 0 0 1 2-2ZM9.2 9.5a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1Zm3.1-2.5a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1Zm3.1 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Z'),'evenodd');g.restore();
+  texte('Diktéo',tx+170,ty+72,138,'#fff',900,'Archivo','left');
+  const sw=seg(b,B_FIN+.5,B_FIN+2.2);if(sw>0&&sw<1){g.save();g.globalCompositeOperation='lighter';const x=lerp(330,900,sw);const gl=g.createLinearGradient(x-80,0,x+80,0);gl.addColorStop(0,'rgba(255,255,255,0)');gl.addColorStop(.5,'rgba(255,240,220,.45)');gl.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gl;g.fillRect(x-80,ty-10,160,160);g.restore();}
+  texte('Tu dictes ton devis, Diktéo l’écrit.',540,940,48,'#f3dccb',600,'Archivo');
+  texte('3 devis offerts par mois · sans carte',540,1060,44,'#fff',700,'Archivo');
+  const gb=g.createLinearGradient(290,1150,790,1250);gb.addColorStop(0,O1);gb.addColorStop(.55,O2);gb.addColorStop(1,O3);g.fillStyle=gb;rr(270,1150,540,104,34);g.fill();
+  texte('dikteo.vercel.app',540,1203,46,'#fff',800,'Archivo');g.restore();}
+window.seek=seek;
+const render=location.search.includes('render');
+if(render){document.getElementById('ui').style.display='none';}
+else{const fit=()=>{const k=Math.min(innerWidth/1080,(innerHeight-40)/1920);cv.style.transform=`scale(${k})`;};addEventListener('resize',fit);fit();
+  let t0=performance.now(),run=false,off=0;document.getElementById('lecture').onclick=()=>{run=!run;t0=performance.now()-off*1000;};
+  document.getElementById('curseurUI').oninput=e=>{off=e.target.value/1000*DN;t0=performance.now()-off*1000;};
+  (function loop(){if(run)off=((performance.now()-t0)/1000)%DN;document.getElementById('temps').textContent=off.toFixed(2);document.getElementById('curseurUI').value=off/DN*1000;seek(off);requestAnimationFrame(loop);})();}
+document.fonts.ready.then(async()=>{await Promise.all([...document.fonts].map(f=>f.load().catch(()=>{})));preparer();seek(0);window.VIDEO={w:W,h:H,duration:DN};});
+</script>
+</body>
+</html>
