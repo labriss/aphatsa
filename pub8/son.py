@@ -60,10 +60,13 @@ SOBRE = False
 # le vrai écran se remplit, l'envoi, le carton.
 sfx("kit/pop.ogg", 0, -10, "« Artisan ? »")
 for i in range(6):
-    sfx("impact/kenney-impact-impactsoft-heavy-00%d.ogg" % (i % 2), 2 + i * 2 + .72, -9 + i * .6, "une galère tombe sur la pile")
+    # un coup lourd et grave sous chaque bloc, de plus en plus fort à mesure que la pile monte
+    sfx("impact/kenney-impact-impactpunch-heavy-00%d.ogg" % (i % 2), 2 + i * 2 + .72, -1 + i * .4, "une galère tombe sur la pile")
+    sfx("impact/kenney-sci-lowfrequency-explosion-00%d.ogg" % (i % 2), 2 + i * 2 + .72, -9 + i * .8, "le grave du choc")
 sfx("kit/tick.ogg", 13, -10, "22 h 07 s'allume")
 sfx("riser/fs-464250-echo-chromatic-riser-wav.ogg", 16 + .72, -15, "la pile monte en tension", finit=True)
-sfx("impact/fs-222517-dramatic-hit.ogg", 16 + .72, -4, "« LES DEVIS. » s'écrase")
+sfx("impact/fs-222517-dramatic-hit.ogg", 16 + .72, -1, "« LES DEVIS. » s'écrase")
+sfx("impact/fs-177242-cinematic-impact.ogg", 16 + .72, -5, "le grand choc de « LES DEVIS. »")
 sfx("whoosh/fs-169867-swoosh.ogg", 19.5, -7, "l'onde de voix balaie la pile", deux)
 sfx("transition/fs-683096-woosh.ogg", 20.6, -12, "le téléphone monte", deux)
 sfx("kit/click.ogg", 22, -10, "le micro")
@@ -72,7 +75,11 @@ for j in range(4):
 sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 33.6, -9, "envoyé")
 sfx("ding/kenney-interface-confirmation-001.ogg", 38.8, -13, "le carton Diktéo")
 
-mix = musique * 10 ** (-7 / 20) + bruits
+# la musique un peu plus basse pendant la pile, pour laisser la place aux chocs
+tb = np.arange(N) / SR / B
+env = np.where(tb < 19.5, 10 ** (-6 / 20), 1.0).astype(np.float32)
+env = np.convolve(env, np.ones(int(.2 * SR)) / int(.2 * SR), mode="same").astype(np.float32)
+mix = musique * env[:, None] * 10 ** (-7 / 20) + bruits
 mix /= max(1e-6, np.abs(mix).max()) / 0.9
 wav = os.path.join(ICI, "tmp", "son.wav")
 with wave.open(wav, "wb") as w:

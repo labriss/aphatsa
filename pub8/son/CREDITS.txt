@@ -6,9 +6,12 @@ Bruitages :
 - "POP SFX Neutral" by ethernel0 (https://freesound.org/people/ethernel0/sounds/776016/), CC0
 - ding/fs-571513-soft-notifications-bell-ding-d.ogg
 - ding/kenney-interface-confirmation-001.ogg
+- impact/fs-177242-cinematic-impact.ogg
 - impact/fs-222517-dramatic-hit.ogg
-- impact/kenney-impact-impactsoft-heavy-000.ogg
-- impact/kenney-impact-impactsoft-heavy-001.ogg
+- impact/kenney-impact-impactpunch-heavy-000.ogg
+- impact/kenney-impact-impactpunch-heavy-001.ogg
+- impact/kenney-sci-lowfrequency-explosion-000.ogg
+- impact/kenney-sci-lowfrequency-explosion-001.ogg
 - pop/kenney-interface-drop-001.ogg
 - pop/kenney-interface-drop-002.ogg
 - pop/kenney-interface-drop-003.ogg

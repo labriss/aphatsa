@@ -5,14 +5,21 @@ Usage : TikTok, Reels, Shorts, pubs en ligne. Musique : Mixkit #474, Mixkit Stoc
 | t (s) | moment | son | licence |
 |---|---|---|---|
 | 0.000 | « Artisan ? » | kit/pop.ogg | CC0 1.0 |
-| 1.349 | une galère tombe sur la pile | impact/kenney-impact-impactsoft-heavy-000.ogg | CC0 1.0 |
+| 1.349 | le grave du choc | impact/kenney-sci-lowfrequency-explosion-000.ogg | CC0 1.0 |
+| 1.349 | une galère tombe sur la pile | impact/kenney-impact-impactpunch-heavy-000.ogg | CC0 1.0 |
 | 2.326 | la pile monte en tension | riser/fs-464250-echo-chromatic-riser-wav.ogg | CC0 1.0 |
-| 2.340 | une galère tombe sur la pile | impact/kenney-impact-impactsoft-heavy-001.ogg | CC0 1.0 |
-| 3.332 | une galère tombe sur la pile | impact/kenney-impact-impactsoft-heavy-000.ogg | CC0 1.0 |
-| 4.324 | une galère tombe sur la pile | impact/kenney-impact-impactsoft-heavy-001.ogg | CC0 1.0 |
-| 5.316 | une galère tombe sur la pile | impact/kenney-impact-impactsoft-heavy-000.ogg | CC0 1.0 |
-| 6.307 | une galère tombe sur la pile | impact/kenney-impact-impactsoft-heavy-001.ogg | CC0 1.0 |
+| 2.340 | le grave du choc | impact/kenney-sci-lowfrequency-explosion-001.ogg | CC0 1.0 |
+| 2.340 | une galère tombe sur la pile | impact/kenney-impact-impactpunch-heavy-001.ogg | CC0 1.0 |
+| 3.332 | le grave du choc | impact/kenney-sci-lowfrequency-explosion-000.ogg | CC0 1.0 |
+| 3.332 | une galère tombe sur la pile | impact/kenney-impact-impactpunch-heavy-000.ogg | CC0 1.0 |
+| 4.324 | le grave du choc | impact/kenney-sci-lowfrequency-explosion-001.ogg | CC0 1.0 |
+| 4.324 | une galère tombe sur la pile | impact/kenney-impact-impactpunch-heavy-001.ogg | CC0 1.0 |
+| 5.316 | le grave du choc | impact/kenney-sci-lowfrequency-explosion-000.ogg | CC0 1.0 |
+| 5.316 | une galère tombe sur la pile | impact/kenney-impact-impactpunch-heavy-000.ogg | CC0 1.0 |
+| 6.307 | le grave du choc | impact/kenney-sci-lowfrequency-explosion-001.ogg | CC0 1.0 |
+| 6.307 | une galère tombe sur la pile | impact/kenney-impact-impactpunch-heavy-001.ogg | CC0 1.0 |
 | 6.446 | 22 h 07 s'allume | kit/tick.ogg | CC0 1.0 |
+| 8.291 | le grand choc de « LES DEVIS. » | impact/fs-177242-cinematic-impact.ogg | CC0 1.0 |
 | 8.291 | « LES DEVIS. » s'écrase | impact/fs-222517-dramatic-hit.ogg | CC0 1.0 |
 | 9.636 | l'onde de voix balaie la pile | whoosh/fs-169867-swoosh.ogg | CC0 1.0 |
 | 10.182 | le téléphone monte | transition/fs-683096-woosh.ogg | CC0 1.0 |
