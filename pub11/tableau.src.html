@@ -17,10 +17,10 @@ html,body{margin:0;background:#050505;overflow:hidden}
 <script>
 /* Pub 11 « le chantier » : pour les électriciens. La maison de M. Benali en coupe ; chaque phrase dictée fait apparaître
    le vrai travail à sa place : le tableau sur le mur, les 12 prises une à une, le câble de terre jusqu'au piquet, l'horloge.
-   144 BPM (1 temps = 0,417 s), 28 temps (11,7 s).
+   144 BPM (1 temps = 0,417 s), 36 temps (15 s).
    b0 néon « ÉLECTRICIEN ? » + « Encore un devis à taper ce soir ? »   b4 la maison apparaît   b5…11 les quatre lignes
    b13.5 le général : les pièces s'allument, le total s'affiche   b17 le devis part   b21 carton */
-const W=1080,H=1920,B=60/144,NB=28,DN=NB*B;
+const W=1080,H=1920,B=60/144,NB=36,DN=NB*B;
 const cv=document.getElementById('c'),g=cv.getContext('2d');
 const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
 const lerp=(a,b,k)=>a+(b-a)*k;
@@ -123,11 +123,11 @@ const GEN={x:TB.x+60,w:170};
 const MODS=[0,1,2,3].map(i=>({x:TB.x+256+i*118,w:108}));
 const ITEMS=[
   {b:5, dit:'« Tableau électrique 3 rangées,', dit2:'480 euros. »'},
-  {b:7, dit:'« Douze prises,', dit2:'32 euros pièce. »'},
-  {b:9, dit:'« Mise à la terre,', dit2:'150 euros. »'},
-  {b:11,dit:'« Main-d’œuvre, 6 heures', dit2:'à 55 euros. »'},
+  {b:8.5, dit:'« Douze prises,', dit2:'32 euros pièce. »'},
+  {b:12, dit:'« Mise à la terre,', dit2:'150 euros. »'},
+  {b:15.5,dit:'« Main-d’œuvre, 6 heures', dit2:'à 55 euros. »'},
 ];
-const T_TAB=5.3, T_PRI=7.3, T_TER=9.3, T_MO=11.3, B_GEN=13.5, B_ENV=17, B_TXT=17.8, B_FIN=21;
+const T_TAB=5.3, T_PRI=8.8, T_TER=12.3, T_MO=15.8, B_GEN=18.6, B_ENV=23, B_TXT=23.8, B_FIN=28;
 const TOTAL=1478.40;
 // la maison en coupe
 const MAISON={x:70,y:560,w:940,h:1040};               // murs extérieurs ; le sol est à y=1600
@@ -184,7 +184,7 @@ function maisonCoupe(b,t,lum){
 
 // la dictée en direct : « TU DICTES », les mots s'écrivent au rythme de la voix, curseur, micro qui pulse
 function dictee(it,b,mx,my,tx,y0,size){
-  const L1=it.dit.length,L2=it.dit2.length,u=seg(b,it.b+.05,it.b+1.3),n=Math.floor(u*(L1+L2));
+  const L1=it.dit.length,L2=it.dit2.length,u=seg(b,it.b+.05,it.b+2.1),n=Math.floor(u*(L1+L2));
   const s1=it.dit.slice(0,Math.min(n,L1)),s2=it.dit2.slice(0,Math.max(0,n-L1));
   texte('TU DICTES',tx,y0-2,30,ORANGE,900,'Archivo','left');
   texte(s1,tx,y0+54,size,'#fff',700,'Archivo','left');if(s2)texte(s2,tx,y0+54+size*1.3,size,ORANGE,700,'Archivo','left');
@@ -193,7 +193,9 @@ function dictee(it,b,mx,my,tx,y0,size){
 }
 function seek(T){
   const t=((T%DN)+DN)%DN,b=t/B;
-  g.setTransform(1,0,0,1,0,0);
+  g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.shadowBlur=0;g.setLineDash([]);
+  // (tout remis à zéro : sinon l'image précédente reste en fantôme)
+  
   g.drawImage(CIEL,0,0);
   const kz=1+.04*seg(b,4,B_ENV);g.save();g.translate(540,1000);g.scale(kz,kz);g.translate(-540,-1000);
   const voile=1-ease(seg(b,3.8,4.8));     // l'accroche dans le noir, puis la maison apparaît
@@ -207,7 +209,7 @@ function seek(T){
     if(d>.2&&d<.9)etincelles(POS_TAB.x+90,POS_TAB.y+120,7,(d-.2)/.7,1);
     etiquette('Tableau 3 rangées','480 €',360,1110,T_TAB+.4,b);}
   // 2 · les douze prises, une à une
-  let n=0;PRISES.forEach(([x,y],i)=>{const b0=T_PRI+i*.11;if(b<b0)return;n++;const k=clamp(spring((b-b0)*B,18,.5),0,1.2);
+  let n=0;PRISES.forEach(([x,y],i)=>{const b0=T_PRI+i*.15;if(b<b0)return;n++;const k=clamp(spring((b-b0)*B,18,.5),0,1.2);
     prise(x,y,k,Math.max(...lum)>0?lum[i<6?(i<3?0:1):(i<8?2:3)]:0);const d=(b-b0)*B;if(d<.4)etincelles(x,y,i*11,d/.4,.35,[255,200,140]);});
   if(b>=T_PRI)etiquette(n<12?`${n} prise${n>1?'s':''}`:'12 prises','384 €',770,700,T_PRI,b);
   // 3 · la mise à la terre : le câble vert et jaune descend du tableau jusqu'au piquet dans le sol

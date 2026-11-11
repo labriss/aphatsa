@@ -13,7 +13,7 @@ SKILL = os.path.expanduser("~/.claude/skills/sound-effects/sfx")
 VIDEO, SORTIE = sys.argv[1], sys.argv[2]
 SR = 48000
 B = 60 / 129.2
-D = 28 * B
+D = 31 * B
 # Morceau choisi par variables d'environnement (défaut : « Smile », Mixkit #1076, choisie par l'utilisateur le 10 nov. 2026) : numéro, tempo mesuré, phase, temps sautés.
 PISTE = os.environ.get("PISTE", "617")
 BPM_P = float(os.environ.get("BPM_P", "129.2"))
@@ -60,19 +60,19 @@ SOBRE = False
 # le vrai écran se remplit, l'envoi, le carton.
 sfx("transition/fs-816262-broomstick-whoosh-3-quiet-okm1.ogg", 0.1, -12, "le doigt essuie le givre")
 sfx("whoosh/fs-169867-swoosh.ogg", 3.7, -12, "recul sur le salon gelé", 2 / 60)
-for bt in (5, 7, 9, 11):
+for bt in (5, 8, 11, 14):
     sfx("kit/click.ogg", bt, -11, "une phrase dictée")
 sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 5.5, -6, "la chaudière se pose")
-sfx("whoosh/fs-683101-quick-woosh.ogg", 7.3, -13, "le cuivre court jusqu'aux radiateurs", 2 / 60)
-sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 7.6, -9, "un radiateur")
-sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 7.95, -9, "un radiateur")
-sfx("pop/fs-447910-plop.ogg", 9.4, -10, "le thermostat")
-sfx("ding/kenney-interface-confirmation-001.ogg", 11.4, -10, "le calendrier")
-sfx("riser/fs-685256-riser-sound-effect-short-wav.ogg", 13.3, -12, "le chauffage démarre")
-sfx("impact/fs-177242-cinematic-impact.ogg", 13.6, -6, "la flamme, le total")
-sfx("whoosh/fs-169867-swoosh.ogg", 17, -7, "le devis part par la fenêtre", 2 / 60)
-sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 17.8, -8, "envoyé")
-sfx("ding/kenney-interface-confirmation-002.ogg", 21, -11, "le carton Diktéo")
+sfx("whoosh/fs-683101-quick-woosh.ogg", 8.3, -13, "le cuivre court jusqu'aux radiateurs", 2 / 60)
+sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 8.6, -9, "un radiateur")
+sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 8.95, -9, "un radiateur")
+sfx("pop/fs-447910-plop.ogg", 11.4, -10, "le thermostat")
+sfx("ding/kenney-interface-confirmation-001.ogg", 14.4, -10, "le calendrier")
+sfx("riser/fs-685256-riser-sound-effect-short-wav.ogg", 16.4, -12, "le chauffage démarre")
+sfx("impact/fs-177242-cinematic-impact.ogg", 16.7, -6, "la flamme, le total")
+sfx("whoosh/fs-169867-swoosh.ogg", 20.4, -7, "le devis part par la fenêtre", 2 / 60)
+sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 21.2, -8, "envoyé")
+sfx("ding/kenney-interface-confirmation-002.ogg", 24.4, -11, "le carton Diktéo")
 
 # la musique un peu plus basse pendant la pile, pour laisser la place aux chocs
 tb = np.arange(N) / SR / B

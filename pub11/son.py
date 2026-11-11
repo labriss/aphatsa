@@ -13,7 +13,7 @@ SKILL = os.path.expanduser("~/.claude/skills/sound-effects/sfx")
 VIDEO, SORTIE = sys.argv[1], sys.argv[2]
 SR = 48000
 B = 60 / 144
-D = 28 * B
+D = 36 * B
 # Morceau choisi par variables d'environnement (défaut : « Smile », Mixkit #1076, choisie par l'utilisateur le 10 nov. 2026) : numéro, tempo mesuré, phase, temps sautés.
 PISTE = os.environ.get("PISTE", "801")
 BPM_P = float(os.environ.get("BPM_P", "143.55"))
@@ -61,18 +61,18 @@ SOBRE = False
 sfx("riser/fs-685256-riser-sound-effect-short-wav.ogg", 0, -16, "le néon grésille")
 sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 0.4, -8, "« ÉLECTRICIEN ? » s'allume")
 sfx("whoosh/fs-169867-swoosh.ogg", 3.9, -12, "la maison apparaît", 2 / 60)
-for bt in (5, 7, 9, 11):
+for bt in (5, 8.5, 12, 15.5):
     sfx("kit/click.ogg", bt, -11, "une phrase dictée")
 sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 5.5, -6, "le tableau se pose")
 for i in range(12):
-    sfx("pop/fs-447910-plop.ogg", 7.3 + i * .11, -17, "une prise")
-sfx("whoosh/fs-683101-quick-woosh.ogg", 9.3, -12, "le câble de terre descend", 2 / 60)
-sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 10.6, -8, "le piquet de terre")
-sfx("ding/kenney-interface-confirmation-001.ogg", 11.4, -10, "l'horloge")
-sfx("impact/fs-177242-cinematic-impact.ogg", 13.6, -5, "le général : la maison s'allume")
-sfx("whoosh/fs-169867-swoosh.ogg", 17, -7, "le devis part", 2 / 60)
-sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 17.8, -8, "envoyé")
-sfx("ding/kenney-interface-confirmation-002.ogg", 21, -11, "le carton Diktéo")
+    sfx("pop/fs-447910-plop.ogg", 8.8 + i * .15, -17, "une prise")
+sfx("whoosh/fs-683101-quick-woosh.ogg", 12.3, -12, "le câble de terre descend", 2 / 60)
+sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 13.6, -8, "le piquet de terre")
+sfx("ding/kenney-interface-confirmation-001.ogg", 15.9, -10, "l'horloge")
+sfx("impact/fs-177242-cinematic-impact.ogg", 18.7, -5, "le général : la maison s'allume")
+sfx("whoosh/fs-169867-swoosh.ogg", 23, -7, "le devis part", 2 / 60)
+sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 23.8, -8, "envoyé")
+sfx("ding/kenney-interface-confirmation-002.ogg", 28, -11, "le carton Diktéo")
 
 # la musique un peu plus basse pendant la pile, pour laisser la place aux chocs
 tb = np.arange(N) / SR / B

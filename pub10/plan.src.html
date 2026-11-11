@@ -16,13 +16,13 @@ html,body{margin:0;background:#050505;overflow:hidden}
 <div id="ui"><button id="lecture">Lecture</button><input id="curseurUI" type="range" min="0" max="1000" value="0"><span id="temps">0.00</span></div>
 <script>
 /* Pub 10 « le plan devient le devis » : un plan de plombier qui se dessine tout seul pendant qu'on dicte.
-   125 BPM (1 temps = 0,48 s), 38 temps (18,2 s).
+   125 BPM (1 temps = 0,48 s), 34 temps (16,3 s).
    b0   le cartouche : « PLOMBIER ? »             b2.5  la caméra recule, la salle de bain se trace
    b5…11 quatre phrases dictées, un élément par phrase, son prix s'allume au bout d'une cote
    b13  le total frappe dans le cartouche        b14.4 le plan bascule : toute la maison se lève, en maison de poupée
    b16  on voit la panne (ballon rouillé, fuite, bulle « ! »)   b18.4… la caméra plonge et chaque ligne du devis répare
    b24.2 « réparé »   b25.4 tout se replie en avion   b27.8 « Envoyé à Mme Fontaine »   b30.3 carton */
-const W=1080,H=1920,B=60/125,NB=38,DN=NB*B;
+const W=1080,H=1920,B=60/125,NB=34,DN=NB*B;
 const cv=document.getElementById('c'),g=cv.getContext('2d');
 const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
 const lerp=(a,b,k)=>a+(b-a)*k;
@@ -70,16 +70,15 @@ function etincelles(p,seed,t,force=1){if(!p)return;g.save();g.globalCompositeOpe
 const PIECE=[[140,430],[940,430],[940,1300],[140,1300]];
 const CART={x:140,y:1440,w:800,h:300};
 const ITEMS=[
-  {b:5, dit:'« Dépose de l’ancien ballon,', prix:'60 €', dit2:'60 euros. »', dessin:'depose', at:[300,600], lab:[600,520]},
-  {b:7, dit:'« Chauffe-eau 200 litres,', prix:'520 €', dit2:'520 euros. »', dessin:'ballon', at:[300,600], lab:[600,660]},
-  {b:9, dit:'« Groupe de sécurité,', prix:'48 €', dit2:'48 euros. »', dessin:'vanne', at:[300,800], lab:[560,800]},
-  {b:11,dit:'« Main-d’œuvre, 3 heures', prix:'165 €', dit2:'à 55 euros. »', dessin:'horloge', at:[380,1180], lab:[600,1180]},
+  {b:5, dit:'« Chauffe-eau 200 litres,', prix:'520 €', dit2:'520 euros. »', dessin:'ballon', at:[300,600], lab:[560,580]},
+  {b:7, dit:'« Groupe de sécurité,', prix:'48 €', dit2:'48 euros. »', dessin:'vanne', at:[300,800], lab:[560,800]},
+  {b:9, dit:'« Main-d’œuvre, 3 heures', prix:'165 €', dit2:'à 55 euros. »', dessin:'horloge', at:[380,1180], lab:[600,1180]},
 ];
-const B_TOT=13, B_3D=14.4, B_PLIE=25.4, B_ENV=27.8, B_FIN=30.3, B_OK=24.2;
-const M3=[18.4,19.9,21.4,22.9];   // dépose, chauffe-eau, groupe, main-d'œuvre : un toutes les 0,72 s
+const B_TOT=11, B_3D=12.4, B_PLIE=21.9, B_ENV=23.9, B_FIN=26.4, B_OK=20.7;
+const M3=[16.4,17.9,19.4];   // chauffe-eau, groupe, main-d'œuvre : un toutes les 0,72 s
 // caméra : très près du cartouche, recul sur la pièce, retour au cartouche pour le total, puis vue 3D qui tourne
 const camAt=b=>{
-  const K=[[0,{x:540,y:1590,z:1.25}],[2.2,{x:540,y:1590,z:1.25}],[4.2,{x:540,y:1030,z:.95}],[12.6,{x:540,y:1000,z:1}],[13.6,{x:720,y:1620,z:1.3}],[14.4,{x:720,y:1620,z:1.3}],[16,{x:190,y:600,z:.5}],[17.3,{x:190,y:600,z:.5}],[18.3,{x:500,y:930,z:1.06}],[B_PLIE,{x:450,y:950,z:.98}]];
+  const K=[[0,{x:540,y:1590,z:1.25}],[2.2,{x:540,y:1590,z:1.25}],[4.2,{x:540,y:1030,z:.95}],[10.6,{x:540,y:1000,z:1}],[11.6,{x:720,y:1620,z:1.3}],[12.4,{x:720,y:1620,z:1.3}],[14,{x:190,y:600,z:.5}],[15.3,{x:190,y:600,z:.5}],[16.3,{x:500,y:930,z:1.06}],[B_PLIE,{x:450,y:950,z:.98}]];
   if(b<=K[0][0])return K[0][1];for(let i=1;i<K.length;i++)if(b<K[i][0]){const [b0,a]=K[i-1],[b1,c]=K[i],k=ease((b-b0)/(b1-b0));return {x:lerp(a.x,c.x,k),y:lerp(a.y,c.y,k),z:lerp(a.z,c.z,k)};}
   return K[K.length-1][1];};
 
@@ -209,19 +208,30 @@ function cartouche(b,u){
     g.restore();if(b>4.6){g.save();g.globalAlpha=seg(b,4.6,5.1);texte('TOTAL TTC',x+w-276,y+120,22,BLEU,600,'Archivo','left');g.restore();}}
 }
 
+// la dictée en direct : « TU DICTES », les mots s'écrivent au rythme de la voix, curseur, micro qui pulse
+function dictee(it,b,mx,my,tx,y0,size){
+  const L1=it.dit.length,L2=it.dit2.length,u=seg(b,it.b+.05,it.b+1.3),n=Math.floor(u*(L1+L2));
+  const s1=it.dit.slice(0,Math.min(n,L1)),s2=it.dit2.slice(0,Math.max(0,n-L1));
+  texte('TU DICTES',tx,y0-2,30,ORANGE,900,'Archivo','left');
+  texte(s1,tx,y0+54,size,'#fff',700,'Archivo','left');if(s2)texte(s2,tx,y0+54+size*1.3,size,ORANGE,700,'Archivo','left');
+  if(u<1||Math.floor(b*3)%2===0){g.font=`700 ${size}px Archivo`;const yy=s2?y0+54+size*1.3:y0+54,ww=g.measureText(s2||s1).width;g.fillStyle=s2?ORANGE:'#fff';g.fillRect(tx+ww+6,yy-size*.45,4,size*.9);}
+  if(u<1){g.save();g.globalCompositeOperation='lighter';for(let k=0;k<2;k++){const ph=((b-it.b)*1.6+k*.5)%1;g.strokeStyle=`rgba(255,138,61,${.7*(1-ph)})`;g.lineWidth=3;g.beginPath();g.arc(mx,my,46+ph*36,0,7);g.stroke();}g.restore();}
+}
 function seek(T){
   const t=((T%DN)+DN)%DN,b=t/B;
-  g.setTransform(1,0,0,1,0,0);g.drawImage(FOND,0,0);
+  g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.shadowBlur=0;g.setLineDash([]);
+  // (tout remis à zéro : sinon l'image précédente reste en fantôme)
+  g.drawImage(FOND,0,0);
   const cam=camAt(b);
   // la vue : à plat jusqu'au total, puis le plan bascule et tourne lentement
   const k3=ease(seg(b,B_3D,B_3D+1.5));
   V={cx:cam.x,cy:cam.y,s:cam.z,th:-.3*ease(seg(b,B_3D,B_PLIE+.6)),ph:.9*k3,Y0:960+80*k3};
   // le pliage : tout se rabat, puis le plan se replie sur lui-même et devient un avion
-  const plie=seg(b,B_PLIE+.5,B_PLIE+1.9),part=b>=B_PLIE+1.9,hk=1-ease(seg(b,B_PLIE,B_PLIE+.6));
-  const replie=()=>{g.setTransform(1,0,0,1,0,0);g.translate(540,960);g.scale(1,1-ease(plie)*.98);g.rotate(-ease(plie)*.25);g.translate(-540,-960);};
+  const plie=seg(b,B_PLIE,B_PLIE+1.4),part=b>=B_PLIE+1.4,hk=1;
+  const replie=()=>{const k=1-.35*ease(plie);g.setTransform(k,0,0,k,540*(1-k),960*(1-k));};
   if(!part){
     replie();g.save();sol();
-    g.globalAlpha=1-seg(plie,.85,1);
+    g.globalAlpha=1-ease(plie);
     quadrillage(V.s);
     sols(ease(seg(b,B_3D+.4,B_3D+1.6)));
     // le cartouche se trace d'abord, avec l'accroche dedans
@@ -239,33 +249,25 @@ function seek(T){
     // le total dans le cartouche : il frappe, onde de lumière et éclats
     if(b>=B_TOT){const k=spring((b-B_TOT)*B,16,.5),d=(b-B_TOT)*B;
       g.save();g.translate(CART.x+CART.w-150,CART.y+205);g.scale(1.5-.5*clamp(k),1.5-.5*clamp(k));g.globalAlpha*=clamp(k*2);lueur('rgba(255,138,61,.9)',30+50*Math.exp(-d*4));
-      texte('872,30 €',0,0,50,ORANGE,800,'JBMono');g.restore();
+      texte('806,30 €',0,0,50,ORANGE,800,'JBMono');g.restore();
       if(d<.8){g.save();g.globalCompositeOperation='lighter';g.strokeStyle=`rgba(255,170,90,${.8*(1-d/.8)})`;g.lineWidth=6*(1-d/.8);g.beginPath();g.arc(CART.x+CART.w-150,CART.y+205,40+d*420,0,7);g.stroke();
         for(let i=0;i<26;i++){const a=i/26*Math.PI*2+rnd(i),v=180+rnd(i*5)*260;g.fillStyle=`rgba(255,${190+rnd(i)*60|0},120,${1-d/.8})`;g.beginPath();g.arc(CART.x+CART.w-150+Math.cos(a)*v*d,CART.y+205+Math.sin(a)*v*d,3,0,7);g.fill();}g.restore();}}
     g.restore();
     // ——— la 3D, façon maison de poupée : la maison se lève, on voit la panne, puis chaque ligne du devis la répare ———
     if(b>=B_3D+.6){
-      replie();g.globalAlpha=1-seg(plie,.85,1);
+      replie();g.globalAlpha=1-ease(plie);
       const objets=[];
       const hm=ease(seg(b,B_3D+.6,B_3D+1.8))*hk, km=ease(seg(b,B_3D+1.2,B_3D+2.2))*hk;
       for(const [x0,y0,x1,y1,f] of MURS)objets.push({z:prof((x0+x1)/2,(y0+y1)/2),f:()=>{
         const h=HM*f*hm;if(x1-x0>y1-y0)mur([x0,(y0+y1)/2],[x1,(y0+y1)/2],h);else mur([(x0+x1)/2,y0],[(x0+x1)/2,y1],h);}});
       for(const [x0,y0,x1,y1,h,cT,cA,cB,typ] of MEUBLES)objets.push({z:prof((x0+x1)/2,(y0+y1)/2),f:()=>{if(km<=0)return;boiteVerre(x0,y0,x1,y1,h*km);}});
       // la flaque : elle sèche quand le groupe de sécurité est posé
-      const pr=150*km*(1-ease(seg(b,M3[2]+.3,M3[2]+1.6)));
+      const pr=150*km*(1-ease(seg(b,M3[1]+.3,M3[1]+1.6)));
       if(pr>2)objets.push({z:-1e9,f:()=>{const [px,py]=P(340,730,0);g.save();g.fillStyle='rgba(90,160,240,.26)';lueur('rgba(90,170,255,.4)',16);g.beginPath();g.ellipse(px,py,V.s*pr,V.s*pr*.8*Math.cos(V.ph),0,0,7);g.fill();g.shadowBlur=0;
-        g.strokeStyle='rgba(200,235,255,.6)';g.lineWidth=2;for(let i=0;i<2;i++){const ph=(t*1.2+i*.5)%1;g.globalAlpha=(1-ph)*.8;g.beginPath();g.ellipse(px-V.s*20,py,V.s*pr*.6*ph,V.s*pr*.6*ph*.8*Math.cos(V.ph),0,0,7);g.stroke();}g.restore();}});
-      // l'ancien ballon, rouillé, qui fuit ; à la dépose il s'envole avec une flèche orange
-      const lv=ease(seg(b,M3[0]+.1,M3[0]+1.3)),fa=1-seg(b,M3[0]+.7,M3[0]+1.3);
-      if(fa>0&&km>0)objets.push({z:prof(300,600),f:()=>{const z0=lv*640,h=280*km;g.globalAlpha*=fa;
-        if(lv>0)lueur('rgba(255,138,61,1)',50*lv);
-        cylindre(300,600,66,z0,h,['#241a14','#8c6a52','#5e4433','#9c8270'],0);g.shadowBlur=0;
-        for(let i=0;i<10;i++){const a=(rnd(i*3)-.5)*2.4,zz=z0+h*(.12+rnd(i*7)*.76);const [px,py]=P(300+Math.sin(a)*60,600+Math.cos(a)*60,zz);g.fillStyle=`rgba(80,30,8,${.45+rnd(i)*.4})`;g.beginPath();g.ellipse(px,py,(8+rnd(i*5)*14)*V.s,(5+rnd(i*2)*8)*V.s,0,0,7);g.fill();}
-        if(lv===0)for(let i=0;i<3;i++){const ph=(t*1.5+i/3)%1;const [px,py]=P(318-i*18,664,lerp(40,0,ph));g.fillStyle=`rgba(150,210,255,${1-ph*.4})`;g.beginPath();g.ellipse(px,py,5*V.s+2,8*V.s+3,0,0,7);g.fill();}
-        if(lv>0){const [ax,ay]=P(300,600,z0+h+70);g.save();g.fillStyle=ORANGE;lueur('rgba(255,138,61,1)',20);g.beginPath();g.moveTo(ax,ay-56);g.lineTo(ax-38,ay);g.lineTo(ax-13,ay);g.lineTo(ax-13,ay+44);g.lineTo(ax+13,ay+44);g.lineTo(ax+13,ay);g.lineTo(ax+38,ay);g.closePath();g.fill();g.restore();}
-        alerte(P(300,600,z0+h+120),seg(b,B_3D+1.8,B_3D+2.3)*(1-seg(b,M3[0],M3[0]+.3)),t);}});
+        g.strokeStyle='rgba(200,235,255,.6)';g.lineWidth=2;for(let i=0;i<2;i++){const ph=(t*1.2+i*.5)%1;g.globalAlpha=(1-ph)*.8;g.beginPath();g.ellipse(px-V.s*20,py,V.s*pr*.6*ph,V.s*pr*.6*ph*.8*Math.cos(V.ph),0,0,7);g.stroke();}g.restore();
+        alerte(P(340,730,190),seg(b,B_3D+1.8,B_3D+2.3)*(1-seg(b,M3[0]+.5,M3[0]+.8)),t);}});
       // le chauffe-eau neuf tombe à sa place et rebondit
-      if(b>=M3[1]){const d=(b-M3[1])*B,fall=d<.32?1-(d/.32)**2:0,bou=d>=.32?Math.exp(-(d-.32)*7)*Math.abs(Math.sin((d-.32)*16))*.22:0;
+      if(b>=M3[0]){const d=(b-M3[0])*B,fall=d<.32?1-(d/.32)**2:0,bou=d>=.32?Math.exp(-(d-.32)*7)*Math.abs(Math.sin((d-.32)*16))*.22:0;
         objets.push({z:prof(300,600),f:()=>{const z0=(fall*700+bou*160)*hk,h=300*hk;if(d>=.32)onde(300,600,70,d-.32);
           cylindre(300,600,70,z0,h,['#1d3656','#f4f9ff','#a9bfd9','#ffffff']);
           for(const zz of [.18,.82]){const [cx,cy]=P(300,600,z0+h*zz);g.save();g.strokeStyle='rgba(40,70,110,.45)';g.lineWidth=3;g.beginPath();g.ellipse(cx,cy,V.s*70,V.s*70*Math.cos(V.ph),0,0,Math.PI);g.stroke();g.restore();}
@@ -273,20 +275,20 @@ function seek(T){
           for(const dx of [-28,28])cylindre(300+dx,600,9,z0+h,46*hk,['#5a260a','#ffc08a','#c8723a','#ffd3a8'],0);
           if(d>.32&&d<1.4){const k=(d-.32)/1.08;for(let i=0;i<7;i++){const a=i/7*Math.PI*2+.4,R=(90+k*120)*V.s;const [cx,cy]=P(300,600,z0+h*.6);etoile(cx+Math.cos(a)*R,cy+Math.sin(a)*R*.7,(14+rnd(i)*10)*(1-k),1-k);}}}});}
       // le groupe de sécurité : le tuyau de cuivre sort du ballon, la vanne, sa manette orange
-      const r1=b>=M3[2]?clamp(spring((b-M3[2])*B,12,.6),0,1.08):0;
-      if(r1>0)objets.push({z:prof(300,800),f:()=>{onde(300,800,26,(b-M3[2])*B);const u=seg(b,M3[2],M3[2]+.9);
+      const r1=b>=M3[1]?clamp(spring((b-M3[1])*B,12,.6),0,1.08):0;
+      if(r1>0)objets.push({z:prof(300,800),f:()=>{onde(300,800,26,(b-M3[1])*B);const u=seg(b,M3[1],M3[1]+.9);
         tuyau([[300,670,70*hk],[300,770,70*hk]],22,u);
         cylindre(300,800,30,40*hk,62*r1*hk,['#5c3d0a','#ffe08a','#c9962e','#fff0b8']);
         tuyau([[300,832,70*hk],[300,900,70*hk],[300,900,0]],22,seg(u,.4,1));
         const [ax,ay]=P(300,800,(40+62*r1)*hk),[bx2,by2]=P(300+70*r1,800,(40+62*r1+16)*hk);
         g.save();g.lineCap='round';g.strokeStyle='#7a2a08';g.lineWidth=16*V.s;g.beginPath();g.moveTo(ax,ay);g.lineTo(bx2,by2);g.stroke();g.strokeStyle='#ff6a2a';g.lineWidth=10*V.s;g.stroke();g.restore();}});
       // la main-d'œuvre : une horloge debout qui tourne trois fois
-      if(b>=M3[3]){const r3=clamp(spring((b-M3[3])*B,12,.55),0,1.08);
-        objets.push({z:prof(380,1180),f:()=>{onde(380,1180,30,(b-M3[3])*B);const zc=(130+Math.sin(b*1.4)*8)*hk*r3;const [cx,cy]=P(380,1180,zc),[fx,fy]=P(380,1180,0),R=58*V.s*r3;
+      if(b>=M3[2]){const r3=clamp(spring((b-M3[2])*B,12,.55),0,1.08);
+        objets.push({z:prof(380,1180),f:()=>{onde(380,1180,30,(b-M3[2])*B);const zc=(130+Math.sin(b*1.4)*8)*hk*r3;const [cx,cy]=P(380,1180,zc),[fx,fy]=P(380,1180,0),R=58*V.s*r3;
           g.save();g.strokeStyle='rgba(127,184,255,.6)';g.setLineDash([6,8]);g.lineWidth=2;g.beginPath();g.moveTo(cx,cy+R);g.lineTo(fx,fy);g.stroke();g.restore();
           g.save();g.fillStyle='rgba(4,14,28,.88)';g.beginPath();g.arc(cx,cy,R,0,7);g.fill();lueur('rgba(255,138,61,.8)',24);g.strokeStyle=ORANGE;g.lineWidth=6*V.s;g.stroke();g.shadowBlur=0;
           g.strokeStyle=TRAIT;g.lineWidth=3*V.s;for(let i=0;i<12;i++){const a=i/12*Math.PI*2;g.beginPath();g.moveTo(cx+Math.cos(a)*R*.74,cy+Math.sin(a)*R*.74);g.lineTo(cx+Math.cos(a)*R*.86,cy+Math.sin(a)*R*.86);g.stroke();}
-          const k=ease(seg(b,M3[3],M3[3]+1.3)),am=-Math.PI/2+k*Math.PI*6,ah=-Math.PI/2+k*Math.PI/2;g.lineCap='round';g.strokeStyle='#fff';
+          const k=ease(seg(b,M3[2],M3[2]+1.3)),am=-Math.PI/2+k*Math.PI*6,ah=-Math.PI/2+k*Math.PI/2;g.lineCap='round';g.strokeStyle='#fff';
           g.lineWidth=5*V.s;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Math.cos(am)*R*.66,cy+Math.sin(am)*R*.66);g.stroke();g.strokeStyle=ORANGE;g.lineWidth=7*V.s;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Math.cos(ah)*R*.44,cy+Math.sin(ah)*R*.44);g.stroke();g.restore();}});}
       objets.sort((a,c)=>a.z-c.z).forEach(o=>{g.save();o.f();g.restore();});
       toit(seg(b,B_3D+1.6,B_3D+2.4)*(1-seg(b,M3[0]-1.6,M3[0]-.6)),HM*hm);
@@ -299,40 +301,35 @@ function seek(T){
     }
     // les étiquettes de la réparation, une à la fois, avec le nom du travail
     if(b>=B_3D&&b<B_PLIE){replie();
-      etiquette3D('Dépose de l’ancien','60 €',P(300,600,330),M3[0]+.15,M3[1]-.2,b);
-      etiquette3D('Chauffe-eau 200 L','520 €',P(300,600,260),M3[1]+.5,M3[2]-.15,b);
-      etiquette3D('Groupe de sécurité','48 €',P(330,800,90),M3[2]+.35,M3[3]-.15,b);
-      etiquette3D('Main-d’œuvre 3 h','165 €',P(400,1180,140),M3[3]+.3,B_OK-.15,b);
+      etiquette3D('Chauffe-eau 200 L','520 €',P(300,600,260),M3[0]+.5,M3[1]-.15,b);
+      etiquette3D('Groupe de sécurité','48 €',P(330,800,90),M3[1]+.35,M3[2]-.15,b);
+      etiquette3D('Main-d’œuvre 3 h','165 €',P(400,1180,140),M3[2]+.3,B_OK-.15,b);
     }
     g.setTransform(1,0,0,1,0,0);
-    // l'éclair du pliage
-    if(plie>.75&&plie<1){g.save();g.globalCompositeOperation='lighter';const a=Math.sin(seg(plie,.75,1)*Math.PI);const gr=g.createRadialGradient(540,960,0,540,960,700);gr.addColorStop(0,`rgba(255,220,180,${.45*a})`);gr.addColorStop(1,'rgba(255,140,60,0)');g.fillStyle=gr;g.fillRect(0,0,W,H);g.restore();}
   } else {
     g.save();g.translate(540,960);g.scale(cam.z,cam.z);g.translate(-cam.x,-cam.y);quadrillage(cam.z);g.restore();
   }
-  // l'avion en papier part chez le client, avec une traînée lumineuse
-  if(b>=B_PLIE+1.7&&b<B_FIN+.5){
-    const f=easeOut(seg(b,B_PLIE+1.8,B_ENV+.6));const pos=u=>[540+u*620-Math.sin(u*Math.PI)*300,960-u*1250+Math.sin(u*Math.PI)*160];
+  // l'avion en papier naît au centre et part chez la cliente, avec une traînée fine
+  if(b>=B_PLIE+.6&&b<B_ENV+2.4){
+    const pos=u=>[540+u*620-Math.sin(u*Math.PI)*220,900-u*1150+Math.sin(u*Math.PI)*100];
+    const f=ease(seg(b,B_PLIE+.9,B_ENV+2.2)),nait=ease(seg(b,B_PLIE+.6,B_PLIE+1.1)),fin=1-seg(b,B_ENV+1.8,B_ENV+2.3);
     const [ax,ay]=pos(f),[bx,by]=pos(Math.min(1,f+.01));
-    g.save();g.globalCompositeOperation='lighter';for(let i=0;i<40;i++){const u=f-i*.012;if(u<0)break;const [px,py]=pos(u);g.fillStyle=`rgba(255,${160+i*2},90,${(1-i/40)*.7})`;g.beginPath();g.arc(px+Math.sin(i*1.7)*6,py,7*(1-i/40),0,7);g.fill();}g.restore();
-    g.save();g.globalAlpha=1-seg(b,B_ENV+.2,B_ENV+.7);g.translate(ax,ay);g.rotate(Math.atan2(by-ay,bx-ax)+Math.PI/4);g.scale(5.5*(1-.4*f),5.5*(1-.4*f));lueur('rgba(140,200,255,.9)',20);
-    g.fillStyle='#eaf4ff';g.strokeStyle='#7fb8ff';g.lineWidth=.6;g.beginPath();g.moveTo(-9,-.5);g.lineTo(9,-8.5);g.lineTo(2.5,9);g.lineTo(-.7,1.7);g.closePath();g.fill();g.stroke();g.restore();
+    g.save();g.globalAlpha=fin;g.lineCap='round';
+    const u0=0,n=40;g.beginPath();for(let i=0;i<=n;i++){const [px,py]=pos(lerp(u0,f,i/n));i?g.lineTo(px,py):g.moveTo(px,py);}
+    const [sx,sy]=pos(u0),tr=g.createLinearGradient(sx,sy,ax,ay);tr.addColorStop(0,'rgba(255,170,110,0)');tr.addColorStop(1,'rgba(255,170,110,.75)');
+    g.strokeStyle=tr;g.lineWidth=3;g.stroke();
+    g.translate(ax,ay);g.rotate(Math.atan2(by-ay,bx-ax)+Math.PI/4);const sc=4.2*nait*(1-.4*f);g.scale(sc,sc);lueur('rgba(255,200,150,.5)',12);
+    g.fillStyle='#f3f7fb';g.strokeStyle='#b9d4ee';g.lineWidth=.5;g.beginPath();g.moveTo(-9,-.5);g.lineTo(9,-8.5);g.lineTo(2.5,9);g.lineTo(-.7,1.7);g.closePath();g.fill();g.stroke();
+    g.fillStyle='rgba(120,150,190,.35)';g.beginPath();g.moveTo(-.7,1.7);g.lineTo(9,-8.5);g.lineTo(1.2,4);g.closePath();g.fill();g.restore();
   }
-  // la panne, en haut pendant la vue de la maison
-  {const a=seg(b,15.9,16.4)*(1-seg(b,M3[0]-.6,M3[0]-.1));if(a>0){const k=spring((b-15.9)*B,15,.7);g.save();g.globalAlpha=a;g.translate(0,(1-k)*-30);
-    g.fillStyle='rgba(4,14,28,.8)';rr(110,120,860,210,44);g.fill();texte('Chez Mme Fontaine,',540,185,64,'#fff',800);texte('le ballon fuit.',540,268,64,'#ff6a4a',800);g.restore();}}
-  // « réparé »
-  {const a=seg(b,B_OK+.2,B_OK+.6)*(1-seg(b,B_PLIE,B_PLIE+.4));if(a>0){const k=spring((b-B_OK-.2)*B,15,.6);g.save();g.globalAlpha=a;g.translate(540,230);g.scale(.8+.2*clamp(k),.8+.2*clamp(k));g.fillStyle='rgba(4,14,28,.85)';rr(-400,-110,800,210,44);g.fill();lueur('rgba(34,180,90,.7)',40);
-    texte('Réparé.',0,-40,84,'#fff',900);texte('Et le devis est déjà fait.',0,50,54,ORANGE,800);g.restore();}}
-  // la phrase dite, en haut : une seule à la fois, avec le micro
-  ITEMS.forEach((it,i)=>{const b1=i<3?ITEMS[i+1].b-.15:B_TOT-.2;if(b<it.b-.05||b>b1+.2)return;
+  ITEMS.forEach((it,i)=>{const b1=i<ITEMS.length-1?ITEMS[i+1].b-.15:B_TOT-.2;if(b<it.b-.05||b>b1+.2)return;
     const k=spring((b-it.b)*B,15,.75),a=clamp(k*1.6)*(1-seg(b,b1,b1+.2));g.save();g.globalAlpha=a;
-    g.fillStyle='rgba(4,14,28,.72)';rr(70,110,940,190,40);g.fill();
-    const gm=g.createLinearGradient(110,150,190,230);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(150,205,44,0,7);g.fill();
-    g.fillStyle='#fff';rr(141,180,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(150,200,17,.15*Math.PI,.85*Math.PI);g.stroke();
-    texte(it.dit,220,175,46,'#fff',700,'Archivo','left');texte(it.dit2,220,240,46,ORANGE,700,'Archivo','left');g.restore();});
+    g.fillStyle='rgba(4,14,28,.8)';rr(70,96,940,236,40);g.fill();
+    const gm=g.createLinearGradient(110,159,190,239);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(150,214,44,0,7);g.fill();
+    g.fillStyle='#fff';rr(141,189,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(150,209,17,.15*Math.PI,.85*Math.PI);g.stroke();
+    dictee(it,b,150,214,220,146,44);g.restore();});
   // l'envoi
-  if(b>=B_ENV&&b<B_FIN+.2){const k=spring((b-B_ENV)*B,14,.6),a=clamp(k*1.6)*(1-seg(b,B_FIN-.3,B_FIN+.2));g.save();g.globalAlpha=a;g.translate(540,1150);g.scale(.8+.2*clamp(k),.8+.2*clamp(k));lueur('rgba(255,138,61,.7)',40);
+  if(b>=B_ENV&&b<B_FIN+.2){const k=ease(seg(b,B_ENV+.3,B_ENV+.9)),a=k*(1-seg(b,B_FIN-.3,B_FIN+.2));g.save();g.globalAlpha=a;g.translate(540,1150+(1-k)*24);
     texte('Envoyé à Mme Fontaine.',0,0,64,'#fff',800);texte('Depuis le chantier.',0,90,64,ORANGE,800);g.restore();}
   // le carton, avec un reflet de lumière qui passe sur le logo
   if(b>=B_FIN){const k=spring((b-B_FIN)*B,12,.8);g.save();g.globalAlpha=clamp(k*1.5);g.translate(0,(1-k)*36);
@@ -341,7 +338,7 @@ function seek(T){
     g.save();g.translate(tx+18,ty+16);g.scale(4.4,4.4);g.fillStyle='#fff';g.fill(new Path2D('M6.5 2.5H12a9 9 0 0 1 0 18H9.2L4.5 23V4.5a2 2 0 0 1 2-2ZM9.2 9.5a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1Zm3.1-2.5a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1Zm3.1 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Z'),'evenodd');g.restore();
     texte('Diktéo',tx+170,ty+72,138,'#fff',900,'Archivo','left');
     const sw=seg(b,B_FIN+.5,B_FIN+2.2);if(sw>0&&sw<1){g.save();g.globalCompositeOperation='lighter';const x=lerp(200,900,sw);const gl=g.createLinearGradient(x-80,0,x+80,0);gl.addColorStop(0,'rgba(255,255,255,0)');gl.addColorStop(.5,'rgba(255,240,220,.5)');gl.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gl;g.fillRect(x-80,ty-10,160,160);g.restore();}
-    texte('Le devis dicté, envoyé du chantier.',540,940,46,'#dbe9f7',600,'Archivo');
+    texte('Tu dictes ton devis, Diktéo l’écrit.',540,940,46,'#f1e7da',700,'Archivo');
     texte('3 devis offerts par mois · sans carte',540,1060,44,'#fff',700,'Archivo');
     const gb=g.createLinearGradient(290,1150,790,1250);gb.addColorStop(0,O1);gb.addColorStop(.55,O2);gb.addColorStop(1,O3);g.fillStyle=gb;rr(270,1150,540,104,34);g.fill();
     texte('dikteo.vercel.app',540,1203,46,'#fff',800,'Archivo');g.restore();}
