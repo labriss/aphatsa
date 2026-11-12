@@ -1,0 +1,18 @@
+# Déclinaisons par métier : accroche de la pub A (a_<métier>) et défi de la pub D (d_<métier>)
+a_chauffagiste|Des radiateurs tout froids.
+a_carreleur|Une salle de bain à refaire.
+a_peintre|Un séjour à repeindre.
+a_menuisier|Une porte d'entrée à changer.
+a_macon|Un mur à ouvrir.
+a_couvreur|Une toiture à refaire.
+a_serrurier|Une serrure à changer.
+a_multiservice|Plein de petits travaux.
+d_electricien|Défi : un devis d'électricien, dicté en cinq secondes.
+d_chauffagiste|Défi : un devis de chauffagiste, dicté en cinq secondes.
+d_carreleur|Défi : un devis de carrelleur, dicté en cinq secondes.
+d_peintre|Défi : un devis de peintre, dicté en cinq secondes.
+d_menuisier|Défi : un devis de menuisier, dicté en cinq secondes.
+d_macon|Défi : un devis de maçon, dicté en cinq secondes.
+d_couvreur|Défi : un devis de couvreur, dicté en cinq secondes.
+d_serrurier|Défi : un devis de serrurier, dicté en cinq secondes.
+d_multiservice|Défi : un devis de petits travaux, dicté en cinq secondes.

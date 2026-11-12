@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Diktéo · le mur</title>
+<style>
+/*FONTS*/
+html,body{margin:0;background:#050505;overflow:hidden}
+#c{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0}
+#ui{position:absolute;left:0;bottom:0;width:100%;padding:10px;background:#111;color:#ccc;font:14px sans-serif;display:flex;gap:10px;align-items:center;box-sizing:border-box}
+#ui input{flex:1}
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<div id="ui"><button id="lecture">Lecture</button><input id="curseurUI" type="range" min="0" max="1000" value="0"><span id="temps">0.00</span></div>
+<script>
+/* Pub 16 « le mur » : pour les maçons. L'accroche est écrite au crayon de maçon sur un parpaing ; la caméra recule :
+   c'est le premier parpaing du mur. Chaque phrase dictée construit pour de vrai : le mur rang par rang, la dalle qui coule,
+   le linteau au-dessus de la fenêtre, deux journées de soleil.
+   95,7 BPM (1 temps = 0,627 s), 24 temps (15 s).   b3.6…10.8 les quatre lignes   b13.4 le total   b16.4 envoi   b19.5 carton */
+const W=1080,H=1920,BPM=95.7,B=60/BPM,NB=24,DN=NB*B;
+const cv=document.getElementById('c'),g=cv.getContext('2d');
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const lerp=(a,b,k)=>a+(b-a)*k;
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const ease=x=>(x=clamp(x),x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2);
+const easeOut=x=>1-Math.pow(1-clamp(x),3);
+function spring(t,w=14,z=.62){if(t<=0)return 0;const wd=w*Math.sqrt(1-z*z);return 1-Math.exp(-z*w*t)*(Math.cos(wd*t)+(z*w/wd)*Math.sin(wd*t));}
+const rnd=n=>{n=Math.sin(n*127.1+311.7)*43758.5453;return n-Math.floor(n);};
+const O1='#E8650F',O2='#C9480A',O3='#A8350A',ORANGE='#ff8a3d';
+function rr(x,y,w,h,r){g.beginPath();g.roundRect(x,y,w,h,r);}
+function texte(t,x,y,size,col,poids=700,font='Archivo',align='center'){g.font=`${poids} ${size}px ${font}`;g.fillStyle=col;g.textAlign=align;g.textBaseline='middle';g.fillText(t,x,y);}
+function lueur(col,flou){g.shadowColor=col;g.shadowBlur=flou;}
+// motion design : arrivées sur une longue traîne, textes qui arrivent mot à mot du flou au net, puis immobiles
+const expoOut=x=>(x=clamp(x),x>=1?1:1-Math.pow(2,-10*x));
+function motsFlou(str,x,y,size,col,poids,font,align,b,b0,ec=.12,du=.35,lettres=false){g.font=`${poids} ${size}px ${font}`;g.textBaseline='middle';g.textAlign='left';
+  const ws=lettres?[...str]:str.split(' '),sp=lettres?0:g.measureText(' ').width,wd=ws.map(w=>g.measureText(w).width),tot=wd.reduce((a,c)=>a+c,0)+sp*(ws.length-1);
+  let px=align==='center'?x-tot/2:align==='right'?x-tot:x;g.fillStyle=col;
+  ws.forEach((w,i)=>{const k=expoOut(seg(b,b0+i*ec,b0+i*ec+du));if(k>0){g.save();g.globalAlpha*=k;if(k<1)g.filter=`blur(${((1-k)*8).toFixed(2)}px)`;g.fillText(w,px,y);g.restore();}px+=wd[i]+sp;});}
+
+function etincelles(x,y,seed,t,force=1,col=[255,200,140]){if(t<0||t>1)return;g.save();g.globalCompositeOperation='lighter';
+  for(let i=0;i<22*force;i++){const a=rnd(seed+i*7)*Math.PI*2,v=(60+rnd(seed+i*3)*260)*force,px=x+Math.cos(a)*v*t,py=y+Math.sin(a)*v*t+t*t*200;
+    g.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${1-t})`;g.beginPath();g.arc(px,py,3*(1-t)+.8,0,7);g.fill();}g.restore();}
+let FADE=1;
+function etiquette(nom,prix,x,y,b0,b){if(b<b0||FADE<=0)return;const k=expoOut(seg(b,b0,b0+.8)),fl=Math.exp(-(b-b0)*B*4),vieux=b>b0+3?.55:1;
+  g.font='700 36px Archivo';const w1=g.measureText(nom).width;g.font='800 46px JBMono';const w2=g.measureText(prix).width,w=w1+w2+76;
+  const cx=clamp(x,w/2+20,1060-w/2);
+  g.save();g.globalAlpha*=k*vieux*FADE;g.translate(cx,y);g.scale(.92+.08*k,.92+.08*k);if(k<1)g.filter=`blur(${((1-k)*6).toFixed(2)}px)`;
+  g.fillStyle='rgba(10,12,16,.88)';rr(-w/2,-40,w,80,28);g.fill();g.strokeStyle=`rgba(255,138,61,${.45+.5*fl})`;g.lineWidth=2.5;rr(-w/2,-40,w,80,28);g.stroke();
+  texte(nom,-w/2+26,2,36,'#eef0f2',700,'Archivo','left');lueur(`rgba(255,138,61,${.4+.4*fl})`,16+30*fl);texte(prix,w/2-26,2,46,ORANGE,800,'JBMono','right');g.restore();}
+// la dictée en direct : « TU DICTES », les mots s'écrivent au rythme de la voix, curseur, micro qui pulse
+function dictee(it,b,mx,my,tx,y0,size){
+  const L1=it.dit.length,L2=it.dit2.length,u=seg(b,it.b+.05,it.b+1.9),n=Math.floor(u*(L1+L2));
+  const s1=it.dit.slice(0,Math.min(n,L1)),s2=it.dit2.slice(0,Math.max(0,n-L1));
+  texte('TU DICTES',tx,y0-2,30,ORANGE,900,'Archivo','left');
+  texte(s1,tx,y0+54,size,'#fff',700,'Archivo','left');if(s2)texte(s2,tx,y0+54+size*1.3,size,ORANGE,700,'Archivo','left');
+  if(u<1||Math.floor(b*3)%2===0){g.font=`700 ${size}px Archivo`;const yy=s2?y0+54+size*1.3:y0+54,ww=g.measureText(s2||s1).width;g.fillStyle=s2?ORANGE:'#fff';g.fillRect(tx+ww+6,yy-size*.45,4,size*.9);}
+  if(u<1){g.save();g.globalCompositeOperation='lighter';for(let k=0;k<2;k++){const ph=((b-it.b)*1.2+k*.5)%1;g.strokeStyle=`rgba(255,138,61,${.7*(1-ph)})`;g.lineWidth=3;g.beginPath();g.arc(mx,my,46+ph*36,0,7);g.stroke();}g.restore();}
+}
+
+const ITEMS=[
+  {b:3.6, dit:'« Mur en parpaings, 18 m²,', dit2:'55 euros le mètre. »'},
+  {b:6,   dit:'« Dalle béton, 12 m²,', dit2:'85 euros le mètre. »'},
+  {b:8.4, dit:'« Linteau béton,', dit2:'140 euros. »'},
+  {b:10.8,dit:'« Main-d’œuvre, deux jours,', dit2:'880 euros. »'},
+];
+const T_MUR=3.8, T_DAL=6.2, T_LIN=8.6, T_MO=11, B_ON=13.4, B_ENV=16.4, B_TXT=17, B_FIN=19.5;
+const TOTAL=3333;
+const SOL=1500, MUR={x:150,w:800,top:780}, BL=200, BH=100;   // parpaings de 50 x 20 (à l'échelle)
+const OUV={x:440,y:930,w:220,h:240};                          // l'ouverture de la fenêtre, sous le linteau
+// les parpaings, dans l'ordre de pose : rang par rang, de gauche à droite, en quinconce
+const BLOCS=(()=>{const L=[];for(let r=0;r<7;r++){const y=SOL-(r+1)*BH,dec=r%2?BL/2:0;for(let x=MUR.x-dec;x<MUR.x+MUR.w;x+=BL){const x0=Math.max(MUR.x,x),x1=Math.min(MUR.x+MUR.w,x+BL);
+  if(x1-x0<20)continue;L.push({x0,x1,y,r});}}return L;})();
+
+function ciel(b,t){
+  // deux jours passent pendant la main-d'œuvre : le ciel suit le soleil
+  const j=seg(b,T_MO,T_MO+2.2),phase=j*2;           // 0→2 : deux journées
+  const jour=b<T_MO?.25:(Math.sin((phase%1)*Math.PI)*.9+.1);
+  const top=[lerp(18,46,jour),lerp(24,74,jour),lerp(44,112,jour)],bas=[lerp(120,150,jour),lerp(78,128,jour),lerp(70,140,jour)];
+  const gr=g.createLinearGradient(0,0,0,SOL);gr.addColorStop(0,`rgb(${top.map(v=>v|0)})`);gr.addColorStop(1,`rgb(${bas.map(v=>v|0)})`);g.fillStyle=gr;g.fillRect(0,0,W,SOL);
+  // le soleil : à l'aube au début, puis il fait deux fois le tour pendant la main-d'œuvre
+  const ang=b<T_MO?-.15:-.15+Math.PI*(phase%1)*1.0,sx=540-Math.cos(ang)*520,sy=SOL-80-Math.sin(ang)*900*(b<T_MO?0.12:1);
+  g.save();const gs=g.createRadialGradient(sx,sy,10,sx,sy,240);gs.addColorStop(0,'rgba(255,214,160,.55)');gs.addColorStop(1,'rgba(255,170,110,0)');g.fillStyle=gs;g.fillRect(sx-240,sy-240,480,480);
+  g.fillStyle='#ffd9a6';g.beginPath();g.arc(sx,sy,46,0,7);g.fill();g.restore();
+  // des collines au loin
+  g.fillStyle='rgba(30,34,44,.7)';g.beginPath();g.moveTo(0,SOL-120);for(let x=0;x<=W;x+=60)g.lineTo(x,SOL-120-Math.sin(x*.006+1)*40-rnd(x)*10);g.lineTo(W,SOL);g.lineTo(0,SOL);g.fill();
+}
+function parpaing(x0,x1,y,k,seed){if(k<=0)return;g.save();g.translate(0,(1-k)*-70);g.globalAlpha*=clamp(k*2);
+  const gr=g.createLinearGradient(0,y,0,y+BH);gr.addColorStop(0,'#a3a29c');gr.addColorStop(1,'#83827c');g.fillStyle=gr;g.fillRect(x0+3,y+3,x1-x0-6,BH-6);
+  g.fillStyle='rgba(0,0,0,.18)';for(let i=0;i<6;i++){g.beginPath();g.arc(x0+10+rnd(seed+i)*(x1-x0-20),y+10+rnd(seed*3+i)*(BH-20),1.5+rnd(seed+i*7)*2,0,7);g.fill();}
+  g.restore();}
+
+function seek(T){
+  const t=((T%DN)+DN)%DN,b=t/B;
+  g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.shadowBlur=0;g.setLineDash([]);g.filter='none';
+  // la caméra : collée au premier parpaing (l'accroche), puis recul sur le chantier
+  const p0=BLOCS[0],cx0=(p0.x0+p0.x1)/2,cy0=p0.y+BH/2;
+  const kz=ease(seg(b,2.6,3.8));const cx=lerp(cx0,540,kz),cy=lerp(cy0,1080,kz),z=Math.exp(lerp(Math.log(4.6),Math.log(1),kz));
+  g.save();g.translate(540,960);g.scale(z,z);g.translate(-cx,-cy);
+  ciel(b,t);
+  // le terrain
+  g.fillStyle='#2a241d';g.fillRect(-500,SOL,W+1000,800);g.fillStyle='rgba(0,0,0,.25)';for(let i=0;i<40;i++){g.beginPath();g.ellipse(rnd(i)*W,SOL+20+rnd(i*3)*380,6+rnd(i*5)*12,3+rnd(i*7)*4,0,0,7);g.fill();}
+  // la semelle
+  g.fillStyle='#6d6b66';g.fillRect(MUR.x-20,SOL,MUR.w+40,26);
+  // 2 · la dalle : le béton coule de gauche à droite, puis se lisse
+  if(b>=T_DAL){const u=ease(seg(b,T_DAL,T_DAL+1.6)),lis=seg(b,T_DAL+1.6,T_DAL+2.4),x1=lerp(60,1020,u);
+    g.save();g.beginPath();g.moveTo(60,SOL+40);for(let x=60;x<=x1;x+=20)g.lineTo(x,SOL+40-(x>x1-80?(1-lis)*Math.sin((x1-x)/80*Math.PI)*16:0));g.lineTo(x1,SOL+130);g.lineTo(60,SOL+130);g.closePath();
+    const gd=g.createLinearGradient(0,SOL+40,0,SOL+130);gd.addColorStop(0,'#8e8c86');gd.addColorStop(1,'#6a6863');g.fillStyle=gd;g.fill();
+    g.fillStyle=`rgba(210,220,230,${.18*(1-lis)})`;g.fillRect(60,SOL+42,x1-60,10);g.restore();}
+  // 1 · le mur se monte, parpaing par parpaing
+  BLOCS.forEach((p,i)=>{const b0=i===0?0:T_MUR+.1+(i-1)*.075;const k=b<b0?0:(i===0?1:clamp(spring((b-b0)*B,18,.6),0,1.1));parpaing(p.x0,p.x1,p.y,k,i*13);
+    if(i>0){const d=(b-b0)*B;if(d>.12&&d<.45){g.save();g.globalAlpha=1-(d-.12)/.33;g.fillStyle='rgba(200,195,185,.6)';for(let j=0;j<5;j++){g.beginPath();g.arc((p.x0+p.x1)/2+(rnd(i*5+j)-.5)*160,p.y+BH-(d-.12)*80*rnd(j+i),4,0,7);g.fill();}g.restore();}}});
+  // l'ouverture de la fenêtre : on voit le ciel au travers, une fois le mur monté à sa hauteur
+  {const k=seg(b,T_MUR+1,T_MUR+1.6);if(k>0){g.save();g.beginPath();g.rect(OUV.x,OUV.y,OUV.w,OUV.h*k);g.clip();ciel(b,t);g.restore();g.strokeStyle='rgba(60,58,54,.8)';g.lineWidth=6;g.strokeRect(OUV.x,OUV.y,OUV.w,OUV.h*k);}}
+  // l'accroche : écrite au crayon de maçon sur le premier parpaing
+  if(b<3.6){const a=1-seg(b,2.6,3.4),w=seg(b,.1,1.1);g.save();g.globalAlpha=a;g.beginPath();g.rect(p0.x0,p0.y,(p0.x1-p0.x0)*w,BH);g.clip();
+    g.font='900 26px Archivo';g.textAlign='center';g.textBaseline='middle';g.fillStyle='rgba(40,38,36,.85)';g.fillText('MAÇON ?',cx0,cy0-14);
+    g.font='700 9.5px Archivo';g.fillStyle='rgba(40,38,36,.8)';g.fillText('Ton devis, tu l’écris encore',cx0,cy0+12);g.fillText('sur un parpaing ?',cx0,cy0+25);g.restore();}
+  // 3 · le linteau se pose au-dessus de la fenêtre
+  if(b>=T_LIN){const k=clamp(spring((b-T_LIN)*B,14,.55),0,1.1),y=OUV.y-30-(1-k)*260;g.save();g.globalAlpha*=clamp(k*2);
+    const gl=g.createLinearGradient(0,y,0,y+30);gl.addColorStop(0,'#b9b7b1');gl.addColorStop(1,'#8d8b85');g.fillStyle=gl;g.fillRect(OUV.x-50,y,OUV.w+100,30);
+    g.strokeStyle='rgba(160,90,40,.6)';g.lineWidth=3;g.beginPath();g.moveTo(OUV.x-40,y+22);g.lineTo(OUV.x+OUV.w+40,y+22);g.stroke();g.restore();
+    const d=(b-T_LIN)*B;if(d>.25&&d<.8){g.save();g.globalAlpha=1-(d-.25)/.55;g.fillStyle='rgba(200,195,185,.7)';for(let j=0;j<14;j++){const s=(d-.25)*260;g.beginPath();g.arc(OUV.x+OUV.w/2+(rnd(j)-.5)*(OUV.w+100+s),OUV.y-10-rnd(j*3)*s*.4,3+rnd(j*7)*4,0,7);g.fill();}g.restore();}}
+  g.restore(); // fin de la caméra
+  // les étiquettes
+  FADE=1-seg(b,B_ON,B_ON+.5);
+  etiquette('Mur parpaings 18 m²','990 €',540,700,T_MUR+.8,b);
+  etiquette('Dalle béton 12 m²','1 020 €',540,1720,T_DAL+.8,b);
+  etiquette('Linteau béton','140 €',800,1060,T_LIN+.5,b);
+  if(b>=T_MO)etiquette('Main-d’œuvre 2 jours','880 €',540,1820,T_MO+.4,b);
+  // la phrase dite, en haut : une seule à la fois
+  ITEMS.forEach((it,i)=>{const b1=i<ITEMS.length-1?ITEMS[i+1].b-.15:B_ON-.3;if(b<it.b-.05||b>b1+.25)return;
+    const k=expoOut(seg(b,it.b-.05,it.b+.55)),a=k*(1-seg(b,b1,b1+.25));g.save();g.globalAlpha=a;
+    g.fillStyle='rgba(12,12,14,.88)';rr(70,80,940,236,40);g.fill();
+    const gm=g.createLinearGradient(110,143,190,223);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(150,198,44,0,7);g.fill();
+    g.fillStyle='#fff';rr(141,173,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(150,193,17,.15*Math.PI,.85*Math.PI);g.stroke();
+    dictee(it,b,150,198,220,130,44);g.restore();});
+  // le total
+  if(b>=B_ON+.2&&b<B_ENV+.8){const kg=easeOut(seg(b,B_ON+.4,B_ON+2)),a=expoOut(seg(b,B_ON+.2,B_ON+.8))*(1-seg(b,B_ENV+.2,B_ENV+.5)),val=TOTAL*kg;
+    const txt=val.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}).replace(/ | /g,' ')+' €',fl=kg>=1?Math.exp(-(b-B_ON-2)*B*3):0;
+    g.save();g.globalAlpha=a;g.fillStyle='rgba(12,12,14,.9)';rr(110,100,860,180,30);g.fill();g.strokeStyle='rgba(255,138,61,.35)';g.lineWidth=2;rr(110,100,860,180,30);g.stroke();
+    texte('TOTAL TTC',150,190,30,'rgba(255,190,140,.8)',800,'Archivo','left');lueur(`rgba(255,138,61,${.6+.4*fl})`,18+40*fl);texte(txt,930,194,82,ORANGE,800,'JBMono','right');g.restore();}
+  // l'envoi
+  if(b>=B_ENV&&b<B_FIN){const u=ease(seg(b,B_ENV,B_ENV+1.4));const P0=[540,1050],P1=[1150,300];const hx=lerp(P0[0],P1[0],u),hy=lerp(P0[1],P1[1],u)-Math.sin(u*Math.PI)*100,fa=1-seg(b,B_ENV+1.1,B_ENV+1.4);
+    g.save();g.globalAlpha=fa;g.globalCompositeOperation='lighter';g.beginPath();for(let i=0;i<=30;i++){const v=u*i/30;const px=lerp(P0[0],P1[0],v),py=lerp(P0[1],P1[1],v)-Math.sin(v*Math.PI)*100;i?g.lineTo(px,py):g.moveTo(px,py);}
+    g.strokeStyle='rgba(255,170,100,.5)';g.lineWidth=4;g.stroke();const gl=g.createRadialGradient(hx,hy,0,hx,hy,70);gl.addColorStop(0,'rgba(255,240,220,.95)');gl.addColorStop(.3,'rgba(255,160,80,.5)');gl.addColorStop(1,'rgba(255,120,40,0)');g.fillStyle=gl;g.beginPath();g.arc(hx,hy,70,0,7);g.fill();g.restore();}
+  if(b>=B_TXT&&b<B_FIN+.2){const k=expoOut(seg(b,B_TXT,B_TXT+.7)),a=k*(1-seg(b,B_FIN-.2,B_FIN+.1));g.save();g.globalAlpha=a;g.fillStyle='rgba(12,12,14,.86)';rr(150,1600,780,190,40);g.fill();
+    motsFlou('Envoyé à M. Lopez.',540,1660,64,'#fff',800,'Archivo','center',b,B_TXT+.1);motsFlou('Le mortier n’a pas fini de sécher.',540,1740,50,ORANGE,800,'Archivo','center',b,B_TXT+.55);g.restore();}
+  // le carton
+  if(b>=B_FIN){const k=expoOut(seg(b,B_FIN,B_FIN+.9));g.save();g.fillStyle=`rgba(6,8,12,${.84*k})`;g.fillRect(0,0,W,H);
+    const tx=540-260,ty=700,kl=expoOut(seg(b,B_FIN+.1,B_FIN+1));g.save();g.globalAlpha=kl;g.translate(tx+70,ty+70);g.scale(.82+.18*kl,.82+.18*kl);g.translate(-tx-70,-ty-70);const gr=g.createLinearGradient(tx,ty,tx+140,ty+140);gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);
+    lueur('rgba(232,101,15,.5)',40);g.fillStyle=gr;rr(tx,ty,140,140,40);g.fill();g.shadowColor='transparent';
+    g.save();g.translate(tx+18,ty+16);g.scale(4.4,4.4);g.fillStyle='#fff';g.fill(new Path2D('M6.5 2.5H12a9 9 0 0 1 0 18H9.2L4.5 23V4.5a2 2 0 0 1 2-2ZM9.2 9.5a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1Zm3.1-2.5a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1Zm3.1 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Z'),'evenodd');g.restore();g.restore();
+    motsFlou('Diktéo',tx+170,ty+72,138,'#fff',900,'Archivo','left',b,B_FIN+.25,.07,.35,true);
+    motsFlou('Tu dictes ton devis, Diktéo l’écrit.',540,940,46,'#eef0f2',700,'Archivo','center',b,B_FIN+.8,.12);
+    motsFlou('3 devis offerts par mois · sans carte',540,1060,44,'#fff',700,'Archivo','center',b,B_FIN+1.7,.1);
+    {const kb=expoOut(seg(b,B_FIN+2.4,B_FIN+3.1));g.save();g.globalAlpha=kb;if(kb<1)g.filter=`blur(${((1-kb)*8).toFixed(2)}px)`;
+    const gb=g.createLinearGradient(290,1150,790,1250);gb.addColorStop(0,O1);gb.addColorStop(.55,O2);gb.addColorStop(1,O3);g.fillStyle=gb;rr(270,1150,540,104,34);g.fill();
+    texte('dikteo.vercel.app',540,1203,46,'#fff',800,'Archivo');g.restore();}g.restore();}
+}
+window.seek=seek;
+const render=location.search.includes('render');
+if(render){document.getElementById('ui').style.display='none';}
+else{const fit=()=>{const k=Math.min(innerWidth/1080,(innerHeight-40)/1920);cv.style.transform=`scale(${k})`;};addEventListener('resize',fit);fit();
+  let t0=performance.now(),run=false,off=0;document.getElementById('lecture').onclick=()=>{run=!run;t0=performance.now()-off*1000;};
+  document.getElementById('curseurUI').oninput=e=>{off=e.target.value/1000*DN;t0=performance.now()-off*1000;};
+  (function loop(){if(run)off=((performance.now()-t0)/1000)%DN;document.getElementById('temps').textContent=off.toFixed(2);document.getElementById('curseurUI').value=off/DN*1000;seek(off);requestAnimationFrame(loop);})();}
+document.fonts.ready.then(()=>{seek(0);window.VIDEO={w:W,h:H,duration:DN};});
+</script>
+</body>
+</html>

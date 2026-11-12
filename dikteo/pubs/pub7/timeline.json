@@ -1,0 +1,112 @@
+{
+ "DUR": 32.6786,
+ "SEC": {
+  "PRE": {
+   "name": "PRE",
+   "bpm": 96,
+   "beats": 2,
+   "beat": 0.625,
+   "t0": 0,
+   "t1": 1.25,
+   "dur": 1.25,
+   "mood": "le projecteur démarre (pas de musique)"
+  },
+  "CARD1": {
+   "name": "CARD1",
+   "bpm": 96,
+   "beats": 5.5,
+   "beat": 0.625,
+   "t0": 1.25,
+   "t1": 4.6875,
+   "dur": 3.4375,
+   "mood": "Misterioso : « Plombier ? Encore un devis à taper à 21 heures ? »"
+  },
+  "GAG": {
+   "name": "GAG",
+   "bpm": 112,
+   "beats": 12,
+   "beat": 0.5357142857142857,
+   "t0": 4.6875,
+   "t1": 11.116071428571429,
+   "dur": 6.428571428571429,
+   "mood": "Agitato : la pile monte, vacille et s’écroule"
+  },
+  "CARD2": {
+   "name": "CARD2",
+   "bpm": 96,
+   "beats": 5.5,
+   "beat": 0.625,
+   "t0": 11.116071428571429,
+   "t1": 14.553571428571429,
+   "dur": 3.4375,
+   "mood": "SILENCE : « Une autre façon : il dicte son devis. »"
+  },
+  "VOIX": {
+   "name": "VOIX",
+   "bpm": 84,
+   "beats": 8,
+   "beat": 0.7142857142857143,
+   "t0": 14.553571428571429,
+   "t1": 20.267857142857142,
+   "dur": 5.714285714285714,
+   "mood": "Tenderly : la voix devient télégramme"
+  },
+  "CARD3": {
+   "name": "CARD3",
+   "bpm": 96,
+   "beats": 5,
+   "beat": 0.625,
+   "t0": 20.267857142857142,
+   "t1": 23.392857142857142,
+   "dur": 3.125,
+   "mood": "accord joyeux : « Devis envoyé. 21 h 04. »"
+  },
+  "MAISON": {
+   "name": "MAISON",
+   "bpm": 84,
+   "beats": 6,
+   "beat": 0.7142857142857143,
+   "t0": 23.392857142857142,
+   "t1": 27.678571428571427,
+   "dur": 4.285714285714286,
+   "mood": "le thème, chaud : il rentre dîner"
+  },
+  "FIN": {
+   "name": "FIN",
+   "bpm": 84,
+   "beats": 7,
+   "beat": 0.7142857142857143,
+   "t0": 27.678571428571427,
+   "t1": 32.67857142857143,
+   "dur": 5,
+   "mood": "carton Diktéo, accord tenu, la bobine claque"
+  }
+ },
+ "HIT": {
+  "lampe": 0.3125,
+  "carte1": 1.25,
+  "gag": 4.6875,
+  "feuille1": 5.758928571428571,
+  "feuille2": 6.830357142857142,
+  "feuille3": 7.901785714285714,
+  "vacille": 8.4375,
+  "chute": 9.241071428571429,
+  "emerge": 10.044642857142858,
+  "plonk": 10.580357142857142,
+  "carte2": 11.116071428571429,
+  "voix": 14.553571428571429,
+  "telephone": 14.910714285714286,
+  "ligne1": 16.339285714285715,
+  "ligne2": 17.05357142857143,
+  "ligne3": 17.767857142857142,
+  "ligne4": 18.482142857142858,
+  "sourcil": 19.410714285714285,
+  "carte3": 20.267857142857142,
+  "maison": 23.392857142857142,
+  "souffle": 23.75,
+  "porte": 25.535714285714285,
+  "iris": 26.392857142857142,
+  "fin": 27.678571428571427,
+  "claque": 31.96428571428571
+ }
+}

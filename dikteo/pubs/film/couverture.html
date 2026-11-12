@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Diktéo — couverture de la pub</title>
+<!-- La vignette du post (1080 × 1920) : le téléphone au moment du drop, l'accroche en grand.
+     Les réseaux recadrent la vignette au centre (en 3:4 ou en 1:1 dans les grilles de profil) :
+     tout ce qui compte tient entre y = 420 et y = 1500. Image de fond : ?fond=<chemin du rendu>. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&family=Public+Sans:wght@700&display=block" rel="stylesheet">
+<style>
+  :root { --background: #0E1412; --foreground: #E7EDEA; --primary: #FF7A33; --primary-foreground: #1A0D05;
+    --primary-gradient: linear-gradient(135deg, #FFA15C 0%, #FF7A33 50%, #F25C14 100%); }
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: var(--background); }
+  /* Le téléphone en entier, sous le texte : l'image du rendu, réduite et descendue. */
+  #fond { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 0; transform: translateY(770px) scale(0.6);
+    /* Les bords du rendu se fondent dans le fond : pas de rectangle visible. */
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 22%, #000 78%, transparent), linear-gradient(to bottom, transparent, #000 18%); -webkit-mask-composite: source-in; mask-image: linear-gradient(to right, transparent, #000 22%, #000 78%, transparent), linear-gradient(to bottom, transparent, #000 18%); mask-composite: intersect; }
+  h1 { position: absolute; left: 40px; right: 40px; top: 360px; margin: 0; text-align: center;
+    font-family: "Archivo", sans-serif; font-weight: 900; font-size: 98px; line-height: 0.98; letter-spacing: -0.045em; white-space: nowrap; color: var(--foreground); }
+  h1 em { font-style: normal; color: var(--primary); }
+  #marque { position: absolute; left: 0; right: 0; top: 250px; display: flex; justify-content: center; align-items: center; gap: 14px;
+    font-family: "Archivo", sans-serif; font-weight: 900; font-size: 60px; letter-spacing: -0.03em; color: var(--foreground); }
+  #marque svg { width: 50px; height: 50px; color: var(--primary); }
+  #prix { position: absolute; left: 50%; top: 610px; transform: translateX(-50%); height: 104px; padding: 0 52px; border-radius: 999px;
+    display: flex; align-items: center; white-space: nowrap; background: var(--primary-gradient); color: var(--primary-foreground);
+    font-family: "Public Sans", sans-serif; font-weight: 700; font-size: 42px; box-shadow: 0 20px 70px rgb(0 0 0 / 0.5); }
+</style>
+</head>
+<body>
+  <img id="fond" alt="">
+  <div id="marque"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c-3.6 4.4-7 8.6-7 12.2A7 7 0 0 0 19 14.7c0-3.6-3.4-7.8-7-12.2Z" fill="currentColor"/></svg>Diktéo</div>
+  <h1>Le devis dicté,<br><em>envoyé du chantier.</em></h1>
+  <div id="prix">Gratuit pour commencer</div>
+<script>
+  const p = new URLSearchParams(location.search);
+  if (p.get("fond")) document.getElementById("fond").src = p.get("fond");
+</script>
+</body>
+</html>

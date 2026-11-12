@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Diktéo · la tournée</title>
+<style>
+/*FONTS*/
+html,body{margin:0;background:#050505;overflow:hidden}
+#c{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0}
+#ui{position:absolute;left:0;bottom:0;width:100%;padding:10px;background:#111;color:#ccc;font:14px sans-serif;display:flex;gap:10px;align-items:center;box-sizing:border-box}
+#ui input{flex:1}
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<div id="ui"><button id="lecture">Lecture</button><input id="curseurUI" type="range" min="0" max="1000" value="0"><span id="temps">0.00</span></div>
+<script>
+/* Pub 19 « la tournée » (multiservice). Un plan de ville la nuit, vu du ciel ; un petit utilitaire enchaîne 5 interventions.
+   À chaque arrêt l'artisan dicte en 2 secondes, le devis part, une épingle s'allume ; la trace orange de la tournée
+   se dessine. À la fin la caméra recule : la tournée de la journée a dessiné la bulle de Diktéo.
+   75 BPM (1 temps = 0,8 s), 25 temps (20 s).
+   b0 « MULTISERVICE ? »   b1.5 « 5 chantiers, 5 devis… ce soir ? »   b4, 8, 12, 16, 20 : les 5 arrêts
+   b24 la caméra recule : c'est le logo   b27 « 5 devis envoyés depuis le camion. »   b29.5 carton */
+const W=1080,H=1920,B=60/75,NB=25,DN=NB*B;
+const cv=document.getElementById('c');let g=cv.getContext('2d');
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const lerp=(a,b,k)=>a+(b-a)*k;
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const ease=x=>(x=clamp(x),x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2);
+const easeOut=x=>1-Math.pow(1-clamp(x),3);
+const smooth=x=>(x=clamp(x),x*x*(3-2*x));
+function spring(t,w=14,z=.62){if(t<=0)return 0;const wd=w*Math.sqrt(1-z*z);return 1-Math.exp(-z*w*t)*(Math.cos(wd*t)+(z*w/wd)*Math.sin(wd*t));}
+const rnd=n=>{n=Math.sin(n*127.1+311.7)*43758.5453;return n-Math.floor(n);};
+const O1='#E8650F',O2='#C9480A',O3='#A8350A',ORANGE='#ff8a3d';
+function rr(x,y,w,h,r,c=g){c.beginPath();c.roundRect(x,y,w,h,r);}
+function texte(t,x,y,size,col,poids=700,font='Archivo',align='center',c=g){c.font=`${poids} ${size}px ${font}`;c.fillStyle=col;c.textAlign=align;c.textBaseline='middle';c.fillText(t,x,y);}
+function lueur(col,flou,c=g){c.shadowColor=col;c.shadowBlur=flou;}
+function toile(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return [c,c.getContext('2d')];}
+// ——— motion design (commun aux pubs 12, 13, 18, 19) ———
+// Courbes par rôle : une arrivée se pose sur une longue traîne (expo / power4.out), une sortie accélère (power3.in) et dure moitié moins.
+const expoOut=x=>(x=clamp(x),x>=1?1:1-Math.pow(2,-10*x));
+const p4Out=x=>1-Math.pow(1-clamp(x),5);
+const p3In=x=>Math.pow(clamp(x),3);
+// Une ligne qui arrive mot à mot : flou 6 px → net et opacité 0 → 1, sans bouger, 80 ms d'écart ; une fois posée, elle ne bouge plus.
+// Elle part en flou, mot à mot, en 0,09 s. Les temps sont en secondes.
+function ligneMots(txt,x,y,size,col,poids,font,t,t0,tSortie=1e9,align='center',pas=.08,duree=.16){
+  if(t<t0)return;g.save();g.font=`${poids} ${size}px ${font}`;g.textBaseline='middle';g.textAlign='left';g.fillStyle=col;
+  const mots=txt.split(' '),esp=g.measureText(' ').width,ls=mots.map(m=>g.measureText(m).width),tot=ls.reduce((a,v)=>a+v,0)+esp*(mots.length-1);
+  let xx=align==='center'?x-tot/2:align==='right'?x-tot:x;const a0=g.globalAlpha;
+  mots.forEach((m,i)=>{const e=expoOut(seg(t,t0+i*pas,t0+i*pas+duree)),s=p3In(seg(t,tSortie+i*.04,tSortie+i*.04+duree*.55)),a=e*(1-s);
+    if(a>.002){g.globalAlpha=a0*a;const fl=6*(1-e)+8*s;g.filter=fl>.2?`blur(${fl.toFixed(1)}px)`:'none';g.fillText(m,xx,y);}xx+=ls[i]+esp;});
+  g.restore();}
+// Un nom qui arrive lettre par lettre, avec un léger flou.
+function lettres(txt,x,y,size,col,poids,font,t,t0,pas=.055,duree=.2){
+  if(t<t0)return;g.save();g.font=`${poids} ${size}px ${font}`;g.textBaseline='middle';g.textAlign='left';g.fillStyle=col;const a0=g.globalAlpha;
+  for(let i=0;i<txt.length;i++){const e=expoOut(seg(t,t0+i*pas,t0+i*pas+duree));if(e<=.002)continue;g.globalAlpha=a0*e;const fl=5*(1-e);g.filter=fl>.2?`blur(${fl.toFixed(1)}px)`:'none';g.fillText(txt[i],x+g.measureText(txt.slice(0,i)).width,y);}
+  g.restore();}
+// Le carton de fin (le logo y est déjà arrivé par sa propre transition) : le nom lettre par lettre, la promesse mot à mot,
+// puis le bouton qui s'ouvre en largeur depuis son centre (flou horizontal → net). Tout reste immobile une fois posé.
+// tf : début du carton (s), k : facteur des délais (pub courte).
+function cartonFin(t,tf,k=1,tx=280,ty=700){
+  g.save();
+  lettres('Diktéo',tx+170,ty+72,138,'#fff',900,'Archivo',t,tf+.05*k);
+  const sw=seg(t,tf+.75*k,tf+.75*k+1.1);if(sw>0&&sw<1){g.save();g.globalCompositeOperation='lighter';const x=lerp(330,900,ease(sw));const gl=g.createLinearGradient(x-80,0,x+80,0);gl.addColorStop(0,'rgba(255,255,255,0)');gl.addColorStop(.5,'rgba(255,240,220,.4)');gl.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gl;g.fillRect(x-80,ty-10,160,160);g.restore();}
+  ligneMots('Tu dictes ton devis, Diktéo l’écrit.',540,940,48,'#f3dccb',600,'Archivo',t,tf+.4*k);
+  ligneMots('3 devis offerts par mois · sans carte',540,1060,44,'#fff',700,'Archivo',t,tf+.85*k);
+  const kb=p4Out(seg(t,tf+1.3*k,tf+1.3*k+.45));
+  if(kb>0){const w=lerp(104,540,kb),fl=10*(1-kb);g.save();g.globalAlpha*=clamp(kb*3);if(fl>.3)g.filter=`blur(${fl.toFixed(1)}px)`;
+    const gb=g.createLinearGradient(540-w/2,1150,540+w/2,1254);gb.addColorStop(0,O1);gb.addColorStop(.55,O2);gb.addColorStop(1,O3);g.fillStyle=gb;rr(540-w/2,1150,w,104,lerp(52,34,kb));g.fill();g.restore();
+    ligneMots('dikteo.vercel.app',540,1203,46,'#fff',800,'Archivo',t,tf+1.3*k+.18,1e9,'center',.08,.18);}
+  g.restore();}
+// Flou de mouvement : l'objet est dessiné à plusieurs instants de l'obturation, moyennés (comme une vraie caméra).
+// dessin(b) dessine avec le contexte global g ; ouv : ouverture en temps de la pub (même unité que b).
+let FM=null;
+function flouMouvement(dessin,b,ouv,n=6){
+  if(ouv<=1e-4){dessin(b);return;}
+  if(!FM)FM=[toile(W,H),toile(W,H)];const [[c1,f1],[c2,f2]]=FM,m=g.getTransform(),g0=g;
+  f2.setTransform(1,0,0,1,0,0);f2.globalAlpha=1;f2.globalCompositeOperation='source-over';f2.clearRect(0,0,W,H);
+  for(let i=0;i<n;i++){f1.setTransform(1,0,0,1,0,0);f1.globalAlpha=1;f1.filter='none';f1.globalCompositeOperation='source-over';f1.shadowColor='transparent';f1.clearRect(0,0,W,H);f1.setTransform(m);
+    g=f1;try{dessin(b-ouv*i/(n-1));}finally{g=g0;}
+    f2.globalCompositeOperation='lighter';f2.globalAlpha=1/n;f2.drawImage(c1,0,0);}
+  g.save();g.setTransform(1,0,0,1,0,0);g.drawImage(c2,0,0);g.restore();}
+let GRAINE=19;const R=()=>{GRAINE=(GRAINE*16807)%2147483647;return GRAINE/2147483647;};
+
+// ——— le contour de la bulle Diktéo (unités du logo 24×24) → la route de la journée ———
+const K=52,LOX=540-12.75*K,LOY=980-12.75*K;const U=(u,v)=>[LOX+u*K,LOY+v*K];
+const ROUTE=(()=>{const P=[];const ligne=(a,b,n)=>{for(let i=0;i<n;i++)P.push([lerp(a[0],b[0],i/n),lerp(a[1],b[1],i/n)]);};
+  const arc=(cx,cy,r,a0,a1,n)=>{for(let i=0;i<n;i++){const a=lerp(a0,a1,i/n);P.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r]);}};
+  ligne([6.5,2.5],[12,2.5],30);arc(12,11.5,9,-Math.PI/2,Math.PI/2,120);ligne([12,20.5],[9.2,20.5],16);ligne([9.2,20.5],[4.5,23],24);ligne([4.5,23],[4.5,4.5],90);arc(6.5,4.5,2,Math.PI,Math.PI*1.5,16);P.push([6.5,2.5]);
+  const Q=P.map(p=>U(p[0],p[1]));const L=[0];for(let i=1;i<Q.length;i++)L.push(L[i-1]+Math.hypot(Q[i][0]-Q[i-1][0],Q[i][1]-Q[i-1][1]));return {Q,L,T:L[L.length-1]};})();
+function surRoute(f){const d=clamp(f)*ROUTE.T;let i=1;while(i<ROUTE.L.length-1&&ROUTE.L[i]<d)i++;const k=(d-ROUTE.L[i-1])/Math.max(1e-6,ROUTE.L[i]-ROUTE.L[i-1]);const a=ROUTE.Q[i-1],b=ROUTE.Q[i];return [lerp(a[0],b[0],k),lerp(a[1],b[1],k),Math.atan2(b[1]-a[1],b[0]-a[0])];}
+
+// ——— les 5 interventions ———
+const ARRETS=[
+  {f:.10,b:3, dit:'« Serrure changée,', dit2:'95 euros. »', prix:'95 €'},
+  {f:.30,b:6, dit:'« Fuite sous l’évier,', dit2:'80 euros. »', prix:'80 €'},
+  {f:.50,b:9,dit:'« Trois étagères posées,', dit2:'120 euros. »', prix:'120 €'},
+  {f:.70,b:12,dit:'« Une prise remplacée,', dit2:'45 euros. »', prix:'45 €'},
+  {f:.88,b:15,dit:'« Meuble monté,', dit2:'70 euros. »', prix:'70 €'},
+];
+const B_DEPART=2.2,B_RECUL=17.6,B_PHRASE=20.2,B_FIN=22.4,ARRET=1.7;
+// position de l'utilitaire le long de la route : il roule entre les arrêts, s'arrête 2,4 temps à chacun
+function avance(b){const pts=[[B_DEPART,0]];ARRETS.forEach(a=>{pts.push([a.b,a.f]);pts.push([a.b+ARRET,a.f]);});pts.push([B_RECUL-.2,1]);
+  if(b<=pts[0][0])return 0;for(let i=1;i<pts.length;i++)if(b<pts[i][0]){const [b0,f0]=pts[i-1],[b1,f1]=pts[i];return lerp(f0,f1,f0===f1?0:ease((b-b0)/(b1-b0)));}return 1;}
+
+// ——— le plan de la ville, dessiné une fois ———
+const MX0=-700,MY0=-500,MW=2480,MH=2960;
+let PLAN=null;
+function preparer(){const [c,f]=toile(MW,MH);f.translate(-MX0,-MY0);
+  f.fillStyle='#0c0f14';f.fillRect(MX0,MY0,MW,MH);
+  // le fleuve
+  f.save();f.strokeStyle='#101a26';f.lineWidth=150;f.lineCap='round';f.beginPath();for(let y=MY0;y<=MY0+MH;y+=40){const x=-380+Math.sin(y/420)*160;y===MY0?f.moveTo(x,y):f.lineTo(x,y);}f.stroke();f.restore();
+  // les îlots : blocs d'immeubles avec quelques fenêtres allumées, parcs
+  const pas=118;for(let gx=MX0;gx<MX0+MW;gx+=pas)for(let gy=MY0;gy<MY0+MH;gy+=pas){const jx=(R()-.5)*16,jy=(R()-.5)*16;const x=gx+12+jx,y=gy+12+jy,w=pas-24,h=pas-24;
+    if(Math.abs(x+w/2-(-380+Math.sin((y+h/2)/420)*160))<120)continue;
+    const parc=R()<.08;f.fillStyle=parc?'#101a14':`rgb(${22+R()*8|0},${24+R()*8|0},${30+R()*8|0})`;rr(x,y,w,h,6,f);f.fill();
+    if(!parc){for(let k=0;k<6;k++){f.fillStyle=`rgba(255,${190+R()*40|0},120,${.15+R()*.35})`;f.fillRect(x+8+R()*(w-16),y+8+R()*(h-16),3,3);}}
+    else{for(let k=0;k<5;k++){f.fillStyle='rgba(40,70,45,.7)';f.beginPath();f.arc(x+10+R()*(w-20),y+10+R()*(h-20),6+R()*8,0,7);f.fill();}}}
+  // la route de la tournée est aussi une vraie rue (on ne la devine pas encore)
+  f.strokeStyle='#1a1f27';f.lineWidth=26;f.lineJoin='round';f.lineCap='round';f.beginPath();ROUTE.Q.forEach((p,i)=>i?f.lineTo(p[0],p[1]):f.moveTo(p[0],p[1]));f.stroke();
+  // lampadaires
+  for(let i=0;i<500;i++){const x=MX0+R()*MW,y=MY0+R()*MH;const gr=f.createRadialGradient(x,y,0,x,y,16);gr.addColorStop(0,'rgba(255,200,130,.35)');gr.addColorStop(1,'rgba(255,200,130,0)');f.fillStyle=gr;f.fillRect(x-16,y-16,32,32);}
+  PLAN=c;}
+
+// ——— l'utilitaire vu de dessus : carrosserie claire, bande orange, phares ———
+function utilitaire(x,y,a,phares){g.save();g.translate(x,y);g.rotate(a);
+  if(phares>0){g.save();g.globalCompositeOperation='lighter';const gp=g.createRadialGradient(70,0,10,180,0,170);gp.addColorStop(0,`rgba(255,240,200,${.35*phares})`);gp.addColorStop(1,'rgba(255,240,200,0)');g.fillStyle=gp;g.beginPath();g.moveTo(40,-20);g.lineTo(280,-110);g.lineTo(280,110);g.lineTo(40,20);g.closePath();g.fill();g.restore();}
+  g.save();g.fillStyle='rgba(0,0,0,.6)';g.filter='blur(10px)';rr(-58,-26,124,60,12);g.fill();g.restore();
+  const gc=g.createLinearGradient(0,-28,0,28);gc.addColorStop(0,'#cfd3d8');gc.addColorStop(.5,'#f4f5f6');gc.addColorStop(1,'#b8bdc3');g.fillStyle=gc;rr(-60,-28,120,56,10);g.fill();
+  g.fillStyle='#1b2028';rr(26,-22,22,44,6);g.fill();g.fillStyle='rgba(120,160,200,.35)';rr(30,-18,14,36,4);g.fill();
+  g.fillStyle=O2;g.fillRect(-56,-4,78,8);
+  g.fillStyle='#fff7e0';g.fillRect(58,-24,4,10);g.fillRect(58,14,4,10);g.fillStyle='#ff4a2a';g.fillRect(-62,-24,3,8);g.fillRect(-62,16,3,8);
+  g.restore();}
+// une épingle d'intervention, avec son prix
+function epingle(x,y,b0,b,prix){if(b<b0)return;const k=spring((b-b0)*B,13,.72);g.save();g.translate(x,y);
+  g.scale(clamp(k,0,1.2),clamp(k,0,1.2));lueur('rgba(232,101,15,.7)',30);const gr=g.createLinearGradient(-20,-70,20,-20);gr.addColorStop(0,O1);gr.addColorStop(1,O3);g.fillStyle=gr;
+  g.beginPath();g.arc(0,-52,26,Math.PI*.82,Math.PI*.18);g.lineTo(0,0);g.closePath();g.fill();g.shadowColor='transparent';
+  g.strokeStyle='#fff';g.lineWidth=5;g.lineCap='round';g.lineJoin='round';g.beginPath();g.moveTo(-10,-52);g.lineTo(-3,-45);g.lineTo(11,-60);g.stroke();
+  g.restore();
+  // le prix, petit, à côté
+  if(b>b0+.5){g.save();g.globalAlpha=expoOut(seg(b,b0+.5,b0+.9));g.font='800 40px JBMono';const w=g.measureText(prix).width;g.fillStyle='rgba(12,14,18,.82)';rr(x+28,y-74,w+28,52,26);g.fill();texte(prix,x+42+w/2,y-47,40,ORANGE,800,'JBMono');g.restore();}}
+
+// ——— la caméra : suit l'utilitaire, recule pour montrer la tournée, puis la bulle de la tournée rapetisse jusqu'au logo du carton ———
+const LOGO={x:280+18,y:700+16,u:4.4};   // où se pose la bulle dans le carton : coin (unités du logo 0,0) et taille d'une unité
+function camera(b){
+  const f=avance(b),[vx,vy]=surRoute(f),rec=ease(seg(b,B_RECUL,B_RECUL+1.9));
+  let cx=lerp(lerp(540,vx,smooth(seg(b,0,B_DEPART))),540,rec),cy=lerp(lerp(980,vy,smooth(seg(b,0,B_DEPART))),980,rec);
+  let z=lerp(lerp(1.0,1.7,smooth(seg(b,1,B_DEPART+1))),.95,rec);
+  // la fin : la bulle (coin LOX,LOY) glisse vers le logo en rapetissant ; zoom en log pour une vitesse d'échelle régulière
+  const fi=ease(seg(b,B_FIN-.7,B_FIN+.25));
+  if(fi>0){const zf=LOGO.u/K,sx0=(LOX-cx)*z+540,sy0=(LOY-cy)*z+960;const zz=Math.exp(lerp(Math.log(z),Math.log(zf),fi));
+    const sx=lerp(sx0,LOGO.x,fi),sy=lerp(sy0,LOGO.y,fi);cx=LOX-(sx-540)/zz;cy=LOY-(sy-960)/zz;z=zz;}
+  return {cx,cy,z};}
+function poserCamera(c){g.translate(540,960);g.scale(c.z,c.z);g.translate(-c.cx,-c.cy);}
+// la bulle remplie (la tournée était le logo) ; blanc → la bulle devient blanche comme dans le logo du carton
+function bulle(rem,blanc=0){if(rem<=0)return;g.save();g.globalAlpha*=lerp(.85*rem,1,blanc);const gr=g.createLinearGradient(...U(4,2),...U(21,23));gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);g.fillStyle=gr;
+  g.beginPath();ROUTE.Q.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();g.fill();
+  if(blanc>0){g.globalAlpha=blanc;g.fillStyle='#fff';g.fill();}
+  g.globalAlpha=rem;for(const [x,y0,y1] of [[9.2,9.5,12.5],[12.3,7,15],[15.4,9,13]]){const [px,py]=U(x,y0),[,py1]=U(x,y1);g.fillStyle='#fff';g.globalAlpha=rem*(1-blanc);rr(px-K*.5,py,K,py1-py,K/2);g.fill();g.fillStyle=O2;g.globalAlpha=blanc;g.fill();}g.restore();}
+// le monde vu par la caméra à l'instant b (dessiné plusieurs fois pour le flou de mouvement)
+function monde(b){
+  const f=avance(b),[vx,vy,va]=surRoute(f),c=camera(b);
+  g.setTransform(1,0,0,1,0,0);g.fillStyle='#0c0f14';g.fillRect(0,0,W,H);poserCamera(c);
+  g.drawImage(PLAN,MX0,MY0);
+  if(f>0){g.save();g.lineJoin='round';g.lineCap='round';const n=ROUTE.L.findIndex(l=>l>=f*ROUTE.T);
+    for(const [w,col,bl] of [[30,'rgba(232,101,15,.25)',30],[12,'rgba(255,138,61,.95)',14],[4,'rgba(255,230,200,.9)',0]]){g.strokeStyle=col;g.lineWidth=w;lueur('rgba(232,101,15,.6)',bl);g.beginPath();
+      for(let i=0;i<=(n<0?ROUTE.Q.length-1:n);i++){const p=ROUTE.Q[i];i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]);}g.lineTo(vx,vy);g.stroke();}g.restore();}
+  const rem=seg(b,B_RECUL+1.6,B_RECUL+2.5);bulle(rem);
+  ARRETS.forEach(a=>{const [px,py]=surRoute(a.f);epingle(px,py,a.b+1.35,b,a.prix);});
+  if(rem<1){g.save();g.globalAlpha=(1-rem)*seg(b,1.75,2.1);const roule=ARRETS.every(a=>!(b>=a.b&&b<a.b+ARRET));utilitaire(vx,vy,va,b>B_DEPART-.5?(roule?1:.4):0);g.restore();}
+  g.setTransform(1,0,0,1,0,0);}
+// vitesse de la caméra à l'écran (px par seconde), pour régler l'obturation
+function vitesse(b){const a=camera(b),c=camera(b-.02),dt=.02*B;return Math.hypot((a.cx-c.cx)*a.z,(a.cy-c.cy)*a.z)/dt+Math.abs(Math.log(a.z/c.z))/dt*900;}
+
+function seek(T_){
+  if(!PLAN)preparer();
+  const t=((T_%DN)+DN)%DN,b=t/B;
+  // flou de mouvement sur les déplacements rapides : traînée d'environ 16 px au plus fort
+  const v=vitesse(b),ouv=v>250?Math.min(16/v,1/60)/B:0;
+  g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;
+  flouMouvement(monde,b,ouv,5);
+  // la nuit autour
+  const gv=g.createRadialGradient(540,960,300,540,960,1300);gv.addColorStop(0,'rgba(0,0,0,0)');gv.addColorStop(1,'rgba(0,0,0,.7)');g.fillStyle=gv;g.fillRect(0,0,W,H);
+  // l'accroche : les mots arrivent en flou, se posent, puis partent en flou
+  if(b<2.9){g.save();lueur('rgba(232,101,15,.6)',40);ligneMots('MULTISERVICE ?',540,560,100,'#fff',900,'Archivo',t,.05,2.05*B);g.shadowColor='transparent';
+    ligneMots('5 chantiers, 5 devis…',540,710,62,'#f3dccb',700,'Archivo',t,1.0*B,2.15*B);ligneMots('ce soir ?',540,790,62,'#fff',800,'Archivo',t,1.0*B+.32,2.2*B);g.restore();}
+  // la bulle de dictée à chaque arrêt : elle se pose sur une longue traîne, sans rebond ; elle part plus vite, en flou
+  ARRETS.forEach(a=>{const b0=a.b,b1=a.b+1.6;if(b<b0-.05||b>b1+.3)return;const k=expoOut(seg(t,b0*B,b0*B+.45)),so=p3In(seg(b,b1,b1+.25)),al=clamp(k*2)*(1-so);if(al<=0)return;
+    g.save();g.globalAlpha=al;g.translate(0,(1-k)*26);const fl=4*(1-k)+8*so;if(fl>.3)g.filter=`blur(${fl.toFixed(1)}px)`;
+    g.fillStyle='rgba(12,14,18,.88)';rr(80,1180,920,210,46);g.fill();g.strokeStyle='rgba(255,138,61,.3)';g.lineWidth=2;rr(80,1180,920,210,46);g.stroke();
+    const gm=g.createLinearGradient(124,1240,204,1320);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(168,1285,44,0,7);g.fill();
+    g.fillStyle='#fff';rr(159,1259,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.lineCap='round';g.beginPath();g.arc(168,1279,17,.15*Math.PI,.85*Math.PI);g.stroke();g.beginPath();g.moveTo(168,1296);g.lineTo(168,1305);g.stroke();
+    g.font='800 26px Archivo';g.fillStyle=ORANGE;g.textAlign='left';g.textBaseline='middle';g.letterSpacing='4px';g.fillText('TU DICTES',240,1218);g.letterSpacing='0px';
+    const tout=a.dit.length+a.dit2.length,n=Math.floor(tout*seg(b,b0+.1,b0+1.15)),n1=Math.min(n,a.dit.length),n2=Math.max(0,n-a.dit.length);
+    texte(a.dit.slice(0,n1),238,1272,48,'#fff',700,'Archivo','left');texte(a.dit2.slice(0,n2),238,1336,48,ORANGE,700,'Archivo','left');
+    if(n<tout||((b*B*2.4)%1)<.6){g.font='700 48px Archivo';const w=g.measureText(n2>0?a.dit2.slice(0,n2):a.dit.slice(0,n1)).width;g.fillStyle='#fff';g.fillRect(242+w,n2>0?1312:1248,4,48);}
+    const ok=expoOut(seg(b,b0+1.25,b0+1.5));if(ok>0){g.globalAlpha=al*ok;g.fillStyle='rgba(232,101,15,.18)';rr(800,1300,170,60,30);g.fill();texte('Envoyé ✓',885,1331,30,ORANGE,800);}
+    g.restore();});
+  // la phrase de la fin, mot à mot, puis elle part avant que la bulle ne file vers le logo
+  if(b>=B_PHRASE&&b<B_FIN){g.save();const so=p3In(seg(b,B_FIN-.95,B_FIN-.7));g.globalAlpha=clamp(expoOut(seg(b,B_PHRASE,B_PHRASE+.4))*1.5)*(1-so);
+    g.fillStyle='rgba(12,14,18,.82)';rr(110,1560,860,190,46);g.fill();g.globalAlpha=1;
+    ligneMots('5 devis envoyés',540,1625,64,'#fff',800,'Archivo',t,(B_PHRASE+.1)*B,(B_FIN-.95)*B);ligneMots('depuis le camion.',540,1700,58,ORANGE,800,'Archivo',t,(B_PHRASE+.1)*B+.3,(B_FIN-.92)*B);g.restore();}
+  // la ville s'éteint pendant que la bulle file vers le logo (le fond change, la bulle reste) ; puis le carré orange naît derrière elle
+  const fi=seg(b,B_FIN-.7,B_FIN+.25);
+  if(fi>0){g.fillStyle=`rgba(10,8,6,${.97*ease(seg(b,B_FIN-.7,B_FIN+.1))})`;g.fillRect(0,0,W,H);
+    const sq=p4Out(seg(b,B_FIN+.1,B_FIN+.55)),c=camera(b);
+    if(sq>0){const s=lerp(106,140,sq),gx=280+70,gy=700+70;g.save();g.globalAlpha=clamp(sq*2.5);const gr=g.createLinearGradient(gx-s/2,gy-s/2,gx+s/2,gy+s/2);gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);
+      lueur('rgba(232,101,15,.6)',50*sq);g.fillStyle=gr;rr(gx-s/2,gy-s/2,s,s,lerp(30,40,sq));g.fill();g.restore();}
+    g.save();poserCamera(c);bulle(1,ease(seg(b,B_FIN+.05,B_FIN+.4)));g.restore();}
+  if(b>=B_FIN)cartonFin(t,B_FIN*B,.6);
+}
+window.seek=seek;
+const render=location.search.includes('render');
+if(render){document.getElementById('ui').style.display='none';}
+else{const fit=()=>{const k=Math.min(innerWidth/1080,(innerHeight-40)/1920);cv.style.transform=`scale(${k})`;};addEventListener('resize',fit);fit();
+  let t0=performance.now(),run=false,off=0;document.getElementById('lecture').onclick=()=>{run=!run;t0=performance.now()-off*1000;};
+  document.getElementById('curseurUI').oninput=e=>{off=e.target.value/1000*DN;t0=performance.now()-off*1000;};
+  (function loop(){if(run)off=((performance.now()-t0)/1000)%DN;document.getElementById('temps').textContent=off.toFixed(2);document.getElementById('curseurUI').value=off/DN*1000;seek(off);requestAnimationFrame(loop);})();}
+document.fonts.ready.then(async()=>{await Promise.all([...document.fonts].map(f=>f.load().catch(()=>{})));preparer();seek(0);window.VIDEO={w:W,h:H,duration:DN};});
+</script>
+</body>
+</html>

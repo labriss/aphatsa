@@ -1,0 +1,4 @@
+Voix de référence masculine (ref_H.wav, 12,5 s extraits de 2:00 à 2:30, silences resserrés) :
+« Scènes de la vie privée, tome I » d'Honoré de Balzac, lu par Bernard pour LibriVox — domaine public.
+https://archive.org/details/scenes_de_la_vie_privee_tome_1_bnd_0812_librivox (fichier scenesdelavieprivee1_02_balzac_64kb.mp3)
+Écartés : Ezwa (F0 172 Hz) et Jc Guan (F0 203 Hz), voix moins graves. Bernard : F0 médiane 119 Hz, bruit de fond -61 dB.

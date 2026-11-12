@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Diktéo — titres de la pub</title>
+<!-- Les titres et l'écran de fin de la pub, en couches transparentes posées sur les plans 3D.
+     Tout est une fonction du temps : window.rendre(t) dessine l'image à l'instant t (en secondes).
+     Couleurs et polices de la charte (src/app/globals.css, mode sombre).
+     Calage sur la musique (decoupage.md) : 152 BPM, un temps = 0,3947 s, drop à 13,00 s, dernier coup à 27,21 s.
+     Zone sûre commune TikTok, Reels et Shorts : rien d'important à droite de x = 940 ni sous y = 1490. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,800;100,900&family=JetBrains+Mono:wght@500;700&family=Public+Sans:wght@500;600;700&display=block" rel="stylesheet">
+<style>
+  :root {
+    --background: #0E1412;
+    --foreground: #E7EDEA;
+    --muted-foreground: #98A6A0;
+    --primary: #FF7A33;
+    --primary-foreground: #1A0D05;
+    --primary-gradient: linear-gradient(135deg, #FFA15C 0%, #FF7A33 50%, #F25C14 100%);
+    --froid: #BFD0E4;
+  }
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: transparent; }
+  body.fond { background: var(--background); }
+  * { box-sizing: border-box; }
+  .scene { position: absolute; inset: 0; opacity: 0; }
+  .titre {
+    position: absolute; left: 76px; right: 140px;
+    font-family: "Archivo", sans-serif; font-weight: 800; font-stretch: 100%;
+    font-size: 104px; line-height: 0.98; letter-spacing: -0.035em; color: var(--foreground);
+    text-shadow: 0 4px 40px rgb(0 0 0 / 0.55);
+  }
+  .ligne { display: block; overflow: hidden; padding-bottom: 0.1em; margin-bottom: -0.1em; }
+  .ligne > span { display: inline-block; will-change: transform; }
+  .lettre { display: inline-block; white-space: pre; }
+  .orange { color: var(--primary); }
+  /* Plan 4 : le titre passe sur l'écran orange pâle de l'ordinateur ; un voile sombre et flou le détache. */
+  .voile { position: absolute; left: 50%; top: 950px; width: 1100px; height: 640px; margin-left: -550px; margin-top: -320px;
+    border-radius: 50%; background: radial-gradient(closest-side, rgb(14 20 18 / 0.82), rgb(14 20 18 / 0.55) 55%, transparent); filter: blur(30px); }
+  .froid { color: var(--froid); }
+  .centre { text-align: center; left: 108px; right: 108px; }
+
+  /* Le reflet qui balaie « tout seul. » sur le drop. */
+  .reflet {
+    background: linear-gradient(100deg, var(--primary) 0%, var(--primary) 40%, #FFE2CC 50%, var(--primary) 60%, var(--primary) 100%);
+    background-size: 300% 100%; background-position: 100% 0;
+    -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none;
+    filter: drop-shadow(0 4px 30px rgb(0 0 0 / 0.5));
+  }
+
+  /* Défilé des métiers : le nom en très grand, qui roule sur chaque temps. */
+  #metier { top: 250px; font-size: 124px; text-align: center; left: 76px; right: 140px; height: 1.12em; }
+  #metier .ligne { position: relative; height: 1.12em; }
+  #metier .nom { position: absolute; left: 0; right: 0; top: 0; text-align: center; }
+  #metiers-sous { position: absolute; left: 0; right: 0; top: 1360px; text-align: center; margin: 0;
+    font-family: "Public Sans", sans-serif; font-weight: 700; font-size: 46px; color: var(--foreground);
+    text-shadow: 0 2px 24px rgb(0 0 0 / 0.6); }
+
+  /* Écran de fin. */
+  #fin { background: var(--background); }
+  #fin .halo { position: absolute; left: 50%; top: 44%; width: 1500px; height: 1500px; margin: -750px 0 0 -750px; border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(242 92 20 / 0.55), rgb(242 92 20 / 0.18) 55%, transparent); filter: blur(10px); }
+  #marque { position: absolute; left: 0; right: 0; top: 560px; display: flex; align-items: center; justify-content: center; gap: 26px; }
+  #marque svg { width: 150px; height: 150px; overflow: visible; }
+  #marque svg path { fill: var(--primary); fill-opacity: 0; stroke: var(--primary); stroke-width: 1.1; stroke-linejoin: round; }
+  #marque span { font-family: "Archivo", sans-serif; font-weight: 900; font-size: 190px; letter-spacing: -0.04em; color: var(--foreground); line-height: 1; }
+  #promesse { text-shadow: none; top: 820px; font-size: 76px; text-align: center; line-height: 1.04; left: 60px; right: 60px; }
+  #cta { position: absolute; left: 50%; top: 1080px; transform: translateX(-50%); height: 128px; padding: 0 64px; border-radius: 999px;
+    display: flex; align-items: center; background: var(--primary-gradient); color: var(--primary-foreground);
+    font-family: "Public Sans", sans-serif; font-weight: 700; font-size: 50px; white-space: nowrap; box-shadow: 0 20px 80px rgb(242 92 20 / 0.45); }
+  #sans-carte { position: absolute; left: 0; right: 0; top: 1236px; text-align: center; font-family: "Public Sans", sans-serif; font-weight: 600; font-size: 38px; color: var(--foreground); }
+  #url { position: absolute; left: 0; right: 0; top: 1330px; text-align: center; font-family: "JetBrains Mono", monospace; font-weight: 500; font-size: 42px; color: var(--muted-foreground); }
+
+  /* 16:9 (?format=paysage) : l'image verticale est à droite (x 936–1544) ; les titres à gauche, alignés à gauche. */
+  html.paysage, html.paysage body { width: 1920px; height: 1080px; }
+  html.paysage .titre { left: 120px !important; right: auto !important; width: 800px; top: 400px !important; text-align: left; font-size: 80px !important; }
+  html.paysage #s4 .titre { font-size: 104px !important; top: 360px !important; }
+  html.paysage #s6 .titre { font-size: 96px !important; top: 380px !important; }
+  html.paysage #metier { top: 420px !important; font-size: 110px !important; height: 1.12em; }
+  html.paysage #metier .nom { text-align: left; }
+  html.paysage #metiers-sous { top: 580px; left: 120px; right: auto; width: 760px; text-align: left; font-size: 40px; }
+  html.paysage #soiree { white-space: nowrap; }
+  html.paysage .voile { display: none; }
+  html.paysage #fin .halo { top: 50%; }
+  html.paysage #marque { top: 200px; }
+  html.paysage #promesse { top: 430px !important; left: 0 !important; right: 0 !important; width: auto; text-align: center; font-size: 66px !important; }
+  html.paysage #cta { top: 640px; }
+  html.paysage #sans-carte { top: 795px; }
+  html.paysage #url { top: 870px; }
+</style>
+</head>
+<body>
+  <!-- Plan 1 : l'accroche, sous la goutte. Lettre par lettre, déjà lisible à la première image. -->
+  <div class="scene" id="s1"><div class="titre" style="top: 1130px; font-size: 84px"><span class="ligne"><span class="decoupe">Vous réparez la fuite</span></span><span class="ligne"><span class="decoupe">en 20 minutes.</span></span></div></div>
+  <!-- Plan 2 : la chute ; « la soirée » sort d'un flou froid. -->
+  <div class="scene" id="s2"><div class="titre" style="top: 745px; font-size: 84px"><span class="ligne"><span>Le devis, lui,</span></span><span class="ligne"><span>vous prend <span class="froid" id="soiree">la soirée.</span></span></span></div></div>
+  <!-- Plan 4 : la bascule ; « le dictiez ? » arrive quand la musique démarre. -->
+  <div class="scene" id="s4"><div class="voile"></div><div class="titre centre" style="top: 820px; font-size: 124px"><span class="ligne"><span>Et si vous</span></span><span class="ligne"><span>le <span class="orange">dictiez&nbsp;?</span></span></span></div></div>
+  <!-- Plan 6 : le drop, au-dessus du téléphone ; un reflet balaie « tout seul. ». -->
+  <div class="scene" id="s6"><div class="titre centre" style="top: 216px; font-size: 92px"><span class="ligne"><span>Chiffré</span></span><span class="ligne"><span class="reflet" id="tout-seul">tout seul.</span></span></div></div>
+  <!-- Plan 8 : tous les métiers. -->
+  <div class="scene" id="s8"><div class="titre" id="metier"><span class="ligne"><span class="nom" id="nom-a"></span><span class="nom" id="nom-b"></span></span></div><p id="metiers-sous">Pour tous les métiers du bâtiment.</p></div>
+  <!-- Plan 10 : la fin. -->
+  <div class="scene" id="fin">
+    <div class="halo"></div>
+    <div id="marque">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M12 2.5c-3.6 4.4-7 8.6-7 12.2A7 7 0 0 0 19 14.7c0-3.6-3.4-7.8-7-12.2Z"/></svg>
+      <span>Diktéo</span>
+    </div>
+    <div class="titre" id="promesse"><span class="ligne"><span>Le devis dicté,</span></span><span class="ligne"><span>envoyé du chantier.</span></span></div>
+    <div id="cta">Gratuit pour commencer</div>
+    <div id="sans-carte">Sans carte bancaire</div>
+    <div id="url">fuiteo.vercel.app</div>
+  </div>
+
+<script>
+  // Courbes d'animation.
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const lin = (t, a, b) => clamp((t - a) / (b - a));
+  const outExpo = (x) => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x));
+  const outBack = (x) => { const c = 1.6; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+  const inOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+  const TEMPS = 60 / 152;
+
+  // Découpe en lettres (révélation lettre par lettre du plan 1).
+  document.querySelectorAll(".decoupe").forEach((el) => {
+    el.innerHTML = [...el.textContent].map((c) => `<span class="lettre">${c}</span>`).join("");
+  });
+
+  // Une scène de titres : les lignes montent de sous leur cache, l'une après l'autre, puis tout s'efface dans un flou.
+  function titres(id, t, debut, fin, { decalage = 0.12, duree = 0.55, sortie = 0.3 } = {}) {
+    const el = document.getElementById(id);
+    const visible = t >= debut - 0.01 && t <= fin + sortie;
+    el.style.opacity = visible ? 1 - inOut(lin(t, fin, fin + sortie)) : 0;
+    if (!visible) return false;
+    el.querySelectorAll(".ligne > span:not(.decoupe)").forEach((span, i) => {
+      const x = outExpo(lin(t, debut + i * decalage, debut + i * decalage + duree));
+      span.style.transform = `translateY(${(1 - x) * 110}%)`;
+    });
+    el.querySelector(".titre").style.filter = `blur(${inOut(lin(t, fin, fin + sortie)) * 14}px)`;
+    return true;
+  }
+
+  const METIERS = ["Électricien", "Chauffagiste", "Carreleur", "Peintre", "Menuisier", "Maçon", "Couvreur", "Serrurier", "Multiservice"];
+  const M0 = 19.32, MFIN = 24.05;
+
+  window.rendre = function (t) {
+    // Plan 1 : chaque lettre monte de sous son cache. Le mouvement a commencé avant la première image :
+    // à t = 0, la première ligne est déjà presque posée, l'accroche se lit tout de suite.
+    if (titres("s1", t, -0.4, 2.25)) {
+      document.querySelectorAll("#s1 .lettre").forEach((l, i) => {
+        const x = outExpo(lin(t, -0.4 + i * 0.022, -0.4 + i * 0.022 + 0.5));
+        l.style.transform = `translateY(${(1 - x) * 110}%)`;
+      });
+    }
+
+    // Plan 2 : « la soirée » sort d'un flou froid, un temps après le reste.
+    if (titres("s2", t, 2.75, 4.75)) {
+      const x = outExpo(lin(t, 3.25, 4.0));
+      const s = document.getElementById("soiree");
+      s.style.filter = `blur(${(1 - x) * 18}px)`;
+      s.style.opacity = 0.2 + 0.8 * x;
+      s.style.letterSpacing = `${(1 - x) * 0.12}em`;
+    }
+
+    // Plan 4 : « Et si vous » d'abord, « le dictiez ? » quand la musique démarre (7,29 s).
+    titres("s4", t, 6.97, 7.88, { decalage: 0.3, duree: 0.35, sortie: 0.2 });
+
+    // Plan 6 : les deux lignes claquent sur le drop (13,00 s), un léger coup de zoom, puis le reflet balaie « tout seul. ».
+    if (titres("s6", t, 12.94, 15.9, { decalage: 0.04, duree: 0.3 })) {
+      const punch = 1 + 0.06 * (1 - outExpo(lin(t, 13.0, 13.45)));
+      document.querySelector("#s6 .titre").style.transform = `scale(${t >= 13.0 ? punch : 1})`;
+      document.getElementById("tout-seul").style.backgroundPosition = `${100 - 100 * inOut(lin(t, 13.35, 14.15))}% 0`;
+    }
+
+    // Plan 8 : un métier par temps ; l'ancien nom monte et s'efface, le nouveau arrive d'en dessous.
+    const s8 = document.getElementById("s8");
+    s8.style.opacity = t >= M0 && t < MFIN ? 1 : 0;
+    if (t >= M0 && t < MFIN) {
+      const k = Math.min(METIERS.length - 1, Math.floor((t - M0) / TEMPS));
+      const x = outExpo(lin(t, M0 + k * TEMPS, M0 + k * TEMPS + 0.16));
+      const a = document.getElementById("nom-a"), b = document.getElementById("nom-b");
+      a.textContent = METIERS[k];
+      a.style.transform = `translateY(${(1 - x) * 100}%)`;
+      a.style.opacity = x;
+      b.textContent = k > 0 ? METIERS[k - 1] : "";
+      b.style.transform = `translateY(${-x * 100}%)`;
+      b.style.opacity = 1 - x;
+      document.getElementById("metiers-sous").style.opacity = outExpo(lin(t, M0, M0 + 0.4));
+    }
+
+    // Plan 10 : la goutte se dessine au trait en tombant, se remplit en se posant sur le dernier coup (27,21 s),
+    // le nom glisse, la promesse monte, puis le bouton, « sans carte bancaire » et l'adresse.
+    const F = 26.56, COUP = 27.21;
+    const fin = document.getElementById("fin");
+    fin.style.opacity = outExpo(lin(t, F, F + 0.3));
+    const svg = document.querySelector("#marque svg"), path = svg.querySelector("path");
+    const chute = lin(t, F, COUP);
+    svg.style.transform = `translateY(${(1 - chute * chute) * -240}px) scale(${t >= COUP ? 1 + 0.08 * (1 - outExpo(lin(t, COUP, COUP + 0.4))) : 0.85 + 0.15 * chute})`;
+    path.style.strokeDasharray = "1 1";
+    path.style.strokeDashoffset = 1 - outExpo(lin(t, F, COUP - 0.05));
+    path.style.fillOpacity = outExpo(lin(t, COUP, COUP + 0.18));
+    const nom = outExpo(lin(t, COUP, COUP + 0.55));
+    const mot = document.querySelector("#marque span");
+    mot.style.transform = `translateX(${(1 - nom) * 60}px)`;
+    mot.style.opacity = nom;
+    document.querySelectorAll("#promesse .ligne > span").forEach((span, i) => {
+      const x = outExpo(lin(t, COUP + 0.35 + i * 0.12, COUP + 0.95 + i * 0.12));
+      span.style.transform = `translateY(${(1 - x) * 110}%)`;
+    });
+    const cta = outBack(lin(t, COUP + 0.9, COUP + 1.35));
+    const bouton = document.getElementById("cta");
+    bouton.style.transform = `translateX(-50%) scale(${0.7 + 0.3 * cta})`;
+    bouton.style.opacity = clamp(cta * 1.5);
+    document.getElementById("sans-carte").style.opacity = outExpo(lin(t, COUP + 1.25, COUP + 1.7));
+    document.getElementById("url").style.opacity = outExpo(lin(t, COUP + 1.45, COUP + 1.9));
+    document.querySelector("#fin .halo").style.transform = `scale(${0.75 + 0.25 * outExpo(lin(t, F, F + 2.5)) + 0.02 * Math.sin(t * 2.2)})`;
+  };
+
+  const p = new URLSearchParams(location.search);
+  if (p.get("format") === "paysage") document.documentElement.classList.add("paysage");
+  if (p.get("fond") === "1") document.body.classList.add("fond");
+  window.rendre(Number(p.get("t") ?? 0));
+</script>
+</body>
+</html>

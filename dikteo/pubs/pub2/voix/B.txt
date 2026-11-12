@@ -1,0 +1,10 @@
+# Pub B (YouTube 16:9, 30 s)
+b1|Vingt et une heures. Il te reste trois devis à faire.
+b2|Comme hier soir.
+b3|Et si tu les faisais avant de repartir ?
+b4|Avec Dicté-o, tu dictes ton chantier.
+b5|Tu parles.
+b6|Le devis se remplit tout seul.
+b7|Ton client l'accèpte en ligne.
+b8|Et toi, tu es déjà sur le chantier suivant.
+b9|Dicté-o. Gratuit pour commencer.

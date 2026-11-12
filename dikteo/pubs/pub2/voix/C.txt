@@ -1,0 +1,5 @@
+# Pub C (6 s)
+c1|Dicté.
+c2|Envoyé.
+c3|Accepté.
+c4|Dicté-o.

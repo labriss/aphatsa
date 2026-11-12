@@ -1,0 +1,6 @@
+# Pub D (défi, 15 s)
+d1|Défi : un devis de plombier, dicté en cinq secondes.
+d2|Top chrono !
+d3|Pari tenu.
+d4|Et le devis se remplit tout seul.
+d5|À toi. Dicté-o, gratuit pour commencer.
