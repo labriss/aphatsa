@@ -9,7 +9,7 @@ export const CARDS = {
     { text: 'Tu dictes ton devis,', italic: true, size: 62 },
     { text: 'Diktéo l’écrit.', italic: true, size: 62 },
     { text: ' ', size: 30 },
-    { text: 'dikteo.vercel.app', font: 'Playfair Display SC', weight: 700, size: 44, spacing: 2 },
+    { text: 'diktéo.fr', font: 'Playfair Display SC', weight: 700, size: 44, spacing: 2 },
   ], gap: 1.3, stagger: .35, at: .3 },
 };
 // Le seul élément en couleur du film : le logo orange du carton final (masque couleur).

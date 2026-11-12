@@ -206,7 +206,7 @@ function seek(T){
     {const kk=expoOut(seg(b,b0+1.9,b0+2.5));g.save();g.globalAlpha=kk;if(kk<1)g.filter=`blur(${(1-kk)*8}px)`;texte('sans carte bancaire',540,1090,46,'#B9AFA1',600,'Inter');g.restore();}
     {const kk=expoOut(seg(b,b0+2.2,b0+3));g.save();g.globalAlpha=clamp(kk*1.5);g.translate(540,1232);g.scale(.9+.1*kk,.9+.1*kk);g.translate(-540,-1232);
     const gb=g.createLinearGradient(290,1180,790,1280);gb.addColorStop(0,O1);gb.addColorStop(.55,O2);gb.addColorStop(1,O3);g.fillStyle=gb;rr(270,1180,540,104,34);g.fill();
-    texte('dikteo.vercel.app',540,1233,46,'#fff',800,'Inter');g.restore();}
+    texte('diktéo.fr',540,1233,46,'#fff',800,'Inter');g.restore();}
     g.restore();
   }
 }

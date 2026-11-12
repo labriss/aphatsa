@@ -29,7 +29,7 @@ Recettes : démo au téléphone tenu en main, le « satisfaisant », appel à l'
 | 8,3–11,1 | Écran en grand, drop de la musique : les lignes tombent, total 872,30 € | « Tout se range tout seul. » |
 | 11,1–14,0 | Autre main : « Envoyé à Mme Fontaine » | « Tu l'envoies. » |
 | 14,0–18,0 | Plomberie ; notification « Mme Fontaine a accepté le devis », ding | « Ton client accepte en ligne. » |
-| 18,0–23,0 | Carte de fin : logo, « Le devis dicté, envoyé du chantier », offre, bouton, dikteo.vercel.app | « Diktéo. Gratuit pour tes trois devis du mois. Sans carte bancaire. » |
+| 18,0–23,0 | Carte de fin : logo, « Le devis dicté, envoyé du chantier », offre, bouton, diktéo.fr | « Diktéo. Gratuit pour tes trois devis du mois. Sans carte bancaire. » |
 
 ### Déclinaisons par métier (les 6 formats × 10 métiers)
 Chaque pub existe pour chaque métier du site : `A_<métier>`, `B_<métier>`, `C_<métier>`, `C_vertical_<métier>`,

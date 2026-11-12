@@ -15,7 +15,7 @@ Données fictives uniquement (cliente « Mme Fontaine », montants d'exemple).
 | 7 | 16,16 – 19,32 s | Blender + interface | On touche « Envoyer » ; l'écran passe à « Devis accepté ✓ — Mme Fontaine ». Le téléphone pivote. | — | « Ding » d'acceptation. |
 | 8 | 19,32 – 24,05 s | Animations du site | Les 9 autres métiers défilent, un par temps (0,395 s), le dernier tient 3 temps : la réparation finie, le nom du métier en grand. | « Pour tous les métiers du bâtiment. » | Coupes sur chaque temps. |
 | 9 | 24,05 – 26,56 s | Blender | Retour à la cuisine, maintenant chaude : l'ordinateur est fermé, l'horloge indique 18:30. | — | La musique respire. |
-| 10 | 26,56 – 30,0 s | Interface | Logo Diktéo, lueur orange. | « Le devis dicté, envoyé du chantier. » — « Gratuit pour commencer » — fuiteo.vercel.app | Note finale. |
+| 10 | 26,56 – 30,0 s | Interface | Logo Diktéo, lueur orange. | « Le devis dicté, envoyé du chantier. » — « Gratuit pour commencer » — diktéo.fr | Note finale. |
 
 Version 15 s : plans 1, 4 (raccourci), 6, 7, 10.
 Version 16:9 : même montage, le téléphone au centre et le texte à côté.

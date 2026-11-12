@@ -140,7 +140,7 @@ def pub_a(metier="plombier"):
         {"type": "flash", "t0": t[6], "t1": t[6] + 0.35, "force": 0.55},
         {"type": "fin", "t0": t[6], "t1": t[7], "slogan": "Le devis dicté,<br><em>envoyé du chantier.</em>",
          "offre": "Gratuit pour 3 devis par mois<br>Sans carte bancaire", "offre_t": 1.2, "bouton": "Essayer gratuitement",
-         "bouton_t": 2.6, "url": "dikteo.vercel.app"},
+         "bouton_t": 2.6, "url": "diktéo.fr"},
     ]
 
     debut_musique = ecran_t(t[3], 7.0, 7.2) - DROP  # le drop tombe sur la 1re ligne du devis
@@ -211,7 +211,7 @@ def pub_b(metier="plombier"):
         {"type": "flash", "t0": t[8], "t1": t[8] + 0.35, "force": 0.5},
         {"type": "fin", "t0": t[8], "t1": t[9], "slogan": "Le devis dicté, <em>envoyé du chantier.</em>",
          "offre": "Gratuit pour 3 devis par mois · Sans carte bancaire", "offre_t": 1.0, "bouton": "Essayer gratuitement",
-         "bouton_t": 1.8, "url": "dikteo.vercel.app"},
+         "bouton_t": 1.8, "url": "diktéo.fr"},
     ]
     musique = [(0.0, fin - MESURE - debut_mus, debut_mus), (DERNIER_COUP - MESURE, 111.0, fin - MESURE)]
     lignes = [ecran_t(t[5], 6.6, x) for x in (7.2, 7.62, 8.04, 8.46)]
@@ -252,7 +252,7 @@ def pub_c(vertical=False, metier="plombier"):
          "texte": notif(m, court=True), "din": 0.2},
         {"type": "tampon", "t0": t[2] + 0.15, "t1": t[3] - 0.05, "y": 1150 if vertical else 640, "texte": "Accepté ✓"},
         {"type": "fin", "t0": t[3], "t1": t[4], "slogan": "Le devis dicté.", "offre": "Gratuit pour commencer",
-         "offre_t": 0.4, "bouton": "Essayer gratuitement", "bouton_t": 0.6, "url": "dikteo.vercel.app"},
+         "offre_t": 0.4, "bouton": "Essayer gratuitement", "bouton_t": 0.6, "url": "diktéo.fr"},
     ]
     debut = DROP - t[1]  # le drop tombe sur l'écran du devis
     musique = [(debut, debut + t[3] - 1.0, 0.0), (DERNIER_COUP - 1.0, DERNIER_COUP + 1.6, t[3] - 1.0)]
@@ -299,7 +299,7 @@ def pub_d(vertical=False, metier="plombier"):
         {"type": "tampon", "t0": t[2] + 0.05, "t1": t[3] - 0.05, "y": 820 if vertical else 430, "texte": "Pari tenu ✓"},
         {"type": "flash", "t0": t[2], "t1": t[2] + 0.3, "force": 0.6},
         {"type": "fin", "t0": t[4], "t1": t[5], "slogan": "À toi de jouer.", "offre": "Gratuit pour commencer · Sans carte bancaire",
-         "offre_t": 0.6, "bouton": "Essayer gratuitement", "bouton_t": 1.0, "url": "dikteo.vercel.app"},
+         "offre_t": 0.6, "bouton": "Essayer gratuitement", "bouton_t": 1.0, "url": "diktéo.fr"},
     ]
     debut_mus = t[1]                                 # la musique part au « Top chrono »
     a_reprise = t[4] - MESURE

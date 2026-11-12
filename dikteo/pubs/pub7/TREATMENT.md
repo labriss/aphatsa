@@ -33,7 +33,7 @@ Installation (21 h, la pile) → tournant (le carton, la voix qui imprime) → f
 | 5 | Même cuisine ; il prend son téléphone, le tient comme un cornet ; ses mots sortent en volutes d'encre ; au bas du téléphone sort une bande de papier, le devis s'imprime ligne à ligne ; poussée lente de la caméra ; iris à demi : il lève un sourcil vers nous | plan moyen, poussée lente, iris à demi tenu | 5 s | le moment natif du style : la voix devient télégramme ; le clin d'œil au public |
 | 6 | Carton « Devis envoyé. 21 h 04. » | carton narration | 3 s | la promesse chiffrée, en une ligne |
 | 7 | Il souffle la pile vers la corbeille, met son chapeau, ouvre la porte : la famille à table sous la lampe ; iris qui se ferme sur la table | plan d'ensemble, iris final | 4 s | la fin répond au début : même table, autre soir |
-| 8 | Carton final Diktéo : logo, « Le devis dicté, envoyé du chantier. », dikteo.vercel.app ; la pellicule s'arrête, le projecteur ralentit | carton (filet tendre) | 4,2 s | appel à l'action, tenu ≥ 4 s |
+| 8 | Carton final Diktéo : logo, « Le devis dicté, envoyé du chantier. », diktéo.fr ; la pellicule s'arrête, le projecteur ralentit | carton (filet tendre) | 4,2 s | appel à l'action, tenu ≥ 4 s |
 
 Mouvements : fixe, accélération (undercrank), poussée, iris demi, iris fermant, rideau = au moins 4.
 Plan signature : la voix qui devient bande de télégramme (plan 5).

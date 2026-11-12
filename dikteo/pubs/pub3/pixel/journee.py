@@ -273,7 +273,7 @@ def s8():
     cadre(d, [14, 226, 166, 262], 2, "noir", "jaune")
     texte(d, (24, 234), "GRATUIT", "jaune")
     texte(d, (24, 248), "3 devis par mois", "blanc")
-    texte(d, (28, 290), "dikteo.vercel.app", "gris")
+    texte(d, (28, 290), "diktéo.fr", "gris")
     return im
 
 

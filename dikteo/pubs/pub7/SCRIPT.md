@@ -18,7 +18,7 @@ Aucun trait caricatural ; l'humour vient des objets et de la paperasse, jamais d
 | 10-15 | Même cuisine. Il sort son téléphone, le porte à la bouche comme un cornet de téléphone 1920. Ses mots sortent en volutes d'encre qui entrent dans le téléphone ; une feuille de devis propre s'imprime au bout comme un télégramme, ligne après ligne. Il la regarde, lève un sourcil (seul mouvement de son visage du film). | — | thème léger, une note par ligne |
 | 15-17 | Carton. | « Devis envoyé. 21 h 04. » | accord joyeux |
 | 17-21 | Il souffle sur la pile de papiers qui part dans la corbeille ; il met son chapeau, ouvre la porte : la famille l'attend à table, la lampe allumée. Iris qui se ferme sur la table. | — | final du thème |
-| 21-24 | Carton final, même cadre : logo Diktéo, « Le devis dicté, envoyé du chantier. », dikteo.vercel.app. | une chose | dernier accord, le projecteur s'arrête |
+| 21-24 | Carton final, même cadre : logo Diktéo, « Le devis dicté, envoyé du chantier. », diktéo.fr. | une chose | dernier accord, le projecteur s'arrête |
 
 ## Fabrication
 - Le skill **lemo-opuscar** (style `silent-film`) : setup.sh installe la bibliothèque ; lire son STYLE.md et DIRECTOR.md.

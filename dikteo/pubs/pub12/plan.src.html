@@ -72,7 +72,7 @@ function cartonFin(t,tf,k=1,tx=280,ty=700){
   const kb=p4Out(seg(t,tf+1.3*k,tf+1.3*k+.45));
   if(kb>0){const w=lerp(104,540,kb),fl=10*(1-kb);g.save();g.globalAlpha*=clamp(kb*3);if(fl>.3)g.filter=`blur(${fl.toFixed(1)}px)`;
     const gb=g.createLinearGradient(540-w/2,1150,540+w/2,1254);gb.addColorStop(0,O1);gb.addColorStop(.55,O2);gb.addColorStop(1,O3);g.fillStyle=gb;rr(540-w/2,1150,w,104,lerp(52,34,kb));g.fill();g.restore();
-    ligneMots('dikteo.vercel.app',540,1203,46,'#fff',800,'Archivo',t,tf+1.3*k+.18,1e9,'center',.08,.18);}
+    ligneMots('diktéo.fr',540,1203,46,'#fff',800,'Archivo',t,tf+1.3*k+.18,1e9,'center',.08,.18);}
   g.restore();}
 // Flou de mouvement : l'objet est dessiné à plusieurs instants de l'obturation, moyennés (comme une vraie caméra).
 // dessin(b) dessine avec le contexte global g ; ouv : ouverture en temps de la pub (même unité que b).

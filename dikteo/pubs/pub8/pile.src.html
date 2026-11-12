@@ -162,7 +162,7 @@ function seek(T){
     {const kk=expoOut(seg(b,32.3,32.9));g.save();g.globalAlpha=kk;if(kk<1)g.filter=`blur(${(1-kk)*8}px)`;texte('sans carte bancaire',540,1080,46,'#B9AFA1',600,'PublicSans');g.restore();}
     {const kk=expoOut(seg(b,32.6,33.4));g.save();g.globalAlpha=clamp(kk*1.5);g.translate(540,1222);g.scale(.9+.1*kk,.9+.1*kk);g.translate(-540,-1222);
     const gr=g.createLinearGradient(290,1170,790,1270);gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);g.fillStyle=gr;rr(270,1170,540,104,34);g.fill();
-    texte('dikteo.vercel.app',540,1223,46,'#fff',800,'PublicSans');g.restore();}g.restore();}
+    texte('diktéo.fr',540,1223,46,'#fff',800,'PublicSans');g.restore();}g.restore();}
 }
 window.seek=seek;
 const render=location.search.includes('render');
