@@ -176,7 +176,7 @@ function crayon(txt,x,y,size,b0,b,dur,col='#2b2a2c',rot=-.03,sortie=0){const u=s
 function micro(b){if(b<3.7)return;const app=easeOut(seg(b,3.7,4.3))*(1-seg(b,B_HUILE,B_HUILE+.5)+seg(b,B_ENV-.4,B_ENV));if(app<=0)return;const m=ease(seg(b,B_FIN-.6,B_FIN+.5));
   const env=seg(b,B_ENV,B_ENV+.5);
   // le bandeau s'allonge pour l'envoi, puis se resserre en carré (le logo)
-  const larg=lerp(lerp(480,860,ease(env)),140,m),haut=lerp(112,140,m),cx=lerp(540,280+70,m),cy=lerp(176,700+70,m),rad=lerp(56,40,m);
+  const larg=lerp(lerp(480,860,ease(env)),140,m),haut=lerp(112,140,m),cx=lerp(540,280+70,m),cy=lerp(222,700+70,m),rad=lerp(56,40,m);
   g.save();g.globalAlpha=app;
   const fond=m<.5;
   if(fond){g.globalAlpha=app*(1-m*2);g.fillStyle='rgba(14,10,7,.84)';rr(cx-larg/2,cy-haut/2,larg,haut,rad);g.fill();g.strokeStyle='rgba(255,138,61,.3)';g.lineWidth=2;rr(cx-larg/2,cy-haut/2,larg,haut,rad);g.stroke();g.globalAlpha=app;}
@@ -211,14 +211,14 @@ function seek(T_){
   // le bord du plateau
   g.strokeStyle='rgba(255,230,190,.12)';g.lineWidth=3;g.strokeRect(PX+1.5,PY+1.5,PW-3,PH-3);
   // l'accroche
-  if(b<5.5){const so=i=>p3In(seg(b,3.7+i*.14,4.3+i*.14));crayon('MENUISIER ?',540,820,128,.05,b,.5,'#2b2a2c',-.03,so(0));
-    crayon('Tes devis, encore',540,1010,66,1.75,b,.55,'#2b2a2c',-.025,so(1));crayon('le soir à la main ?',540,1100,66,2.3,b,.55,'#2b2a2c',-.025,so(2));}
+  if(b<5.5){const so=i=>p3In(seg(b,3.7+i*.14,4.3+i*.14));crayon('MENUISIER ?',540,760,128,.05,b,.5,'#2b2a2c',-.03,so(0));
+    crayon('Tes devis, encore',540,985,66,1.75,b,.55,'#2b2a2c',-.025,so(1));crayon('le soir à la main ?',540,1075,66,2.3,b,.55,'#2b2a2c',-.025,so(2));}
   // les copeaux (ils s'effacent quand l'huile passe), le rabot, les prix gravés
   PHRASES.forEach((ph,i)=>{if(b<ph.b+.3)return;const a=1-seg(b,B_HUILE+.2+i*.25,B_HUILE+1+i*.25);if(a>0)copeau(i,b,a);
     const xr=xRabot(i,b);if(xr>-200&&xr<W+230){rabot(xr,PY+BH*i+BH/2);
       // les petits éclats à la bouche du rabot
       g.save();for(let k=0;k<10;k++){const tt=((b*B*3+k*.1)%1),x=xr+20-tt*140,y=PY+BH*i+BH/2+(rnd(k)-.5)*120*tt;g.fillStyle=`rgba(225,190,140,${.6*(1-tt)})`;g.beginPath();g.ellipse(x,y,4,2,rnd(k*3)*3,0,7);g.fill();}g.restore();}
-    const bp=ph.b+.3+PASSE*.92;g.save();g.globalAlpha*=1-.88*seg(b,B_HUILE+.3,B_HUILE+1.6);prixGrave(ph.prix,PX+PW-30,PY+BH*i+BH/2,bp,b);g.restore();});
+    const bp=ph.b+.3+PASSE*.92;g.save();g.globalAlpha*=1-.88*seg(b,B_HUILE+.3,B_HUILE+1.6);prixGrave(ph.prix,PX+PW-130,PY+BH*i+BH/2+80,bp,b);g.restore();});
   // le coup de lumière sur le bois huilé
   const cl=seg(b,B_HUILE+2.4,B_HUILE+4.6);if(cl>0&&cl<1){g.save();g.beginPath();g.rect(PX,PY,PW,PH);g.clip();g.globalCompositeOperation='screen';const x=lerp(-500,W+500,ease(cl));
     const gs=g.createLinearGradient(x-220,0,x+220,0);gs.addColorStop(0,'rgba(255,220,170,0)');gs.addColorStop(.5,'rgba(255,225,180,.22)');gs.addColorStop(1,'rgba(255,220,170,0)');g.translate(x,980);g.transform(1,0,-.5,1,0,0);g.translate(-x,-980);g.fillStyle=gs;g.fillRect(x-220,0,440,2000);g.restore();}

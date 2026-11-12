@@ -135,30 +135,30 @@ function seek(T){
   g.restore();
   if(b>.8&&b<2.8){g.save();g.globalAlpha=1-seg(b,2.4,2.75);lueur('rgba(0,0,0,.9)',24);motsFlou('Ton devis, tu le fais',540,1370,56,'#f0e8dc',800,'Archivo','center',b,.8,.09,.28);motsFlou('encore sur le palier ?',540,1446,56,ORANGE,800,'Archivo','center',b,1.2,.09,.28);g.restore();}
   // 4 · de nuit : l'heure
-  if(b>=T_NUIT){const k=expoOut(seg(b,T_NUIT,T_NUIT+.7));g.save();g.globalAlpha*=k*(1-seg(b,B_ON,B_ON+.35));g.translate(880,420);g.scale(.88+.12*k,.88+.12*k);if(k<1)g.filter=`blur(${((1-k)*6).toFixed(2)}px)`;
+  if(b>=T_NUIT){const k=expoOut(seg(b,T_NUIT,T_NUIT+.7));g.save();g.globalAlpha*=k*(1-seg(b,B_ON,B_ON+.35));g.translate(880,470);g.scale(.88+.12*k,.88+.12*k);if(k<1)g.filter=`blur(${((1-k)*6).toFixed(2)}px)`;
     g.fillStyle='rgba(12,12,14,.9)';rr(-110,-56,220,112,26);g.fill();g.strokeStyle='rgba(127,184,255,.5)';g.lineWidth=2;rr(-110,-56,220,112,26);g.stroke();
     g.fillStyle='#dfe8f2';g.beginPath();g.arc(-62,0,24,0,7);g.fill();g.fillStyle='rgba(12,12,14,1)';g.beginPath();g.arc(-52,-8,22,0,7);g.fill();
     texte('23:40',30,4,46,'#dfe8f2',800,'JBMono');g.restore();}
   FADE=1-seg(b,B_ON,B_ON+.5);
-  etiquette('Ouverture de porte','90 €',540,1600,T_OUV+.6,b);
-  etiquette('Serrure 3 points','380 €',540,1690,T_3P+.5,b);
-  etiquette('Cylindre haute sécurité','120 €',540,1780,T_CYL+.6,b);
-  etiquette('Déplacement de nuit','60 €',540,1870,T_NUIT+.4,b);
+  etiquette('Ouverture de porte','90 €',540,1240,T_OUV+.6,b);
+  etiquette('Serrure 3 points','380 €',540,1328,T_3P+.5,b);
+  etiquette('Cylindre haute sécurité','120 €',540,1416,T_CYL+.6,b);
+  etiquette('Déplacement de nuit','60 €',540,1504,T_NUIT+.4,b);
   ITEMS.forEach((it,i)=>{const b1=i<ITEMS.length-1?ITEMS[i+1].b-.12:B_ON-.25;if(b<it.b-.05||b>b1+.2)return;
     const k=expoOut(seg(b,it.b-.05,it.b+.45)),a=k*(1-seg(b,b1,b1+.2));g.save();g.globalAlpha=a;
-    g.fillStyle='rgba(12,12,14,.9)';rr(70,80,940,236,40);g.fill();
-    const gm=g.createLinearGradient(110,143,190,223);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(150,198,44,0,7);g.fill();
-    g.fillStyle='#fff';rr(141,173,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(150,193,17,.15*Math.PI,.85*Math.PI);g.stroke();
-    dictee(it,b,150,198,220,130,44);g.restore();});
+    g.fillStyle='rgba(12,12,14,.9)';rr(70,160,940,236,40);g.fill();
+    const gm=g.createLinearGradient(110,223,190,303);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(150,278,44,0,7);g.fill();
+    g.fillStyle='#fff';rr(141,253,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(150,273,17,.15*Math.PI,.85*Math.PI);g.stroke();
+    dictee(it,b,150,278,220,210,44);g.restore();});
   if(b>=B_ON+.15&&b<B_ENV+.7){const kg=easeOut(seg(b,B_ON+.3,B_ON+1.6)),a=expoOut(seg(b,B_ON+.15,B_ON+.65))*(1-seg(b,B_ENV+.2,B_ENV+.45)),val=TOTAL*kg;
     const txt=val.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}).replace(/ | /g,' ')+' €',fl=kg>=1?Math.exp(-(b-B_ON-1.6)*B*3):0;
-    g.save();g.globalAlpha=a;g.fillStyle='rgba(12,12,14,.9)';rr(110,100,860,180,30);g.fill();g.strokeStyle='rgba(255,138,61,.35)';g.lineWidth=2;rr(110,100,860,180,30);g.stroke();
-    texte('TOTAL TTC',150,190,30,'rgba(255,190,140,.8)',800,'Archivo','left');lueur(`rgba(255,138,61,${.6+.4*fl})`,18+40*fl);texte(txt,930,194,82,ORANGE,800,'JBMono','right');g.restore();}
+    g.save();g.globalAlpha=a;g.fillStyle='rgba(12,12,14,.9)';rr(110,180,860,180,30);g.fill();g.strokeStyle='rgba(255,138,61,.35)';g.lineWidth=2;rr(110,180,860,180,30);g.stroke();
+    texte('TOTAL TTC',150,270,30,'rgba(255,190,140,.8)',800,'Archivo','left');lueur(`rgba(255,138,61,${.6+.4*fl})`,18+40*fl);texte(txt,930,274,82,ORANGE,800,'JBMono','right');g.restore();}
   if(b>=B_ENV&&b<B_FIN){const u=ease(seg(b,B_ENV,B_ENV+1.2));const P0=[540,1000],P1=[150,400];const hx=lerp(P0[0],P1[0],u),hy=lerp(P0[1],P1[1],u)-Math.sin(u*Math.PI)*90,fa=1-seg(b,B_ENV+.9,B_ENV+1.2);
     g.save();g.globalAlpha=fa;g.globalCompositeOperation='lighter';g.beginPath();for(let i=0;i<=30;i++){const v=u*i/30;const px=lerp(P0[0],P1[0],v),py=lerp(P0[1],P1[1],v)-Math.sin(v*Math.PI)*90;i?g.lineTo(px,py):g.moveTo(px,py);}
     g.strokeStyle='rgba(255,170,100,.5)';g.lineWidth=4;g.stroke();const gl=g.createRadialGradient(hx,hy,0,hx,hy,70);gl.addColorStop(0,'rgba(255,240,220,.95)');gl.addColorStop(.3,'rgba(255,160,80,.5)');gl.addColorStop(1,'rgba(255,120,40,0)');g.fillStyle=gl;g.beginPath();g.arc(hx,hy,70,0,7);g.fill();g.restore();}
-  if(b>=B_TXT&&b<B_FIN+.2){const k=expoOut(seg(b,B_TXT,B_TXT+.6)),a=k*(1-seg(b,B_FIN-.2,B_FIN+.1));g.save();g.globalAlpha=a;g.fillStyle='rgba(12,12,14,.88)';rr(150,1640,780,190,40);g.fill();
-    motsFlou('Envoyé à Mme Lambert.',540,1700,62,'#fff',800,'Archivo','center',b,B_TXT+.08);motsFlou('Elle est déjà au chaud.',540,1780,58,ORANGE,800,'Archivo','center',b,B_TXT+.45);g.restore();}
+  if(b>=B_TXT&&b<B_FIN+.2){const k=expoOut(seg(b,B_TXT,B_TXT+.6)),a=k*(1-seg(b,B_FIN-.2,B_FIN+.1));g.save();g.globalAlpha=a;g.fillStyle='rgba(12,12,14,.88)';rr(150,1360,780,190,40);g.fill();
+    motsFlou('Envoyé à Mme Lambert.',540,1420,62,'#fff',800,'Archivo','center',b,B_TXT+.08);motsFlou('Elle est déjà au chaud.',540,1500,58,ORANGE,800,'Archivo','center',b,B_TXT+.45);g.restore();}
   // le carton
   if(b>=B_FIN){const k=expoOut(seg(b,B_FIN,B_FIN+.8));g.save();g.fillStyle=`rgba(6,8,12,${.84*k})`;g.fillRect(0,0,W,H);
     const tx=540-260,ty=700,kl=expoOut(seg(b,B_FIN+.08,B_FIN+.85));g.save();g.globalAlpha=kl;g.translate(tx+70,ty+70);g.scale(.82+.18*kl,.82+.18*kl);g.translate(-tx-70,-ty-70);const gr=g.createLinearGradient(tx,ty,tx+140,ty+140);gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);

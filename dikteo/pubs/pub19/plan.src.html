@@ -93,8 +93,8 @@ function surRoute(f){const d=clamp(f)*ROUTE.T;let i=1;while(i<ROUTE.L.length-1&&
 // ——— les 5 interventions ———
 const ARRETS=[
   {f:.10,b:3, dit:'« Serrure changée,', dit2:'95 euros. »', prix:'95 €'},
-  {f:.30,b:6, dit:'« Fuite sous l’évier,', dit2:'80 euros. »', prix:'80 €'},
-  {f:.50,b:9,dit:'« Trois étagères posées,', dit2:'120 euros. »', prix:'120 €'},
+  {f:.30,b:6, dit:'« Fuite sous l’évier,', dit2:'80 euros. »', prix:'80 €', gauche:1},
+  {f:.50,b:9,dit:'« Trois étagères posées,', dit2:'120 euros. »', prix:'120 €', gauche:1},
   {f:.70,b:12,dit:'« Une prise remplacée,', dit2:'45 euros. »', prix:'45 €'},
   {f:.88,b:15,dit:'« Meuble monté,', dit2:'70 euros. »', prix:'70 €'},
 ];
@@ -132,20 +132,21 @@ function utilitaire(x,y,a,phares){g.save();g.translate(x,y);g.rotate(a);
   g.fillStyle='#fff7e0';g.fillRect(58,-24,4,10);g.fillRect(58,14,4,10);g.fillStyle='#ff4a2a';g.fillRect(-62,-24,3,8);g.fillRect(-62,16,3,8);
   g.restore();}
 // une épingle d'intervention, avec son prix
-function epingle(x,y,b0,b,prix){if(b<b0)return;const k=spring((b-b0)*B,13,.72);g.save();g.translate(x,y);
+function epingle(x,y,b0,b,prix,gauche=0){if(b<b0)return;const k=spring((b-b0)*B,13,.72);g.save();g.translate(x,y);
   g.scale(clamp(k,0,1.2),clamp(k,0,1.2));lueur('rgba(232,101,15,.7)',30);const gr=g.createLinearGradient(-20,-70,20,-20);gr.addColorStop(0,O1);gr.addColorStop(1,O3);g.fillStyle=gr;
   g.beginPath();g.arc(0,-52,26,Math.PI*.82,Math.PI*.18);g.lineTo(0,0);g.closePath();g.fill();g.shadowColor='transparent';
   g.strokeStyle='#fff';g.lineWidth=5;g.lineCap='round';g.lineJoin='round';g.beginPath();g.moveTo(-10,-52);g.lineTo(-3,-45);g.lineTo(11,-60);g.stroke();
   g.restore();
   // le prix, petit, à côté
-  if(b>b0+.5){g.save();g.globalAlpha=expoOut(seg(b,b0+.5,b0+.9));g.font='800 40px JBMono';const w=g.measureText(prix).width;g.fillStyle='rgba(12,14,18,.82)';rr(x+28,y-74,w+28,52,26);g.fill();texte(prix,x+42+w/2,y-47,40,ORANGE,800,'JBMono');g.restore();}}
+  if(b>b0+.5){g.save();g.globalAlpha=expoOut(seg(b,b0+.5,b0+.9));g.font='800 40px JBMono';const w=g.measureText(prix).width;g.fillStyle='rgba(12,14,18,.82)';const lx=gauche?x-56-w:x+28;rr(lx,y-74,w+28,52,26);g.fill();texte(prix,lx+14+w/2,y-47,40,ORANGE,800,'JBMono');g.restore();}}
 
 // ——— la caméra : suit l'utilitaire, recule pour montrer la tournée, puis la bulle de la tournée rapetisse jusqu'au logo du carton ———
-const LOGO={x:280+18,y:700+16,u:4.4};   // où se pose la bulle dans le carton : coin (unités du logo 0,0) et taille d'une unité
+const LOGO={x:280+18,y:700+16,u:4.4};
+const ZS=1.7,DY=0;   // suivi : zoom, et hauteur de l'utilitaire au-dessus du centre (px écran)   // où se pose la bulle dans le carton : coin (unités du logo 0,0) et taille d'une unité
 function camera(b){
   const f=avance(b),[vx,vy]=surRoute(f),rec=ease(seg(b,B_RECUL,B_RECUL+1.9));
-  let cx=lerp(lerp(540,vx,smooth(seg(b,0,B_DEPART))),540,rec),cy=lerp(lerp(980,vy,smooth(seg(b,0,B_DEPART))),980,rec);
-  let z=lerp(lerp(1.0,1.7,smooth(seg(b,1,B_DEPART+1))),.95,rec);
+  let cx=lerp(lerp(540,vx,smooth(seg(b,0,B_DEPART))),540,rec),cy=lerp(lerp(980,vy+DY/ZS,smooth(seg(b,0,B_DEPART))),980,rec);
+  let z=lerp(lerp(1.0,ZS,smooth(seg(b,1,B_DEPART+1))),.95,rec);
   // la fin : la bulle (coin LOX,LOY) glisse vers le logo en rapetissant ; zoom en log pour une vitesse d'échelle régulière
   const fi=ease(seg(b,B_FIN-.7,B_FIN+.25));
   if(fi>0){const zf=LOGO.u/K,sx0=(LOX-cx)*z+540,sy0=(LOY-cy)*z+960;const zz=Math.exp(lerp(Math.log(z),Math.log(zf),fi));
@@ -166,7 +167,7 @@ function monde(b){
     for(const [w,col,bl] of [[30,'rgba(232,101,15,.25)',30],[12,'rgba(255,138,61,.95)',14],[4,'rgba(255,230,200,.9)',0]]){g.strokeStyle=col;g.lineWidth=w;lueur('rgba(232,101,15,.6)',bl);g.beginPath();
       for(let i=0;i<=(n<0?ROUTE.Q.length-1:n);i++){const p=ROUTE.Q[i];i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]);}g.lineTo(vx,vy);g.stroke();}g.restore();}
   const rem=seg(b,B_RECUL+1.6,B_RECUL+2.5);bulle(rem);
-  ARRETS.forEach(a=>{const [px,py]=surRoute(a.f);epingle(px,py,a.b+1.35,b,a.prix);});
+  ARRETS.forEach(a=>{const [px,py]=surRoute(a.f);epingle(px,py,a.b+1.35,b,a.prix,a.gauche);});
   if(rem<1){g.save();g.globalAlpha=(1-rem)*seg(b,1.75,2.1);const roule=ARRETS.every(a=>!(b>=a.b&&b<a.b+ARRET));utilitaire(vx,vy,va,b>B_DEPART-.5?(roule?1:.4):0);g.restore();}
   g.setTransform(1,0,0,1,0,0);}
 // vitesse de la caméra à l'écran (px par seconde), pour régler l'obturation
