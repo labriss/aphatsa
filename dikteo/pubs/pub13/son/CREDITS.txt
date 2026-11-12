@@ -1,13 +1,10 @@
-Musique : « It's April » (Mixkit), Mixkit #847, Mixkit Stock Music Free License
+Musique : musique originale composée pour Diktéo (son/libre/composer.py, instruments FluidR3_GM, licence MIT) — libre de droits
 
 Bruitages :
-- "Classic Click" by adh.dreaming (https://freesound.org/people/adh.dreaming/sounds/671105/), CC0
-- ding/fs-349504-triangle-open-04.ogg
-- ding/fs-571513-soft-notifications-bell-ding-d.ogg
-- ding/kenney-interface-confirmation-002.ogg
-- impact/fs745291.ogg
-- impact/kenney-impact-impactpunch-heavy-000.ogg
-- impact/kenney-impact-impactpunch-heavy-001.ogg
-- tick/fs384187.ogg
-- whoosh/fs-127197-fast-simple-chop-5-aif.ogg
-- whoosh/fs-169867-swoosh.ogg
+- Classic Click par adh.dreaming — https://freesound.org/people/adh.dreaming/sounds/671105/ — CC0 1.0
+- par LegitCheese — https://freesound.org/people/LegitCheese/sounds/571513/ — CC0 1.0
+- par Sadiquecat — https://freesound.org/people/Sadiquecat/sounds/816262/ — CC0 1.0 (dérivé : hauteur/vitesse/couches)
+- par malle99 — https://freesound.org/people/malle99/sounds/384187/ — CC0 1.0
+- par migoreng1 — https://freesound.org/people/migoreng1/sounds/786514/ — CC0 1.0 (dérivé : hauteur/vitesse/couches)
+- soft_impact3 par peoplearehappy — https://freesound.org/people/peoplearehappy/sounds/841274/ — CC0 1.0 (dérivé : hauteur/vitesse/couches)
+- synthèse maison Diktéo (numpy), CC0 1.0
