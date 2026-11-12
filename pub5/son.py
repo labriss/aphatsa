@@ -59,7 +59,7 @@ RYTHME = os.environ.get("RYTHME") == "1"  # version rythmée (comme la boucle de
 SOBRE = not RYTHME and os.environ.get("SOBRE", "1") == "1"  # version « pub pro » : vraie musique devant, quelques bruits réels et discrets
 POPS = ("pop/fs-447910-plop.ogg", "kit/pop.ogg", "pop/fs-824189-pop-in-sfx.ogg", "pop/kenney-interface-drop-001.ogg")
 if RYTHME:
-    sfx("kit/pop.ogg", 0, -9, "« Un devis, chrono en main. »")
+    sfx("kit/pop.ogg", 0, -9, "« Plombier ? Tes devis te prennent la soirée ? »")
     sfx("kit/tick.ogg", 2.5, -6, "le chrono apparaît")
     sfx("transition/fs-683096-woosh.ogg", 4, -9, "le téléphone arrive", deux)
     sfx("kit/click.ogg", 4, -8, "le chrono part")
@@ -89,7 +89,7 @@ elif SOBRE:
     sfx("whoosh/fs-169867-swoosh.ogg", 20.4, -16, "l'avion part vers le client", deux)
     sfx("ding/fs-349504-triangle-open-04.ogg", 20.6, -13, "envoyé, le chrono s'arrête")
 else:
-    sfx("pop/kenney-interface-pluck-001.ogg", 0, -9, "« Un devis, chrono en main. »")
+    sfx("pop/kenney-interface-pluck-001.ogg", 0, -9, "« Plombier ? Tes devis te prennent la soirée ? »")
     sfx("ding/fs-634690-lil-pip.ogg", 2.5, -10, "le chrono apparaît")
     sfx("transition/fs-816262-broomstick-whoosh-3-quiet-okm1.ogg", 4, -8, "le téléphone arrive", deux)
     sfx("click/kenney-interface-select-001.ogg", 4, -10, "le chrono part")

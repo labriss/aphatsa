@@ -71,8 +71,9 @@ html,body{margin:0;background:#050807;overflow:hidden}
      <div id="ile"></div>
      <div class="st"><span>21:04</span><span style="font-family:'JBMono'">5G</span></div>
      <div class="titre">Nouveau devis</div>
+     <div id="badge" style="position:absolute;right:26px;top:124px;height:32px;padding:0 13px 0 6px;border-radius:16px;z-index:2;box-shadow:0 4px 10px rgba(201,72,10,.3);background:#C9480A;color:#fff;display:flex;align-items:center;gap:7px;font-family:'Archivo';font-weight:850;font-size:16px;letter-spacing:.5px;opacity:0"><span id="badgeMic" style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center"><svg width="12" height="15" viewBox="0 0 44 56"><rect x="13" y="2" width="18" height="32" rx="9" fill="#fff"/><path d="M5 26a17 17 0 0 0 34 0" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M22 44v9" stroke="#fff" stroke-width="6" stroke-linecap="round"/></svg></span>TU DICTES</div>
      <div class="sous">Mme Fontaine · Villeurbanne</div>
-     <div id="dictee"><span id="mots" style="color:var(--a-doux)">Touchez le micro et parlez.</span><span id="caret" style="display:inline-block;width:2px;height:20px;background:#C9480A;margin-left:2px;vertical-align:-3px"></span></div>
+     <div id="dictee"><span id="mots" style="color:var(--a-doux)">Touche le micro et parle.</span><span id="caret" style="display:inline-block;width:2px;height:20px;background:#C9480A;margin-left:2px;vertical-align:-3px"></span></div>
      <div id="remplit">Le devis se remplit…</div>
      <div id="liste"></div>
      <div id="bas">
@@ -110,7 +111,7 @@ html,body{margin:0;background:#050807;overflow:hidden}
   <div class="f" id="f0" style="left:150px;top:0;width:130px;height:130px;border-radius:36px;background:linear-gradient(145deg,var(--o1),var(--o2) 55%,var(--o3));box-shadow:0 0 70px rgba(232,101,15,.45)">
    <svg style="position:absolute;left:25px;top:25px" width="80" height="80" viewBox="0 0 24 24"><path d="M6.5 2.5H12a9 9 0 0 1 0 18H9.2L4.5 23V4.5a2 2 0 0 1 2-2ZM9.2 9.5a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1Zm3.1-2.5a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1Zm3.1 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Z" fill="#fff" fill-rule="evenodd"/></svg></div>
   <div class="f" id="f1" style="left:310px;top:-8px;font-family:'Archivo';font-weight:850;font-size:132px;letter-spacing:-5px;color:var(--texte)">Diktéo</div>
-  <div class="f" id="f2" style="left:0;width:900px;text-align:center;top:178px;font-family:'Archivo';font-weight:850;font-size:66px;letter-spacing:-1.5px;line-height:1.08;color:var(--texte)">Le devis dicté,<br><span style="color:var(--oc)">envoyé du chantier.</span></div>
+  <div class="f" id="f2" style="left:0;width:900px;text-align:center;top:178px;font-family:'Archivo';font-weight:850;font-size:66px;letter-spacing:-1.5px;line-height:1.08;color:var(--texte)">Tu dictes ton devis,<br><span style="color:var(--oc)">Diktéo l’écrit.</span></div>
   <div class="f" id="f3" style="left:210px;width:480px;justify-content:center;top:368px;height:96px;border-radius:28px;display:flex;align-items:center;
        background:linear-gradient(145deg,var(--o1),var(--o2) 55%,var(--o3));font-family:'PublicSans';font-weight:800;font-size:40px;color:#fff">dikteo.vercel.app</div>
  </div>
@@ -120,7 +121,7 @@ html,body{margin:0;background:#050807;overflow:hidden}
 <div id="ui"><button id="lecture">Lecture</button><input id="curseurUI" type="range" min="0" max="1000" value="0"><span id="temps">0.00</span></div>
 <script>
 /* Pub 5, « le défi chrono ». 123 BPM (1 temps = 0,488 s), 36 temps = 17,6 s. Une seule chose à lire à la fois.
-  0      « Un devis, chrono en main. »                                   pop
+  0      « Plombier ? Tes devis te prennent la soirée ? » (monte à 2.1)    pop
   2.5    la phrase cède la place au chrono 0,00 s                       tic
   4      le chrono part et monte en haut ; le téléphone arrive          whoosh
   5.5    le doigt touche le micro ; la dictée s'écrit (6→13.5)          clic
@@ -239,7 +240,7 @@ function seek(T){
 
   // la dictée
   const dict=b>=T_DICT[0], n=dict?Math.min(DIT.length,Math.ceil(seg(b,T_DICT[0],T_DICT[1]-0.4)*DIT.length)):0;
-  $('mots').textContent=dict?DIT.slice(0,n).join(' '):'Touchez le micro et parlez.';
+  $('mots').textContent=dict?DIT.slice(0,n).join(' '):'Touche le micro et parle.';
   $('mots').style.color=dict?'var(--a-txt)':'var(--a-doux)';
   $('caret').style.opacity=b>=5.5&&b<T_DICT[1]&&Math.floor(t*3)%2===0?1:0;
   const ecoute=b>=5.6&&b<T_DICT[1]+0.2;
@@ -248,6 +249,8 @@ function seek(T){
   $('onde').innerHTML=bars;
   anneaux.forEach((e,i)=>{const ph=(((b-5.6)*B)/1.8+i/3)%1;e.style.opacity=ecoute?0.35*(1-ph):0;e.style.transform=`scale(${1+1.1*ph})`;});
   $('micro').style.transform=`scale(${ecoute?1.06:1})`;
+  {const kb=b>=5.5?spring((b-5.5)*B,16,.6):0;$('badge').style.opacity=clamp(kb*1.5)*(1-seg(b,14,14.5));$('badge').style.transform=`scale(${0.85+0.15*kb})`;
+   $('badgeMic').style.transform=`scale(${ecoute?1+0.18*pouls(b):1})`;}
   // « Le devis se remplit… » puis les lignes
   $('remplit').style.opacity=b>=13.8&&b<15?seg(b,13.8,14.1)*(1-seg(b,14.8,15)):0;
   ligEl.forEach((e,i)=>{const k=b>=T_LIG[i]?spring((b-T_LIG[i])*B,17,.62):0;e.style.opacity=clamp(k*1.6);e.style.transform=`translateY(${(1-k)*24}px) scale(${0.96+0.04*k})`;});
@@ -296,10 +299,10 @@ function seek(T){
 
   // les phrases (jamais deux à la fois)
   let html='',k=0,o=0;
-  if(b<2.6){html='Un devis,<br><em>chrono en main.</em>';k=spring(t+0.25,14,.7);o=1-seg(b,2.2,2.6);}
-  else if(b>=24.5&&b<28.3){html='Ce soir,<br><em>vous êtes libre.</em>';k=spring((b-24.5)*B,14,.7);o=clamp(k*1.6)*(1-seg(b,27.9,28.3));}
+  if(b<3.9){html='Plombier ?<br><em style="font-size:80px;letter-spacing:-2px;line-height:1.1">Tes devis te prennent<br>la soirée ?</em>';k=spring(t+0.25,14,.7);o=1-seg(b,3.5,3.9);}
+  else if(b>=24.5&&b<28.3){html='Ce soir,<br><em>t’es libre.</em>';k=spring((b-24.5)*B,14,.7);o=clamp(k*1.6)*(1-seg(b,27.9,28.3));}
   $('cap').innerHTML=html; $('cap').style.opacity=o;
-  $('cap').style.transform=`translateY(${(1-k)*40}px) scale(${0.88+0.12*k})`;
+  {const up=b<4?ease(seg(b,2.1,2.6)):0;$('cap').style.transform=`translateY(${(1-k)*40-up*470}px) scale(${(0.88+0.12*k)*(1-0.22*up)})`;}
   // le carton
   for(let i=0;i<4;i++){const kk=b<28.5?0:spring((b-28.5)*B-i*0.09,14,.7),e=$('f'+i);e.style.opacity=clamp(kk*1.5);e.style.transform=`translateY(${(1-kk)*50}px) scale(${0.9+0.1*kk})`;}
 }
