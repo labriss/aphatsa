@@ -148,7 +148,7 @@ function facePrix(prix){return t=>{const gr=g.createLinearGradient(-t/2,-t/2,t/2
 
 // ——— l'accroche : le cordeau claque, puis les mots au crayon de chantier ———
 function cordeau(b){
-  const yl=905,claque=0.05,d=(b-claque)*B;
+  const yl=865,claque=0.05,d=(b-claque)*B;
   // avant le claquement : le cordeau tendu, qui vibre
   if(d<0){g.strokeStyle='#4f86d9';g.lineWidth=3;g.beginPath();g.moveTo(-10,yl-26);g.lineTo(W+10,yl-26);g.stroke();return;}
   // la ligne de craie bleue laissée sur la chape
@@ -168,13 +168,13 @@ function crayon(txt,x,y,size,b0,b,dur,col='#efe7da',rot=-.025,sortie=0){const u=
 
 // ——— le bandeau « TU DICTES » : le micro qui écoute, ses barres de voix ———
 function micro(b){if(b<2.5||b>=B_TOT)return;const a=easeOut(seg(b,2.5,2.9))*(1-seg(b,B_VAGUE-.3,B_VAGUE+.2));if(a<=0)return;
-  g.save();g.globalAlpha=a;g.fillStyle='rgba(14,10,7,.82)';rr(300,120,480,112,56);g.fill();g.strokeStyle='rgba(255,138,61,.3)';g.lineWidth=2;rr(300,120,480,112,56);g.stroke();
-  const gm=g.createLinearGradient(318,138,394,214);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(356,176,38,0,7);g.fill();
-  g.fillStyle='#fff';rr(348,154,16,28,8);g.fill();g.strokeStyle='#fff';g.lineWidth=3.5;g.lineCap='round';g.beginPath();g.arc(356,172,15,.15*Math.PI,.85*Math.PI);g.stroke();g.beginPath();g.moveTo(356,187);g.lineTo(356,195);g.stroke();
-  g.font='800 30px Archivo';g.fillStyle=ORANGE;g.textAlign='left';g.textBaseline='middle';g.letterSpacing='5px';g.fillText('TU DICTES',412,176);g.letterSpacing='0px';
+  g.save();g.globalAlpha=a;g.fillStyle='rgba(14,10,7,.82)';rr(300,164,480,112,56);g.fill();g.strokeStyle='rgba(255,138,61,.3)';g.lineWidth=2;rr(300,164,480,112,56);g.stroke();
+  const gm=g.createLinearGradient(318,182,394,258);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(356,220,38,0,7);g.fill();
+  g.fillStyle='#fff';rr(348,198,16,28,8);g.fill();g.strokeStyle='#fff';g.lineWidth=3.5;g.lineCap='round';g.beginPath();g.arc(356,216,15,.15*Math.PI,.85*Math.PI);g.stroke();g.beginPath();g.moveTo(356,231);g.lineTo(356,239);g.stroke();
+  g.font='800 30px Archivo';g.fillStyle=ORANGE;g.textAlign='left';g.textBaseline='middle';g.letterSpacing='5px';g.fillText('TU DICTES',412,220);g.letterSpacing='0px';
   // les barres de la voix : elles bougent tant qu'une phrase est dite
   let parle=0;for(const ph of PHRASES){parle=Math.max(parle,seg(b,ph.b-.1,ph.b+.1)*(1-seg(b,ph.b+B_PRIX+.2,ph.b+B_PRIX+.5)));}
-  for(let i=0;i<5;i++){const h=8+parle*(10+26*Math.abs(Math.sin(b*B*9+i*1.7)*Math.sin(b*B*4.3+i)));g.fillStyle=ORANGE;rr(676+i*16,176-h/2,8,h,4);g.fill();}
+  for(let i=0;i<5;i++){const h=8+parle*(10+26*Math.abs(Math.sin(b*B*9+i*1.7)*Math.sin(b*B*4.3+i)));g.fillStyle=ORANGE;rr(676+i*16,220-h/2,8,h,4);g.fill();}
   g.restore();}
 
 function seek(T_){
@@ -187,14 +187,16 @@ function seek(T_){
   g.translate(540,980);g.scale(z,z);g.translate(-540,-980);
   g.drawImage(CHAPE,0,0);
   // l'accroche
-  if(b<4){const fa=1-seg(b,2.6,3.2),so=i=>p3In(seg(b,2.6+i*.08,2.9+i*.08));g.save();g.globalAlpha=fa;cordeau(b);g.globalAlpha=1;crayon('CARRELEUR ?',540,800,126,.1,b,.45,'#efe7da',-.025,so(0));
-    crayon('Tes m², tu les chiffres',540,1030,66,.9,b,.45,'#efe7da',-.02,so(1));crayon('encore le soir ?',540,1120,66,1.25,b,.4,'#efe7da',-.02,so(2));g.restore();}
+  if(b<4){const fa=1-seg(b,2.6,3.2),so=i=>p3In(seg(b,2.6+i*.08,2.9+i*.08));g.save();g.globalAlpha=fa;cordeau(b);g.globalAlpha=1;crayon('CARRELEUR ?',540,760,126,.1,b,.45,'#efe7da',-.025,so(0));
+    crayon('Tes m², tu les chiffres',540,990,66,.9,b,.45,'#efe7da',-.02,so(1));crayon('encore le soir ?',540,1080,66,1.25,b,.4,'#efe7da',-.02,so(2));g.restore();}
+  // zone sûre : pendant la dictée la grille est réduite et décalée à gauche (prix avant x = 936) ; retour au cadrage d'origine avant le total
+  {const rc=ease(seg(b,16.9,B_TOT)),kG=lerp(.855,1,rc),dxG=lerp(-52,0,rc);g.save();g.translate(540+dxG,980);g.scale(kG,kG);g.translate(-540,-980);}
   // les rangées dictées
   const cases=[];   // [colonne, rangée] déjà occupées par un mot
   PHRASES.forEach((ph,i)=>{ph.mots.forEach((m,j)=>cases.push([j,i]));cases.push([4,i]);});
   // la vague retourne d'abord la chape nue, puis les mots
-  for(let r=-4;r<=6;r++)for(let c=-1;c<=5;c++){const occ=c>=0&&c<=4&&r>=0&&r<=3;if(occ)continue;const v=vague(c,r);if(b<v)continue;
-    carreau(cx(c),cy(r),FINIS[((c+2)*11+(r+4)*7)%60],v,b);}
+  for(let r=-5;r<=7;r++)for(let c=-2;c<=6;c++){const occ=c>=0&&c<=4&&r>=0&&r<=3;if(occ)continue;const v=Math.max(vague(c,r),vague(-1,-4));if(b<v)continue;
+    carreau(cx(c),cy(r),FINIS[(((c+2)*11+(r+4)*7)%60+60)%60],v,b);}
   PHRASES.forEach((ph,i)=>{for(let j=0;j<5;j++){const b0=quand(i,j),v=vague(j,i);const face=j<4?faceMot(ph.mots[j]):facePrix(ph.prix);
     const fl=b>=v?seg(b,v,v+.55):null;
     if(fl!==null&&fl>=1)carreau(cx(j),cy(i),FINIS[(j*11+(i+4)*7)%60],b0,b);
@@ -207,6 +209,7 @@ function seek(T_){
     g.translate(x,980);g.transform(1,0,-.55,1,0,0);g.translate(-x,-980);g.fillStyle=gs;g.fillRect(x-260,-200,520,2400);g.restore();}
   // le total : le dernier carreau, posé au maillet au milieu du sol
   if(b>=B_TOT-.6)totalEtFin(b);
+  g.restore();
   // la lumière de la pièce : un plafonnier chaud, les coins dans l'ombre
   g.setTransform(1,0,0,1,0,0);
   const gv=g.createRadialGradient(540,900,200,540,980,1300);gv.addColorStop(0,'rgba(0,0,0,0)');gv.addColorStop(.6,'rgba(0,0,0,.2)');gv.addColorStop(1,'rgba(0,0,0,.72)');g.fillStyle=gv;g.fillRect(0,0,W,H);

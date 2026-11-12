@@ -94,7 +94,7 @@ function surRoute(f){const d=clamp(f)*ROUTE.T;let i=1;while(i<ROUTE.L.length-1&&
 const ARRETS=[
   {f:.10,b:3, dit:'« Serrure changée,', dit2:'95 euros. »', prix:'95 €'},
   {f:.30,b:6, dit:'« Fuite sous l’évier,', dit2:'80 euros. »', prix:'80 €', gauche:1},
-  {f:.50,b:9,dit:'« Trois étagères posées,', dit2:'120 euros. »', prix:'120 €', gauche:1},
+  {f:.50,b:9,dit:'« Trois étagères posées,', dit2:'120 euros. »', prix:'120 €'},
   {f:.70,b:12,dit:'« Une prise remplacée,', dit2:'45 euros. »', prix:'45 €'},
   {f:.88,b:15,dit:'« Meuble monté,', dit2:'70 euros. »', prix:'70 €'},
 ];
@@ -141,8 +141,8 @@ function epingle(x,y,b0,b,prix,gauche=0){if(b<b0)return;const k=spring((b-b0)*B,
   if(b>b0+.5){g.save();g.globalAlpha=expoOut(seg(b,b0+.5,b0+.9));g.font='800 40px JBMono';const w=g.measureText(prix).width;g.fillStyle='rgba(12,14,18,.82)';const lx=gauche?x-56-w:x+28;rr(lx,y-74,w+28,52,26);g.fill();texte(prix,lx+14+w/2,y-47,40,ORANGE,800,'JBMono');g.restore();}}
 
 // ——— la caméra : suit l'utilitaire, recule pour montrer la tournée, puis la bulle de la tournée rapetisse jusqu'au logo du carton ———
-const LOGO={x:280+18,y:700+16,u:4.4};
-const ZS=1.7,DY=0;   // suivi : zoom, et hauteur de l'utilitaire au-dessus du centre (px écran)   // où se pose la bulle dans le carton : coin (unités du logo 0,0) et taille d'une unité
+const LOGO={x:280+18,y:700+16,u:4.4};   // où se pose la bulle dans le carton : coin (unités du logo 0,0) et taille d'une unité
+const ZS=1.25,DY=95;   // suivi de l'utilitaire : zoom (1,7 avant la zone sûre), et hauteur de l'utilitaire au-dessus du centre (px écran)
 function camera(b){
   const f=avance(b),[vx,vy]=surRoute(f),rec=ease(seg(b,B_RECUL,B_RECUL+1.9));
   let cx=lerp(lerp(540,vx,smooth(seg(b,0,B_DEPART))),540,rec),cy=lerp(lerp(980,vy+DY/ZS,smooth(seg(b,0,B_DEPART))),980,rec);
@@ -195,12 +195,12 @@ function seek(T_){
     const tout=a.dit.length+a.dit2.length,n=Math.floor(tout*seg(b,b0+.1,b0+1.15)),n1=Math.min(n,a.dit.length),n2=Math.max(0,n-a.dit.length);
     texte(a.dit.slice(0,n1),238,1272,48,'#fff',700,'Archivo','left');texte(a.dit2.slice(0,n2),238,1336,48,ORANGE,700,'Archivo','left');
     if(n<tout||((b*B*2.4)%1)<.6){g.font='700 48px Archivo';const w=g.measureText(n2>0?a.dit2.slice(0,n2):a.dit.slice(0,n1)).width;g.fillStyle='#fff';g.fillRect(242+w,n2>0?1312:1248,4,48);}
-    const ok=expoOut(seg(b,b0+1.25,b0+1.5));if(ok>0){g.globalAlpha=al*ok;g.fillStyle='rgba(232,101,15,.18)';rr(800,1300,170,60,30);g.fill();texte('Envoyé ✓',885,1331,30,ORANGE,800);}
+    const ok=expoOut(seg(b,b0+1.25,b0+1.5));if(ok>0){g.globalAlpha=al*ok;g.fillStyle='rgba(232,101,15,.18)';rr(770,1300,170,60,30);g.fill();texte('Envoyé ✓',855,1331,30,ORANGE,800);}
     g.restore();});
   // la phrase de la fin, mot à mot, puis elle part avant que la bulle ne file vers le logo
   if(b>=B_PHRASE&&b<B_FIN){g.save();const so=p3In(seg(b,B_FIN-.95,B_FIN-.7));g.globalAlpha=clamp(expoOut(seg(b,B_PHRASE,B_PHRASE+.4))*1.5)*(1-so);
-    g.fillStyle='rgba(12,14,18,.82)';rr(110,1560,860,190,46);g.fill();g.globalAlpha=1;
-    ligneMots('5 devis envoyés',540,1625,64,'#fff',800,'Archivo',t,(B_PHRASE+.1)*B,(B_FIN-.95)*B);ligneMots('depuis le camion.',540,1700,58,ORANGE,800,'Archivo',t,(B_PHRASE+.1)*B+.3,(B_FIN-.92)*B);g.restore();}
+    g.fillStyle='rgba(12,14,18,.82)';rr(110,175,860,190,46);g.fill();g.globalAlpha=1;
+    ligneMots('5 devis envoyés',540,240,64,'#fff',800,'Archivo',t,(B_PHRASE+.1)*B,(B_FIN-.95)*B);ligneMots('depuis le camion.',540,315,58,ORANGE,800,'Archivo',t,(B_PHRASE+.1)*B+.3,(B_FIN-.92)*B);g.restore();}
   // la ville s'éteint pendant que la bulle file vers le logo (le fond change, la bulle reste) ; puis le carré orange naît derrière elle
   const fi=seg(b,B_FIN-.7,B_FIN+.25);
   if(fi>0){g.fillStyle=`rgba(10,8,6,${.97*ease(seg(b,B_FIN-.7,B_FIN+.1))})`;g.fillRect(0,0,W,H);

@@ -243,7 +243,7 @@ function scene(b,t){
   g.drawImage(MUR,MX,0);
   // l'accroche bombée
   {const rev=clamp(.45+seg(b,0,.45)*.55),fade=1-.9*seg(b,2.3,2.8);
-    g.save();g.globalAlpha=fade;g.translate(540,760);g.rotate(-.06);g.save();g.beginPath();g.rect(-560,-200,1120*rev,420);g.clip();
+    g.save();g.globalAlpha=fade;g.translate(540,620);g.rotate(-.06);g.save();g.beginPath();g.rect(-560,-200,1120*rev,420);g.clip();
     g.font='900 162px Archivo';g.textAlign='center';g.textBaseline='middle';
     g.save();g.filter='blur(16px)';g.fillStyle='rgba(232,101,15,.55)';g.fillText('PEINTRE ?',0,0);g.restore();
     g.save();g.filter='blur(3px)';g.fillStyle='#ff7a1f';g.fillText('PEINTRE ?',0,0);g.restore();
@@ -300,7 +300,7 @@ function scene(b,t){
 // il s'ouvre en bandeau pour chaque phrase, se referme en rond, devient le cartouche du total, la coche de l'envoi,
 // puis glisse et grandit pour devenir le carré du logo Diktéo (transition par forme commune, jamais de coupe)
 const FENETRES=[[2.7,9.2,'big'],[10,13.5,'big'],[14,17.0,'big'],[B_TOT,B_FIN-.55,'tot']];
-const GEO={big:[60,110,960,200,44],tot:[90,115,900,230,52]};
+const GEO={big:[60,166,960,200,44],tot:[90,171,900,230,52]};
 function ouvert(b){let k=0,typ='big';for(const [a,e,t] of FENETRES){const v=spring(Math.max(0,(b-a))*B,13,.78)*(1-ease(seg(b,e,e+.4)));if(b>=a&&v>k){k=v;typ=t;}if(b>=a&&b<e+.4)typ=t;}return [clamp(k,0,1.04),typ];}
 function boite(b){
   if(b<2.3)return;
@@ -308,7 +308,7 @@ function boite(b){
   const [k,typ]=ouvert(b);
   // le rond : au fil de la pub il reste à gauche ; à la fin il devient le logo
   const m=ease(seg(b,B_FIN-.5,B_FIN+.35));
-  const dS=lerp(92,140,m),dR=lerp(46,40,m),dx=lerp(150,280+70,m),dy=lerp(210,700+70,m)+(1-app)*-40;
+  const dS=lerp(92,140,m),dR=lerp(46,40,m),dx=lerp(150,280+70,m),dy=lerp(266,700+70,m)+(1-app)*-40;
   // la boîte sombre qui s'ouvre autour du rond
   if(k>.002&&m<1){const [X,Y,Wd,Hd,Rd]=GEO[typ];const x=lerp(dx-dS/2,X,k),y=lerp(dy-dS/2,Y,k),w=lerp(dS,Wd,k),h=lerp(dS,Hd,k),r=lerp(dR,Rd,clamp(k));
     g.save();g.globalAlpha=app*(1-m);g.fillStyle='rgba(14,8,4,.86)';rr(x,y,w,h,r);g.fill();g.strokeStyle=`rgba(255,138,61,${.25*clamp(k)})`;g.lineWidth=2;rr(x,y,w,h,r);g.stroke();g.restore();}
@@ -326,19 +326,19 @@ function boite(b){
   // la dictée en direct : « TU DICTES », puis les mots s'écrivent au rythme de la voix, avec un curseur
   PHRASES.forEach(ph=>{const fin=[5.75,9.2,13.5,17.0][PHRASES.indexOf(ph)],a=seg(b,ph.b+.05,ph.b+.3)*(1-seg(b,fin-.3,fin))*seg(k,.85,1);if(a<=0)return;g.save();g.globalAlpha=a;
     let fs=44;g.font=`700 ${fs}px Archivo`;while(Math.max(g.measureText(ph.dit).width,g.measureText(ph.dit2).width)>770&&fs>30){fs-=2;g.font=`700 ${fs}px Archivo`;}
-    g.font='800 26px Archivo';g.fillStyle=ORANGE;g.textAlign='left';g.textBaseline='middle';g.letterSpacing='4px';g.fillText('TU DICTES',224,140);g.letterSpacing='0px';
+    g.font='800 26px Archivo';g.fillStyle=ORANGE;g.textAlign='left';g.textBaseline='middle';g.letterSpacing='4px';g.fillText('TU DICTES',224,196);g.letterSpacing='0px';
     const tout=ph.dit.length+ph.dit2.length,n=Math.floor(tout*seg(b,ph.b+.2,ph.b+.2+[2.6,3.0,3.1,2.4][PHRASES.indexOf(ph)])),n1=Math.min(n,ph.dit.length),n2=Math.max(0,n-ph.dit.length);
-    texte(ph.dit.slice(0,n1),222,196,fs,'#fff',700,'Archivo','left');texte(ph.dit2.slice(0,n2),222,256,fs,ORANGE,700,'Archivo','left');
-    if(n<tout||((b*B*2.4)%1)<.6){g.font=`700 ${fs}px Archivo`;const w=g.measureText(n2>0?ph.dit2.slice(0,n2):ph.dit.slice(0,n1)).width;g.fillStyle=n<tout?'#fff':'rgba(255,255,255,.6)';g.fillRect(226+w,n2>0?234:174,4,44);}
+    texte(ph.dit.slice(0,n1),222,252,fs,'#fff',700,'Archivo','left');texte(ph.dit2.slice(0,n2),222,312,fs,ORANGE,700,'Archivo','left');
+    if(n<tout||((b*B*2.4)%1)<.6){g.font=`700 ${fs}px Archivo`;const w=g.measureText(n2>0?ph.dit2.slice(0,n2):ph.dit.slice(0,n1)).width;g.fillStyle=n<tout?'#fff':'rgba(255,255,255,.6)';g.fillRect(226+w,n2>0?290:230,4,44);}
     g.restore();});
   const at=seg(b,B_TOT+.2,B_TOT+.5)*(1-seg(b,B_ENV-.15,B_ENV+.1))*clamp(k);
-  if(at>0){g.save();g.globalAlpha=clamp(k)*(1-seg(b,B_ENV-.15,B_ENV+.1));ligneMots('TOTAL DU DEVIS · TTC',590,172,34,'#f3dccb',700,'Archivo',b*B,(B_TOT+.2)*B);g.globalAlpha=at;lueur('rgba(255,138,61,.6)',26);texte('1 177,00 €',590,256,100,ORANGE,800,'JBMono');g.shadowColor='transparent';
-    const gl=seg(b,B_GLINT,B_GLINT+1);if(gl>0&&gl<1){g.save();rr(90,115,900,230,52);g.clip();g.globalCompositeOperation='lighter';const x=lerp(0,1200,ease(gl));
-      const gs=g.createLinearGradient(x-120,0,x+120,0);gs.addColorStop(0,'rgba(255,240,220,0)');gs.addColorStop(.5,'rgba(255,240,220,.25)');gs.addColorStop(1,'rgba(255,240,220,0)');g.translate(x,230);g.transform(1,0,-.4,1,0,0);g.translate(-x,-230);g.fillStyle=gs;g.fillRect(x-120,100,240,260);g.restore();}
-    const d=(b-B_GLINT-.5)*B;if(d>0&&d<.8){const s=Math.sin(d/.8*Math.PI);g.fillStyle=`rgba(255,235,210,${.6*s})`;for(const [sx,sy,sz] of [[890,210,30],[340,290,18]]){g.beginPath();g.moveTo(sx,sy-sz);g.quadraticCurveTo(sx,sy,sx+sz,sy);g.quadraticCurveTo(sx,sy,sx,sy+sz);g.quadraticCurveTo(sx,sy,sx-sz,sy);g.quadraticCurveTo(sx,sy,sx,sy-sz);g.fill();}}
+  if(at>0){g.save();g.globalAlpha=clamp(k)*(1-seg(b,B_ENV-.15,B_ENV+.1));ligneMots('TOTAL DU DEVIS · TTC',590,228,34,'#f3dccb',700,'Archivo',b*B,(B_TOT+.2)*B);g.globalAlpha=at;lueur('rgba(255,138,61,.6)',26);texte('1 177,00 €',590,312,100,ORANGE,800,'JBMono');g.shadowColor='transparent';
+    const gl=seg(b,B_GLINT,B_GLINT+1);if(gl>0&&gl<1){g.save();rr(90,171,900,230,52);g.clip();g.globalCompositeOperation='lighter';const x=lerp(0,1200,ease(gl));
+      const gs=g.createLinearGradient(x-120,0,x+120,0);gs.addColorStop(0,'rgba(255,240,220,0)');gs.addColorStop(.5,'rgba(255,240,220,.25)');gs.addColorStop(1,'rgba(255,240,220,0)');g.translate(x,286);g.transform(1,0,-.4,1,0,0);g.translate(-x,-286);g.fillStyle=gs;g.fillRect(x-120,156,240,260);g.restore();}
+    const d=(b-B_GLINT-.5)*B;if(d>0&&d<.8){const s=Math.sin(d/.8*Math.PI);g.fillStyle=`rgba(255,235,210,${.6*s})`;for(const [sx,sy,sz] of [[890,266,30],[340,346,18]]){g.beginPath();g.moveTo(sx,sy-sz);g.quadraticCurveTo(sx,sy,sx+sz,sy);g.quadraticCurveTo(sx,sy,sx,sy+sz);g.quadraticCurveTo(sx,sy,sx-sz,sy);g.quadraticCurveTo(sx,sy,sx,sy-sz);g.fill();}}
     g.restore();}
   const ae=seg(b,B_ENV+.1,B_ENV+.4)*clamp(k);
-  if(ae>0){g.save();g.globalAlpha=clamp(k);ligneMots('Envoyé à',240,192,58,'#fff',800,'Archivo',b*B,(B_ENV+.1)*B,1e9,'left');ligneMots('Mme Garnier.',240,266,64,ORANGE,900,'Archivo',b*B,(B_ENV+.1)*B+.16,1e9,'left');g.restore();}
+  if(ae>0){g.save();g.globalAlpha=clamp(k);ligneMots('Envoyé à',240,248,58,'#fff',800,'Archivo',b*B,(B_ENV+.1)*B,1e9,'left');ligneMots('Mme Garnier.',240,322,64,ORANGE,900,'Archivo',b*B,(B_ENV+.1)*B+.16,1e9,'left');g.restore();}
 }
 
 function carton(b){cartonFin(b*B,B_FIN*B);}

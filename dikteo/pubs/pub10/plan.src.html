@@ -86,7 +86,7 @@ const B_TOT=11, B_3D=12.4, B_PLIE=21.9, B_ENV=23.9, B_FIN=26.4, B_OK=20.7;
 const M3=[16.4,17.9,19.4];   // chauffe-eau, groupe, main-d'œuvre : un toutes les 0,72 s
 // caméra : très près du cartouche, recul sur la pièce, retour au cartouche pour le total, puis vue 3D qui tourne
 const camAt=b=>{
-  const K=[[0,{x:540,y:1590,z:1.25}],[2.2,{x:540,y:1590,z:1.25}],[4.2,{x:540,y:1030,z:.95}],[10.6,{x:540,y:1000,z:1}],[11.6,{x:720,y:1620,z:1.3}],[12.4,{x:720,y:1620,z:1.3}],[14,{x:190,y:600,z:.5}],[15.3,{x:190,y:600,z:.5}],[16.3,{x:500,y:930,z:1.06}],[B_PLIE,{x:450,y:950,z:.98}]];
+  const K=[[0,{x:540,y:1590,z:1.25}],[2.2,{x:540,y:1590,z:1.25}],[4.2,{x:540,y:1045,z:.89}],[10.6,{x:540,y:1040,z:.91}],[11.6,{x:720,y:1620,z:1.3}],[12.4,{x:720,y:1620,z:1.3}],[14,{x:190,y:600,z:.5}],[15.3,{x:190,y:600,z:.5}],[16.3,{x:500,y:930,z:1.06}],[B_PLIE,{x:450,y:950,z:.98}]];
   if(b<=K[0][0])return K[0][1];for(let i=1;i<K.length;i++)if(b<K[i][0]){const [b0,a]=K[i-1],[b1,c]=K[i],k=ease((b-b0)/(b1-b0));return {x:lerp(a.x,c.x,k),y:lerp(a.y,c.y,k),z:lerp(a.z,c.z,k)};}
   return K[K.length-1][1];};
 
@@ -181,7 +181,7 @@ function etoile(x,y,r,a){if(a<=0||r<=0)return;g.save();g.globalCompositeOperatio
 // l'étiquette d'un travail : son nom et son prix, debout dans la scène
 function etiquette3D(nom,prix,p,b0,b1,b){if(b<b0||b>b1+.2)return;const k=expoOut((b-b0)*B/.55),out=seg(b,b1,b1+.2),a=k*(1-out),fl=Math.exp(-(b-b0)*B*4);
   g.font='700 40px Archivo';const w1=g.measureText(nom).width;g.font='800 54px JBMono';const w2=g.measureText(prix).width,w=w1+w2+88;
-  const x=clamp(p[0]+70*V.s+w/2,w/2+24,1056-w/2);
+  const xd=p[1]+48>820?936:1056,x=clamp(p[0]+70*V.s+w/2,w/2+24,xd-w/2);   // à hauteur des boutons de droite, l'étiquette reste avant x = 936
   g.save();g.globalAlpha*=a;const fb=Math.max(1-k,out);if(fb>0)g.filter=`blur(${(fb*8).toFixed(2)}px)`;g.translate(x,p[1]);g.scale(.94+.06*k,.94+.06*k);
   g.fillStyle='rgba(4,14,28,.88)';rr(-w/2,-48,w,96,32);g.fill();g.strokeStyle=`rgba(255,138,61,${.5+.5*fl})`;g.lineWidth=3;rr(-w/2,-48,w,96,32);g.stroke();
   texte(nom,-w/2+30,2,40,'#fff',700,'Archivo','left');lueur(`rgba(255,138,61,${.6+.4*fl})`,24+40*fl);texte(prix,w/2-30,2,54,ORANGE,800,'JBMono','right');g.restore();}
@@ -243,7 +243,9 @@ function seek(T){
     quadrillage(V.s);
     sols(ease(seg(b,B_3D+.4,B_3D+1.6)));
     // le cartouche se trace d'abord, avec l'accroche dedans
-    cartouche(b,seg(b,0,1.2));
+    // quand la maison se lève, le cartouche glisse vers la gauche, sous la maison (sinon le total finit sous les boutons à droite)
+    const dxC=-270*ease(seg(b,B_3D,B_3D+1.6));
+    g.save();g.translate(dxC,0);cartouche(b,seg(b,0,1.2));g.restore();
     if(b<4.4){g.save();sortie(seg(b,3.9,4.4));lueur('rgba(255,138,61,.8)',30);motsFlous('PLOMBIER ?',CART.x+CART.w/2,CART.y+168,96,'#fff',900,'Archivo','center',b,-.3,.18,.5);g.restore();}
     // la phrase de contexte, écrite dans le cartouche juste en dessous
     if(b>.7&&b<4.4){g.save();sortie(seg(b,3.9,4.4));motsFlous('Marre d’écrire tes devis le soir ?',CART.x+CART.w/2,CART.y+252,40,ORANGE,700,'Archivo','center',b,.7,.13,.4);g.restore();}
@@ -254,11 +256,11 @@ function seek(T){
     // les éléments dictés, dessinés avec leur vrai symbole ; les prix à plat s'effacent quand le plan bascule
     ITEMS.forEach((it,i)=>{if(b<it.b)return;const u=seg(b,it.b,it.b+.9);etincelles(dessinItem(it,u,b,t),20+i*13,t,1);g.save();g.globalAlpha*=1-k3;etiquette(it,b);g.restore();});
     // le total dans le cartouche : il frappe, onde de lumière et éclats
-    if(b>=B_TOT){const d=(b-B_TOT)*B,k=expoOut(d/.6);
+    if(b>=B_TOT){const d=(b-B_TOT)*B,k=expoOut(d/.6);g.save();g.translate(dxC,0);
       g.save();g.translate(CART.x+CART.w-150,CART.y+205);g.scale(1.18-.18*k,1.18-.18*k);g.globalAlpha*=k;if(k<1)g.filter=`blur(${((1-k)*8).toFixed(2)}px)`;lueur('rgba(255,138,61,.9)',30+50*Math.exp(-d*4));
       texte('806,30 €',0,0,50,ORANGE,800,'JBMono');g.restore();
       if(d<.8){g.save();g.globalCompositeOperation='lighter';g.strokeStyle=`rgba(255,170,90,${.8*(1-d/.8)})`;g.lineWidth=6*(1-d/.8);g.beginPath();g.arc(CART.x+CART.w-150,CART.y+205,40+d*420,0,7);g.stroke();
-        for(let i=0;i<26;i++){const a=i/26*Math.PI*2+rnd(i),v=180+rnd(i*5)*260;g.fillStyle=`rgba(255,${190+rnd(i)*60|0},120,${1-d/.8})`;g.beginPath();g.arc(CART.x+CART.w-150+Math.cos(a)*v*d,CART.y+205+Math.sin(a)*v*d,3,0,7);g.fill();}g.restore();}}
+        for(let i=0;i<26;i++){const a=i/26*Math.PI*2+rnd(i),v=180+rnd(i*5)*260;g.fillStyle=`rgba(255,${190+rnd(i)*60|0},120,${1-d/.8})`;g.beginPath();g.arc(CART.x+CART.w-150+Math.cos(a)*v*d,CART.y+205+Math.sin(a)*v*d,3,0,7);g.fill();}g.restore();}g.restore();}
     g.restore();
     // ——— la 3D, façon maison de poupée : la maison se lève, on voit la panne, puis chaque ligne du devis la répare ———
     if(b>=B_3D+.6){
@@ -331,10 +333,10 @@ function seek(T){
   }
   ITEMS.forEach((it,i)=>{const b1=i<ITEMS.length-1?ITEMS[i+1].b-.15:B_TOT-.2;if(b<it.b-.05||b>b1+.2)return;
     const k=expoOut((b-it.b)*B/.45),a=k*(1-seg(b,b1,b1+.2));g.save();g.globalAlpha=a;
-    g.fillStyle='rgba(4,14,28,.8)';rr(70,96,940,236,40);g.fill();
-    const gm=g.createLinearGradient(110,159,190,239);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(150,214,44,0,7);g.fill();
-    g.fillStyle='#fff';rr(141,189,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(150,209,17,.15*Math.PI,.85*Math.PI);g.stroke();
-    dictee(it,b,150,214,220,146,44);g.restore();});
+    g.fillStyle='rgba(4,14,28,.8)';rr(70,164,940,220,40);g.fill();
+    const gm=g.createLinearGradient(110,227,190,307);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(150,282,44,0,7);g.fill();
+    g.fillStyle='#fff';rr(141,257,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(150,277,17,.15*Math.PI,.85*Math.PI);g.stroke();
+    dictee(it,b,150,282,220,214,44);g.restore();});
   // l'envoi
   if(b>=B_ENV&&b<B_FIN){g.save();sortie(seg(b,B_FIN-.35,B_FIN));g.translate(540,1150);
     motsFlous('Envoyé à Mme Fontaine.',0,0,64,'#fff',800,'Archivo','center',b,B_ENV+.3,.16,.45);motsFlous('Depuis le chantier.',0,90,64,ORANGE,800,'Archivo','center',b,B_ENV+.9,.16,.45);g.restore();}
