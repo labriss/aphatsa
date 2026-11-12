@@ -1,12 +1,12 @@
 {
  "voix": "siwis",
  "familles": {
-  "pierre": 4.622,
-  "siwis": 5.147,
-  "tom": 4.179
+  "pierre": 4.605,
+  "siwis": 5.11,
+  "tom": 4.16
  },
  "choix": {
-  "0": "siwis_p0_d2_k0.wav",
+  "0": "siwis_p0_d1_k0.wav",
   "1": "siwis_p1_d0_k0.wav",
   "2": "siwis_p2_d0_k0.wav",
   "3": "siwis_p3_d0_k0.wav"
@@ -16,100 +16,100 @@
   "pierre_p0_d0_k0.wav": {
    "voix": "pierre",
    "phrase": 0,
-   "exact": 0.923,
+   "exact": 0.896,
    "prix_ok": true,
    "utmos": 3.0,
    "duree": 2.11,
    "tempo": 1.443,
-   "score": 0.776,
+   "score": 0.735,
    "entendu": "ou vertu à 90 euros."
   },
   "pierre_p0_d0_k1.wav": {
    "voix": "pierre",
    "phrase": 0,
-   "exact": 1.0,
+   "exact": 0.97,
    "prix_ok": true,
    "utmos": 3.0,
    "duree": 2.09,
    "tempo": 1.434,
-   "score": 0.915,
+   "score": 0.87,
    "entendu": "ouverture, 90 euros."
   },
   "pierre_p0_d0_k2.wav": {
    "voix": "pierre",
    "phrase": 0,
-   "exact": 1.0,
+   "exact": 0.97,
    "prix_ok": true,
    "utmos": 3.0,
    "duree": 1.93,
    "tempo": 1.325,
-   "score": 1.188,
+   "score": 1.142,
    "entendu": "ouverture 90 euros."
   },
   "pierre_p0_d1_k0.wav": {
    "voix": "pierre",
    "phrase": 0,
-   "exact": 0.985,
+   "exact": 0.955,
    "prix_ok": true,
    "utmos": 3.0,
    "duree": 1.97,
    "tempo": 1.346,
-   "score": 1.112,
+   "score": 1.068,
    "entendu": "ou verture, 90 euros."
   },
   "pierre_p0_d1_k1.wav": {
    "voix": "pierre",
    "phrase": 0,
-   "exact": 1.0,
+   "exact": 0.97,
    "prix_ok": true,
    "utmos": 3.0,
    "duree": 1.98,
    "tempo": 1.355,
-   "score": 1.112,
+   "score": 1.067,
    "entendu": "ouverture, 90 euros."
   },
   "pierre_p0_d1_k2.wav": {
    "voix": "pierre",
    "phrase": 0,
-   "exact": 1.0,
+   "exact": 0.97,
    "prix_ok": true,
    "utmos": 3.0,
    "duree": 1.87,
    "tempo": 1.284,
-   "score": 1.29,
+   "score": 1.245,
    "entendu": "ouverture, 90 euros."
   },
   "pierre_p0_d2_k0.wav": {
    "voix": "pierre",
    "phrase": 0,
-   "exact": 0.918,
+   "exact": 0.889,
    "prix_ok": false,
    "utmos": 3.0,
    "duree": 1.93,
    "tempo": 1.325,
-   "score": -0.935,
+   "score": -0.979,
    "entendu": "ouverture, 80 euros."
   },
   "pierre_p0_d2_k1.wav": {
    "voix": "pierre",
    "phrase": 0,
-   "exact": 1.0,
+   "exact": 0.97,
    "prix_ok": true,
    "utmos": 3.0,
    "duree": 1.92,
    "tempo": 1.312,
-   "score": 1.22,
+   "score": 1.175,
    "entendu": "ouverture 90 euros"
   },
   "pierre_p0_d2_k2.wav": {
    "voix": "pierre",
    "phrase": 0,
-   "exact": 0.857,
+   "exact": 0.831,
    "prix_ok": false,
    "utmos": 3.0,
    "duree": 1.83,
    "tempo": 1.256,
-   "score": -0.855,
+   "score": -2.894,
    "entendu": "ou vertueux, 80 euros."
   },
   "pierre_p1_d0_k0.wav": {
@@ -412,13 +412,13 @@
   "siwis_p0_d0_k0.wav": {
    "voix": "siwis",
    "phrase": 0,
-   "exact": 0.984,
+   "exact": 1.0,
    "prix_ok": true,
    "utmos": 3.0,
-   "duree": 1.69,
-   "tempo": 1.158,
-   "score": 1.581,
-   "entendu": "Overture 90 euros."
+   "duree": 1.53,
+   "tempo": 1.049,
+   "score": 4.878,
+   "entendu": "L'ouverture 90 euros."
   },
   "siwis_p0_d1_k0.wav": {
    "voix": "siwis",
@@ -426,21 +426,21 @@
    "exact": 1.0,
    "prix_ok": true,
    "utmos": 3.0,
-   "duree": 1.53,
-   "tempo": 1.046,
-   "score": 4.885,
-   "entendu": "ouverture 90 euros."
+   "duree": 1.31,
+   "tempo": 1.0,
+   "score": 4.95,
+   "entendu": "L'ouverture, 90 euros"
   },
   "siwis_p0_d2_k0.wav": {
    "voix": "siwis",
    "phrase": 0,
-   "exact": 0.984,
+   "exact": 1.0,
    "prix_ok": true,
    "utmos": 3.0,
-   "duree": 1.44,
+   "duree": 1.23,
    "tempo": 1.0,
-   "score": 4.969,
-   "entendu": "Overture 90 euros."
+   "score": 4.921,
+   "entendu": "l'ouverture 90 euros."
   },
   "siwis_p1_d0_k0.wav": {
    "voix": "siwis",
@@ -448,10 +448,10 @@
    "exact": 0.877,
    "prix_ok": false,
    "utmos": 3.0,
-   "duree": 1.45,
+   "duree": 1.3,
    "tempo": 1.0,
-   "score": 2.813,
-   "entendu": "3.380"
+   "score": 2.762,
+   "entendu": "3.380."
   },
   "siwis_p1_d1_k0.wav": {
    "voix": "siwis",
@@ -459,9 +459,9 @@
    "exact": 0.877,
    "prix_ok": false,
    "utmos": 3.0,
-   "duree": 1.34,
+   "duree": 1.19,
    "tempo": 1.0,
-   "score": 2.775,
+   "score": 2.723,
    "entendu": "3.380."
   },
   "siwis_p1_d2_k0.wav": {
@@ -470,34 +470,12 @@
    "exact": 0.877,
    "prix_ok": false,
    "utmos": 3.0,
-   "duree": 1.24,
+   "duree": 1.1,
    "tempo": 1.0,
-   "score": 2.741,
-   "entendu": "3.380"
+   "score": 2.692,
+   "entendu": "3.380."
   },
   "siwis_p2_d0_k0.wav": {
-   "voix": "siwis",
-   "phrase": 2,
-   "exact": 0.96,
-   "prix_ok": true,
-   "utmos": 3.0,
-   "duree": 1.29,
-   "tempo": 1.0,
-   "score": 4.883,
-   "entendu": "Cylinder 120 €"
-  },
-  "siwis_p2_d1_k0.wav": {
-   "voix": "siwis",
-   "phrase": 2,
-   "exact": 0.96,
-   "prix_ok": true,
-   "utmos": 3.0,
-   "duree": 1.14,
-   "tempo": 1.0,
-   "score": 4.832,
-   "entendu": "Cylinder 120 €"
-  },
-  "siwis_p2_d2_k0.wav": {
    "voix": "siwis",
    "phrase": 2,
    "exact": 0.96,
@@ -508,15 +486,37 @@
    "score": 4.825,
    "entendu": "Cylinder 120 €."
   },
+  "siwis_p2_d1_k0.wav": {
+   "voix": "siwis",
+   "phrase": 2,
+   "exact": 0.96,
+   "prix_ok": true,
+   "utmos": 3.0,
+   "duree": 1.05,
+   "tempo": 1.0,
+   "score": 4.801,
+   "entendu": "Cylinder 120 €"
+  },
+  "siwis_p2_d2_k0.wav": {
+   "voix": "siwis",
+   "phrase": 2,
+   "exact": 0.96,
+   "prix_ok": true,
+   "utmos": 3.0,
+   "duree": 1.02,
+   "tempo": 1.0,
+   "score": 4.789,
+   "entendu": "Cylinder 120 €."
+  },
   "siwis_p3_d0_k0.wav": {
    "voix": "siwis",
    "phrase": 3,
    "exact": 1.0,
    "prix_ok": true,
    "utmos": 3.0,
-   "duree": 1.83,
+   "duree": 1.71,
    "tempo": 1.0,
-   "score": 4.972,
+   "score": 4.942,
    "entendu": "déplacement de nuit 60 euros."
   },
   "siwis_p3_d1_k0.wav": {
@@ -525,9 +525,9 @@
    "exact": 1.0,
    "prix_ok": true,
    "utmos": 3.0,
-   "duree": 1.76,
+   "duree": 1.49,
    "tempo": 1.0,
-   "score": 4.953,
+   "score": 4.883,
    "entendu": "déplacement de nuit 60 euros."
   },
   "siwis_p3_d2_k0.wav": {
@@ -536,108 +536,108 @@
    "exact": 1.0,
    "prix_ok": true,
    "utmos": 3.0,
-   "duree": 1.66,
+   "duree": 1.42,
    "tempo": 1.0,
-   "score": 4.928,
+   "score": 4.866,
    "entendu": "déplacement de nuit 60 euros."
   },
   "tom_p0_d0_k0.wav": {
    "voix": "tom",
    "phrase": 0,
-   "exact": 1.0,
+   "exact": 0.97,
    "prix_ok": true,
    "utmos": 3.0,
    "duree": 2.18,
    "tempo": 1.491,
-   "score": 0.771,
+   "score": 0.726,
    "entendu": "ouverture 90 euros"
   },
   "tom_p0_d0_k1.wav": {
    "voix": "tom",
    "phrase": 0,
-   "exact": 1.0,
+   "exact": 0.97,
    "prix_ok": true,
    "utmos": 3.0,
    "duree": 2.17,
    "tempo": 1.486,
-   "score": 0.785,
+   "score": 0.74,
    "entendu": "ouverture 90 euros"
   },
   "tom_p0_d0_k2.wav": {
    "voix": "tom",
    "phrase": 0,
-   "exact": 1.0,
+   "exact": 0.97,
    "prix_ok": true,
    "utmos": 3.0,
    "duree": 2.08,
    "tempo": 1.424,
-   "score": 0.941,
+   "score": 0.896,
    "entendu": "ouverture 90 euros."
   },
   "tom_p0_d1_k0.wav": {
    "voix": "tom",
    "phrase": 0,
-   "exact": 1.0,
+   "exact": 0.97,
    "prix_ok": true,
    "utmos": 3.0,
    "duree": 1.96,
    "tempo": 1.343,
-   "score": 1.143,
+   "score": 1.097,
    "entendu": "ouverture 90 euros."
   },
   "tom_p0_d1_k1.wav": {
    "voix": "tom",
    "phrase": 0,
-   "exact": 1.0,
+   "exact": 0.97,
    "prix_ok": true,
    "utmos": 3.0,
    "duree": 1.98,
    "tempo": 1.36,
-   "score": 1.101,
+   "score": 1.056,
    "entendu": "ouverture 90 euros"
   },
   "tom_p0_d1_k2.wav": {
    "voix": "tom",
    "phrase": 0,
-   "exact": 1.0,
+   "exact": 0.97,
    "prix_ok": true,
    "utmos": 3.0,
    "duree": 1.9,
    "tempo": 1.299,
-   "score": 1.254,
+   "score": 1.208,
    "entendu": "ouverture 90 euros."
   },
   "tom_p0_d2_k0.wav": {
    "voix": "tom",
    "phrase": 0,
-   "exact": 1.0,
+   "exact": 0.97,
    "prix_ok": true,
    "utmos": 3.0,
    "duree": 1.88,
    "tempo": 1.288,
-   "score": 1.281,
+   "score": 1.235,
    "entendu": "ouverture 90 euros"
   },
   "tom_p0_d2_k1.wav": {
    "voix": "tom",
    "phrase": 0,
-   "exact": 1.0,
+   "exact": 0.97,
    "prix_ok": true,
    "utmos": 3.0,
    "duree": 1.87,
    "tempo": 1.279,
-   "score": 1.303,
+   "score": 1.258,
    "entendu": "ouverture 90 euros"
   },
   "tom_p0_d2_k2.wav": {
    "voix": "tom",
    "phrase": 0,
-   "exact": 1.0,
+   "exact": 0.97,
    "prix_ok": true,
    "utmos": 3.0,
    "duree": 1.79,
    "tempo": 1.223,
-   "score": 1.443,
+   "score": 1.398,
    "entendu": "ouverture 90 euros"
   },
   "tom_p1_d0_k0.wav": {

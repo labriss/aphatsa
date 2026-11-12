@@ -1,5 +1,5 @@
 # texte dit | texte affiché | place en secondes. Fenêtres de 1,58 s : dictée courte.
-Ouverture, quatre-vingt-dix euros.|ouverture de porte 90 euros|1.46
+L'ouverture, quatre-vingt-dix euros.|ouverture de porte 90 euros|1.46
 Trois points, trois cent quatre-vingts.|serrure trois points 380 euros|1.46
 Cylindre, cent vingt euros.|cylindre haute sécurité 120 euros|1.46
 Déplacement de nuit, soixante euros.|déplacement de nuit 60 euros|1.94
