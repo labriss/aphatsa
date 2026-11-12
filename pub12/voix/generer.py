@@ -19,7 +19,17 @@ PHRASES = [
     "Deux couches de peinture mat velours... dix-huit euros le mètre.",
     "Protection, nettoyage... quatre-vingt-dix euros.",
 ]
+# Variante serrée (étiquette commençant par « S ») : plus courte pour tenir dans les fenêtres de la pub,
+# « mate, velours » séparé pour éviter « madzellour ». La voix n'a pas besoin de tout dire.
+SERREES = [
+    "Rebouchage des fissures, forfait cent quatre-vingts euros.",
+    "Sous-couche, trente-deux mètres carrés, sept euros le mètre.",
+    "Deux couches, mate, velours, dix-huit euros le mètre.",
+    "Protection, nettoyage, quatre-vingt-dix euros.",
+]
 REF, ETI = sys.argv[1], sys.argv[2]
+if ETI.startswith("S"):
+    PHRASES = SERREES
 PRISES = int(sys.argv[3]) if len(sys.argv) > 3 else 3
 QUELLES = [int(x) for x in sys.argv[4].split(",")] if len(sys.argv) > 4 else range(len(PHRASES))
 SORTIE = os.path.join(ICI, "prises")

@@ -6,6 +6,9 @@ from faster_whisper import WhisperModel
 ICI = os.path.dirname(os.path.abspath(__file__))
 ATTENDU = ["rebouchage des fissures forfait cent quatre-vingts euros", "sous-couche trente-deux mètres carrés à sept euros le mètre",
            "deux couches de peinture mat velours dix-huit euros le mètre", "protection nettoyage quatre-vingt-dix euros"]
+if os.environ.get("PREFIXE", "").startswith("S"):  # variante serrée de generer.py
+    ATTENDU = ["rebouchage des fissures forfait cent quatre-vingts euros", "sous-couche trente-deux mètres carrés sept euros le mètre",
+               "deux couches mate velours dix-huit euros le mètre", "protection nettoyage quatre-vingt-dix euros"]
 NOMBRES = {"180": "cent quatre-vingts", "32": "trente-deux", "7": "sept", "18": "dix-huit", "90": "quatre-vingt-dix", "2": "deux", "m2": "mètres carrés", "m²": "mètres carrés"}
 def norm(s):
     s = s.lower().replace("€", " euros ")
@@ -26,5 +29,5 @@ choix = {}
 for i in range(4):
     c = [(r["exact"] >= .9, r["nettete"], b) for b, r in res.items() if r["phrase"] == i]
     if c: choix[i] = max(c)[2]
-json.dump(dict(prises=res, choix=choix), open(os.path.join(ICI, "prises", "choix.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+json.dump(dict(prises=res, choix=choix), open(os.path.join(ICI, "prises", os.environ.get("SORTIE", "choix.json")), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
 print("CHOIX", choix)
