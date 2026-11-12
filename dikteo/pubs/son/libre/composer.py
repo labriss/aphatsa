@@ -1,277 +1,317 @@
-"""Musiques originales des pubs Diktéo (composées ici, libres de droits : elles appartiennent à Diktéo).
-Écrit un MIDI calé sur la grille de chaque pub, le joue avec FluidSynth + FluidR3_GM (licence MIT),
-puis le masterise (EQ douce, compression, -14 LUFS). Le fichier sort là où son.py l'attend :
-pubN/musique/mixkit-<PISTE>.mp3 (nom historique gardé pour ne pas toucher aux son.py).
+"""Musiques originales des pubs Diktéo, style chill / lo-fi : « ouf, avec Diktéo on souffle ».
+Tout est synthétisé ici (numpy), donc libre de droits : Rhodes en FM, nappe de scies désaccordées filtrée, sub-basse,
+batterie feutrée (grosse caisse ronde, caisse claire balai, charleston discret), grain de vinyle, saturation de bande,
+réverbération à convolution, compression « sidechain » douce. Dramaturgie : groove posé et détendu ; juste avant le carton,
+la musique retient son souffle (accord suspendu, filtre qui se ferme, batterie qui s'arrête) ; sur le carton, l'accord
+de tonique s'ouvre (maj9) avec un long soupir de soulagement.
+Le fichier sort là où son.py l'attend : pubN/musique/mixkit-<PISTE>.mp3 (nom historique gardé).
 python son/libre/composer.py [pub ...]   (défaut : toutes)
 """
 import os
 import subprocess
 import sys
 
-import mido
 import numpy as np
+from scipy.signal import butter, fftconvolve, sosfilt
 
 ICI = os.path.dirname(os.path.abspath(__file__))
 PUBS = os.path.abspath(os.path.join(ICI, "..", ".."))
-SF2 = "/usr/share/sounds/sf2/FluidR3_GM.sf2"
-PPQ = 480
+SR = 48000
 
 # grille de chaque pub, relevée dans son son.py : tempo du fichier (BPM_P), instant du temps 0 de la pub dans le fichier
-# (DEBUT_MUSIQUE), rapport tempo pub / tempo musique (2 = la musique en demi-tempo), durée en temps de pub, temps du carton.
-#        piste  bpm     debut                     pub/mus  durée  carton  style         tonalité  graine  progression
+# (DEBUT_MUSIQUE), rapport tempo pub / tempo musique, durée et temps du carton (en temps de pub), tonalité, graine.
 CONF = {
-    "pub4":  ("130", 123.0, 30.581 - 4 * 60 / 123, 1, 50, 41.5, "pop", 62, 4, "I V vi IV"),
-    "pub8":  ("474", 121.0, .112 + 16 * 60 / 121, 1, 38, 27.4, "pop", 65, 8, "vi IV I V"),
-    "pub10": ("134", 125.0, .204 + 16 * 60 / 125, 1, 34, 26.4, "pop", 67, 10, "I vi IV V"),
-    "pub11": ("801", 143.55, .0697 + 8 * 60 / 143.55, 1, 36, 28, "pop", 64, 11, "I V vi IV"),
-    "pub12": ("529", 85.0, .399 + 32 * 60 / 85, 1, 28, 22.7, "lofi", 65, 12, "ii7 V7 Imaj7 vi7"),
-    "pub13": ("847", 83.0, .398 + 16 * 60 / 83, 1, 27, 21.5, "lofi", 63, 13, "Imaj7 vi7 ii7 V7"),
-    "pub14": ("617", 129.2, .0464 + 8 * 60 / 129.2, 1, 31, 24.4, "pop", 69, 14, "vi IV I V"),
-    "pub15": ("5", 80.75, .6037 + 8 * 60 / 80.75, 2, 41, 33, "lofi", 60, 15, "IVmaj7 iii7 vi7 Imaj7"),
-    "pub16": ("963", 95.7, .0232 + 8 * 60 / 95.7, 1, 24, 19.5, "lofi", 62, 16, "Imaj7 IVmaj7 iii7 vi7"),
-    "pub17": ("52", 76.0, .1625 + 8 * 60 / 76, 1, 20, 16.2, "acoustique", 67, 17, "I V vi IV"),
-    "pub18": ("493", 140.0, .114 + 16 * 60 / 140, 1, 47, 38.7, "pop", 70, 18, "I iii IV V"),
-    "pub19": ("91", 75.0, .467 + 8 * 60 / 75, 1, 25, 22.5, "acoustique", 64, 19, "I IV vi V"),
+    "pub4":  ("130", 123.0, 30.581 - 4 * 60 / 123, 1, 50, 41.5, 62, 4),
+    "pub8":  ("474", 121.0, .112 + 16 * 60 / 121, 1, 38, 27.4, 65, 8),
+    "pub10": ("134", 125.0, .204 + 16 * 60 / 125, 1, 34, 26.4, 67, 10),
+    "pub11": ("801", 143.55, .0697 + 8 * 60 / 143.55, 1, 36, 28, 64, 11),
+    "pub12": ("529", 85.0, .399 + 32 * 60 / 85, 1, 28, 22.7, 65, 12),
+    "pub13": ("847", 83.0, .398 + 16 * 60 / 83, 1, 27, 21.5, 63, 13),
+    "pub14": ("617", 129.2, .0464 + 8 * 60 / 129.2, 1, 31, 24.4, 69, 14),
+    "pub15": ("5", 80.75, .6037 + 8 * 60 / 80.75, 2, 41, 33, 60, 15),
+    "pub16": ("963", 95.7, .0232 + 8 * 60 / 95.7, 1, 24, 19.5, 62, 16),
+    "pub17": ("52", 76.0, .1625 + 8 * 60 / 76, 1, 20, 16.2, 67, 17),
+    "pub18": ("493", 140.0, .114 + 16 * 60 / 140, 1, 47, 38.7, 70, 18),
+    "pub19": ("91", 75.0, .467 + 8 * 60 / 75, 1, 25, 22.5, 64, 19),
 }
 
+# progressions jazz-pop détendues (degrés de la gamme majeure, qualité) ; la dernière mesure avant le carton est
+# toujours un V9sus4 (la retenue), le carton un Imaj9 (le soulagement).
+PROGS = [[("IV", "maj9"), ("iii", "m7"), ("ii", "m9"), ("I", "maj9")],
+         [("I", "maj9"), ("vi", "m9"), ("ii", "m9"), ("IV", "maj9")],
+         [("ii", "m9"), ("iii", "m7"), ("IV", "maj9"), ("I", "maj9")],
+         [("vi", "m9"), ("IV", "maj9"), ("I", "maj9"), ("iii", "m7")]]
 MAJ = [0, 2, 4, 5, 7, 9, 11]
 DEG = {"I": 0, "ii": 1, "iii": 2, "IV": 3, "V": 4, "vi": 5}
+INTER = {"maj9": [0, 4, 7, 11, 14], "m9": [0, 3, 7, 10, 14], "m7": [0, 3, 7, 10], "9sus4": [0, 5, 7, 10, 14]}
+hz = lambda n: 440 * 2 ** ((n - 69) / 12)
 
 
-def accord(sym, ton):
-    """symbole de degré -> notes MIDI (fondamentale autour de ton-12)"""
-    q = "maj7" if sym.endswith("maj7") else "7" if sym.endswith("7") else ""
-    d = DEG[sym.replace("maj7", "").replace("7", "")]
-    nb = 4 if q else 3
-    notes = [ton + MAJ[(d + 2 * i) % 7] + 12 * ((d + 2 * i) // 7) for i in range(nb)]
-    return notes, ton + MAJ[d]
+def lp(x, f, o=2):
+    return sosfilt(butter(o, min(f, SR / 2 - 200), "low", fs=SR, output="sos"), x, axis=0)
 
 
-class Piste:
-    def __init__(self, ch, prog, vol=100, pan=64, reverb=40, chorus=0):
-        self.ch, self.ev = ch, []
-        self.ev += [(0, mido.Message("program_change", channel=ch, program=prog)),
-                    (0, mido.Message("control_change", channel=ch, control=7, value=vol)),
-                    (0, mido.Message("control_change", channel=ch, control=10, value=pan)),
-                    (0, mido.Message("control_change", channel=ch, control=91, value=reverb)),
-                    (0, mido.Message("control_change", channel=ch, control=93, value=chorus))]
+def hp(x, f, o=2):
+    return sosfilt(butter(o, f, "high", fs=SR, output="sos"), x, axis=0)
 
-    def note(self, temps, hauteur, duree, vel):
-        a = int(round(temps * PPQ))
-        b = a + max(1, int(round(duree * PPQ)))
-        v = int(np.clip(vel, 1, 127))
-        self.ev += [(a, mido.Message("note_on", channel=self.ch, note=int(hauteur), velocity=v)),
-                    (b, mido.Message("note_off", channel=self.ch, note=int(hauteur), velocity=0))]
+
+def bp(x, a, b, o=2):
+    return sosfilt(butter(o, [a, b], "band", fs=SR, output="sos"), x, axis=0)
+
+
+class Mix:
+    def __init__(self, duree, rng):
+        self.n = int(duree * SR)
+        self.rng = rng
+        self.bus = {k: np.zeros((self.n, 2)) for k in ("keys", "pad", "bass", "drums", "lead", "fx")}
+
+    def add(self, bus, t, x, g=1.0, pan=0.0):
+        if x.ndim == 1:
+            x = np.stack([x * np.sqrt((1 - pan) / 2), x * np.sqrt((1 + pan) / 2)], 1)
+        a = int(round(t * SR))
+        if a < 0:
+            x, a = x[-a:], 0
+        k = min(len(x), self.n - a)
+        if k > 0:
+            self.bus[bus][a:a + k] += x[:k] * g
+
+
+def env_adsr(d, a, rel, total=None, decay=None):
+    total = total or d + rel
+    t = np.arange(int(total * SR)) / SR
+    e = np.minimum(1, t / max(a, 1e-4))
+    if decay:
+        e = e * np.exp(-t / decay)
+    e = e * np.clip(1 - (t - d) / rel, 0, 1)
+    return e, t
+
+
+def rhodes(n, d, vel, rng):
+    """piano électrique FM (rapport 1:1 + dent à 14:1), brillance selon la vélocité, trémolo stéréo"""
+    f = hz(n)
+    dec = 2.6 * (440 / f) ** .35
+    e, t = env_adsr(d, .004, .35, d + .6, dec)
+    i1 = (0.9 + 1.6 * vel) * np.exp(-t / .5)
+    i2 = 0.5 * vel * np.exp(-t / .03)
+    m = np.sin(2 * np.pi * f * t) * i1 + np.sin(2 * np.pi * f * 14 * t) * i2
+    x = np.sin(2 * np.pi * f * t + m) * e * (0.25 + 0.75 * vel)
+    trem = 0.5 + 0.5 * np.sin(2 * np.pi * 4.2 * t + rng.uniform(0, 6))
+    return np.stack([x * (0.8 + 0.2 * trem), x * (1.0 - 0.2 * trem)], 1)
+
+
+def nappe(n, d, rng, coupe=1400):
+    """3 scies désaccordées (additives, sans repliement), filtrées, attaque et relâche lentes"""
+    f = hz(n)
+    a, rel = .9, 1.6
+    e, t = env_adsr(d, a, rel)
+    out = np.zeros((len(t), 2))
+    for j, det in enumerate((-.09, 0, .1)):
+        ph = rng.uniform(0, 6)
+        s = sum(np.sin(2 * np.pi * f * 2 ** (det / 12) * k * t + ph * k) / k for k in range(1, int(4000 / f) + 1))
+        out[:, 0 if j == 0 else 1 if j == 2 else 0] += s * (1 if j != 1 else .5)
+        if j == 1:
+            out[:, 1] += s * .5
+    return lp(out * e[:, None], coupe, 2) * .25
+
+
+def sub(n, d):
+    f = hz(n)
+    e, t = env_adsr(d, .012, .12)
+    x = np.sin(2 * np.pi * f * t) + 0.18 * np.sin(4 * np.pi * f * t)
+    return lp(np.tanh(1.3 * x) * e, 600)
+
+
+def kick(v):
+    t = np.arange(int(.45 * SR)) / SR
+    f = 48 + 70 * np.exp(-t * 28)
+    x = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / .2)
+    x += 0.15 * lp(np.random.default_rng(1).standard_normal(len(t)), 3000) * np.exp(-t / .006)
+    return np.tanh(1.5 * x) * v
+
+
+def balai(v, rng):
+    t = np.arange(int(.3 * SR)) / SR
+    nz = bp(rng.standard_normal(len(t)), 900, 5500) * np.exp(-t / .09)
+    corps = np.sin(2 * np.pi * 185 * t) * np.exp(-t / .05) * .5
+    return lp(nz + corps, 6500) * v
+
+
+def rim(v):
+    t = np.arange(int(.12 * SR)) / SR
+    return (bp(np.random.default_rng(3).standard_normal(len(t)), 1500, 4000) * np.exp(-t / .012) + np.sin(2 * np.pi * 820 * t) * np.exp(-t / .02)) * v
+
+
+def charley(v, rng, ouvert=False):
+    t = np.arange(int((.25 if ouvert else .06) * SR)) / SR
+    return hp(rng.standard_normal(len(t)), 7000) * np.exp(-t / (.08 if ouvert else .018)) * v
+
+
+def soupir(d):
+    """le « ouf » : une longue expiration (bruit filtré par des formants de souffle), douce"""
+    rng = np.random.default_rng(99)
+    t = np.arange(int(d * SR)) / SR
+    nz = rng.standard_normal(len(t))
+    x = bp(nz, 500, 1800) * .6 + bp(nz, 2000, 4200) * .35 + lp(nz, 400) * .2
+    e = np.minimum(1, t / .25) * np.exp(-np.maximum(0, t - .3) / (d / 3))
+    return lp(x * e, 5000)
+
+
+def reverb(x, d=2.8, pre=.025, couleur=5500, graine=5):
+    rng = np.random.default_rng(graine)
+    t = np.arange(int(d * SR)) / SR
+    ir = np.zeros((len(t) + int(pre * SR), 2))
+    for c in range(2):
+        ir[int(pre * SR):, c] = lp(rng.standard_normal(len(t)), couleur) * np.exp(-t / (d / 6.9))
+    ir /= np.sqrt((ir ** 2).sum(0))
+    return np.stack([fftconvolve(x[:, c], ir[:, c])[: len(x)] for c in range(2)], 1)
 
 
 def composer(pub):
-    piste, bpm, debut, rapport, duree, carton, style, ton, graine, prog = CONF[pub]
+    piste, bpm, debut, rapport, duree, carton, ton, graine = CONF[pub]
     rng = np.random.default_rng(graine)
-    off = debut * bpm / 60  # le temps 0 de la pub, en temps du fichier
-    L = duree / rapport + 2  # durée en temps de musique (avec la traîne)
-    E = round(carton / rapport * 2) / 2  # la frappe finale, sur le carton (au demi-temps)
-    E = float(np.floor(E)) if E - np.floor(E) < .75 else float(np.ceil(E))
-    syms = prog.split()
-    hum = lambda s=0.012: rng.normal(0, s)  # léger jeu humain (en temps)
+    tempo_pub = bpm * rapport  # tempo ressenti (pub15 : 161,5 → on joue sur 80,75 comme le fichier)
+    demi = bpm > 108  # au-dessus de 108 BPM : groove en demi-tempo, pulsation = 2 temps
+    P = 2 if demi else 1
+    L = duree / rapport + 1  # temps de musique utiles
+    E = carton / rapport  # le carton, en temps de musique (fichier)
+    E = round(E * 2) / 2 if not demi else round(E)
+    tb = 60 / bpm
+    fin_s = debut + (L + 8) * tb + 3
+    M = Mix(fin_s, rng)
+    T = lambda b: debut + b * tb  # temps de musique -> secondes dans le fichier
 
-    P = {}
-    if style == "pop":
-        P["kick"] = P["drum"] = Piste(9, 0, 110, 64, 10)
-        P["keys"] = Piste(0, 0, 92, 50, 45)          # piano
-        P["pad"] = Piste(1, 89, 70, 64, 70, 60)      # nappe chaude
-        P["bass"] = Piste(2, 38, 100, 64, 5)         # basse synthé
-        P["lead"] = Piste(3, 12, 96, 78, 50)         # marimba
-        P["gloss"] = Piste(4, 9, 60, 90, 60)         # glockenspiel, doublure à l'octave
-    elif style == "lofi":
-        P["drum"] = Piste(9, 0, 105, 64, 15)
-        P["keys"] = Piste(0, 4, 100, 54, 55, 30)     # piano électrique
-        P["pad"] = Piste(1, 48, 58, 64, 75)          # cordes
-        P["bass"] = Piste(2, 33, 105, 64, 5)         # basse aux doigts
-        P["lead"] = Piste(3, 11, 92, 76, 60)         # vibraphone
-    else:
-        P["drum"] = Piste(9, 0, 100, 64, 25)
-        P["keys"] = Piste(0, 25, 100, 52, 45, 20)    # guitare folk
-        P["pad"] = Piste(1, 49, 55, 64, 80)          # cordes lentes
-        P["bass"] = Piste(2, 32, 100, 64, 10)        # contrebasse
-        P["lead"] = Piste(3, 9, 82, 80, 60)          # glockenspiel
-        P["keys2"] = Piste(4, 24, 70, 84, 50)        # guitare nylon, contrechant
+    prog = PROGS[graine % len(PROGS)]
+    mesure = 4 * P  # une mesure = 4 pulsations
+    racine = ton - 12  # accords autour de la 3e octave
+    voix_prec = None
 
-    D = P["drum"] if "drum" in P else P["kick"]
-    swing = 0.06 if style == "lofi" else 0.0
+    def voicing(deg, q):
+        r = racine + MAJ[DEG[deg]] if deg in DEG else racine
+        notes = [r + i for i in INTER[q]]
+        # conduite des voix : on rapproche chaque voicing du précédent (renversements à l'octave)
+        nonlocal voix_prec
+        if voix_prec is not None:
+            c = np.mean(voix_prec)
+            notes = [n - 12 if n - c > 7 else n + 12 if c - n > 8 else n for n in notes]
+        notes = sorted(notes)
+        voix_prec = notes
+        return r, notes
 
-    def sw(b):  # swing des doubles-croches paires
-        return b + (swing if abs((b * 4) % 2 - 1) < 1e-6 else 0)
+    nb = int(np.ceil(E / mesure))
+    mesures = []
+    for m in range(nb):
+        b0 = m * mesure
+        b1 = min(E, b0 + mesure)
+        derniere = b1 >= E - 1e-6
+        if derniere and b1 - b0 >= P:  # la retenue : V9sus4 sur la dernière mesure
+            mesures.append((b0, b1, "V", "9sus4"))
+        else:
+            d, q = prog[m % len(prog)]
+            mesures.append((b0, b1, d, q))
 
-    # ——— motif mélodique (2 mesures), repris et varié : A A' B A'' ———
-    rythmes = {"pop": [[0, .75, 1.5, 2.5, 3, 4.5, 5.5, 6], [0, .5, 1.5, 2, 3, 4, 4.75, 5.5, 6.5]],
-               "lofi": [[0, 1.5, 2, 3.5, 4.5, 6], [.5, 1, 2.5, 4, 5, 5.5, 6.5]],
-               "acoustique": [[0, 1, 1.5, 2.5, 4, 5, 6], [0, .5, 1.5, 3, 4, 4.5, 5.5, 6.5]]}[style]
-    motif = rythmes[graine % 2]
-    pas = rng.choice([-2, -1, 1, 2, 0, 1, -1], size=len(motif))
+    swing = 0.16 * P  # swing des croches (en temps)
+    gamme_penta = [0, 2, 4, 7, 9]
 
-    def gamme(i):
-        return ton + 12 + MAJ[i % 7] + 12 * (i // 7)
-
-    nb_mes = int(np.ceil(L / 4))
-    for m in range(nb_mes):
-        b0 = 4 * m
-        if b0 > E + 4:
-            break
-        sym = syms[m % len(syms)]
-        notes, fond = accord(sym, ton - 12)
-        fin = b0 >= E - 1e-6 or (b0 < E < b0 + 4)
-        plein = m >= 1
-        avant_fin = b0 + 4 <= E < b0 + 8
-
-        for k in range(4):  # chaque temps de la mesure
-            b = b0 + k
-            if b >= E:
-                break
-            # ——— batterie ———
-            if style == "pop":
-                D.note(off + b, 36, .25, 118 if k in (0, 2) else 108)
-                if plein:
-                    if k in (1, 3):
-                        D.note(off + b + hum(.004), 39, .25, 100)
-                    D.note(off + b + .5 + hum(.006), 46, .2, 70)
-                    for s in (0, .25, .75):
-                        D.note(off + b + s + hum(.006), 42, .1, 62 + (12 if s == 0 else 0) + rng.integers(-6, 6))
-                else:
-                    D.note(off + b + .5, 42, .1, 55)
-            elif style == "lofi":
-                if k == 0 or (k == 2 and plein):
-                    D.note(off + b, 36, .25, 112)
-                if k == 1 and plein:
-                    D.note(off + b + .75, 36, .2, 80)
-                if k in (1, 3):
-                    D.note(off + b + .02, 38 if plein else 37, .25, 92 if plein else 70)
+    for idx, (b0, b1, deg, q) in enumerate(mesures):
+        r, notes = voicing(deg, q)
+        retenue = q == "9sus4"
+        # ——— Rhodes : accord plaqué légèrement égrené, + une relance sur le « et » du 2e temps (ou de la 3e pulsation) ———
+        for k, (b, v, du) in enumerate([(b0, .72, b1 - b0), (b0 + 2.5 * P, .5, (1.5 * P))] if b1 - b0 > 2.5 * P else [(b0, .72, b1 - b0)]):
+            if retenue and k:
+                continue
+            for i, n in enumerate(notes):
+                M.add("keys", T(b + (swing if b % P else 0)) + i * .012 + rng.normal(0, .004),
+                      rhodes(n + 12, du * tb, v - .04 * i + rng.uniform(-.04, .04), rng), .32)
+        # ——— nappe : fondamentale + tierce + septième, tenue ———
+        for n in [notes[0] + 12, notes[1] + 12, notes[-2] + 12]:
+            M.add("pad", T(b0), nappe(n, (b1 - b0) * tb, rng, 900 if retenue else 1500), .5)
+        # ——— sub-basse : fondamentale, petite relance ———
+        M.add("bass", T(b0), sub(r - 12, (min(b1 - b0, 2.5 * P) - .1) * tb), .9)
+        if b1 - b0 > 3 * P and not retenue:
+            M.add("bass", T(b0 + 3 * P + swing), sub(r - 12 + (7 if rng.random() < .5 else 12), (P - .1) * tb), .6)
+        # ——— batterie feutrée (pas pendant la retenue : on retient son souffle) ———
+        if not retenue:
+            for p in range(int((b1 - b0) / P)):
+                b = b0 + p * P
+                pos = p % 4
+                if pos == 0 or (pos == 2 and rng.random() < .3):
+                    M.add("drums", T(b), kick(.9), 1)
+                if pos == 2:
+                    M.add("drums", T(b + .5 * P + swing * .5), kick(.6), 1)
+                if pos in (1, 3):
+                    M.add("drums", T(b) + .012, balai(.55, rng), 1, .1)
+                    M.add("drums", T(b) + .012, rim(.12), 1, .1)
                 for s in (0, .5):
-                    D.note(off + sw(b + s) + hum(.008), 42, .1, 58 + (10 if s == 0 else 0) + rng.integers(-8, 8))
-            else:
-                if k in (0, 2):
-                    D.note(off + b, 36, .25, 96 if k == 0 else 80)
-                if k in (1, 3):
-                    D.note(off + b + .01, 37, .2, 78)
-                    if plein:
-                        D.note(off + b + .01, 54, .2, 60)
-                for s in (0, .25, .5, .75):
-                    D.note(off + b + s + hum(.006), 70, .1, 40 + (18 if s in (0, .5) else 0) + rng.integers(-5, 5))
-            # ——— basse ———
-            if style == "pop":
-                for s, o in ((0, 0), (.5, 12)):
-                    P["bass"].note(off + b + s, fond - 12 + o, .4, 104 if s == 0 else 88)
-            elif style == "lofi":
-                if k == 0:
-                    P["bass"].note(off + b, fond - 12, 1.4, 108)
-                elif k == 2:
-                    P["bass"].note(off + b, fond - 12 + (7 if rng.random() < .5 else 0), .9, 96)
-                elif k == 3:
-                    P["bass"].note(off + sw(b + .5), fond - 12 + 12, .4, 80)
-            else:
-                if k in (0, 2):
-                    P["bass"].note(off + b, fond - 12 + (0 if k == 0 else 7), .95, 100 if k == 0 else 88)
-            # ——— accords ———
-            if style == "pop":
-                for s in (.5,) if k % 2 == 0 else (.5, .75):
-                    for n in notes:
-                        P["keys"].note(off + b + s + hum(.005), n + 12, .22, 78 + rng.integers(-6, 6))
-            elif style == "lofi":
-                if k in (0, 2) or (k == 3 and rng.random() < .4):
-                    st = off + (b if k != 3 else sw(b + .5))
-                    for i, n in enumerate(sorted(notes)):
-                        P["keys"].note(st + i * .02 + hum(.006), n + 12, 1.8 if k == 0 else .9, 74 + rng.integers(-6, 6))
-            else:
-                ordre = [0, 2, 1, 3, 2, 1, 3, 2] if len(notes) > 3 else [0, 2, 1, 2, 0, 2, 1, 2]
-                for s in range(2):
-                    i = ordre[(k * 2 + s) % 8]
-                    n = sorted(notes)[i % len(notes)] + 12
-                    P["keys"].note(off + b + s * .5 + hum(.008), n, 1.4, 70 + (14 if s == 0 else 0) + rng.integers(-6, 6))
-        # nappe : l'accord tenu toute la mesure
-        if not fin:
-            for n in notes:
-                P["pad"].note(off + b0, n, min(4, E - b0) - .05, 64 if plein else 48)
-        # ——— mélodie (dès la 2e mesure) ———
-        if plein and not fin:
-            phrase = (m - 1) // 2 % 4
-            moitie = (m - 1) % 2
-            deg0 = {0: 4, 1: 4, 2: 6, 3: 4}[phrase]
-            pos = deg0
-            for i, r in enumerate(motif):
-                if not (moitie * 4 <= r < moitie * 4 + 4):
+                    M.add("drums", T(b + s * P + (swing if s else 0)) + rng.normal(0, .004),
+                          charley(.16 if s == 0 else .1, rng), 1, .35)
+        else:
+            # un charleston ouvert qui s'éteint + un Rhodes inversé qui aspire vers le carton
+            M.add("drums", T(b0), charley(.12, rng, True), 1, .35)
+            for n in (notes[0] + 24, notes[2] + 24):
+                rv = rhodes(n, (b1 - b0) * tb, .6, rng)[::-1]
+                M.add("fx", T(b1) - len(rv) / SR, rv * np.linspace(0, 1, len(rv))[:, None] ** 2, .35)
+        # ——— mélodie : peu de notes, beaucoup d'espace (phrases de 2 mesures, la 2e répond à la 1re) ———
+        if idx >= 1 and not retenue:
+            rythme = [0, 1.5, 2.5] if idx % 2 else [.5, 2, 3]
+            for j, rb in enumerate(rythme):
+                b = b0 + rb * P
+                if b >= b1 - .5 * P:
                     continue
-                b = b0 + r - moitie * 4
-                if b >= E - .5:
-                    continue
-                pos += int(pas[i]) + (1 if phrase == 2 and i == 0 else 0)
-                h = gamme(pos)
-                # temps forts : on se pose sur une note de l'accord
-                if r % 1 == 0:
-                    cands = [n + 24 + 12 * o for n in notes for o in (-1, 0, 1)]
-                    h = min(cands, key=lambda c: abs(c - h))
-                h = int(np.clip(h, ton + 12, ton + 26))
-                du = min(.45 if style == "pop" else .9, E - b - .05)
-                v = (96 if r % 2 == 0 else 84) + rng.integers(-6, 6)
-                P["lead"].note(off + sw(b) + hum(.006), h, du, v)
-                if "gloss" in P and r % 1 == 0:
-                    P["gloss"].note(off + b, h + 12, .3, 50)
-                if "keys2" in P and r % 2 == 0:
-                    P["keys2"].note(off + b + .02, h - 12, .9, 62)
-        # roulement de caisse claire avant la frappe finale
-        if avant_fin and E - b0 >= 2:
-            r0 = max(b0, E - 2)
-            n = int((E - r0) * 4)
-            for i in range(n):
-                D.note(off + r0 + i / 4, 38 if style != "acoustique" else 37, .1, 50 + int(70 * i / max(1, n - 1)))
-            if style != "acoustique":
-                for i in range(n // 2):
-                    D.note(off + r0 + i / 2, 36, .1, 80 + 4 * i)
+                cible = notes[(j + idx) % len(notes)] + 24
+                penta = [ton + 12 + i + 12 * o for i in gamme_penta for o in (0, 1)]
+                h = min(penta, key=lambda c: abs(c - cible))
+                M.add("lead", T(b + (swing if (rb * 2) % 2 else 0)), rhodes(h, 1.4 * P * tb, .55, rng), .34, .25)
 
-    # ——— la frappe finale sur le carton : cymbale, accord de tonique tenu, note finale de la mélodie ———
-    notes, fond = accord(("Imaj7" if style == "lofi" else "I"), ton - 12)
-    tenue = L - E + 1
-    D.note(off + E, 49, 2.5, 108)
-    D.note(off + E, 36, .3, 120)
-    if style != "acoustique":
-        D.note(off + E, 57, 2.5, 70)
-    P["bass"].note(off + E, fond - 12, tenue, 110)
-    for n in notes + [notes[0] + 14]:
-        P["pad"].note(off + E, n, tenue, 82)
-        P["keys"].note(off + E + .015 * (n % 3), n + 12, tenue, 88)
-    P["lead"].note(off + E, ton + 24, tenue, 100)
-    if "gloss" in P:
-        P["gloss"].note(off + E, ton + 36, 2, 70)
-    if "keys2" in P:
-        P["keys2"].note(off + E, ton + 12, tenue, 70)
+    # ——— le carton : Imaj9 qui s'ouvre, sub, glockenspiel doux, et le soupir de soulagement ———
+    r, notes = voicing("I", "maj9")
+    tenue = (L - E + 6) * tb
+    for i, n in enumerate(notes):
+        M.add("keys", T(E) + i * .03, rhodes(n + 12, tenue, .8, rng), .34)
+    for n in (notes[0] + 12, notes[1] + 12, notes[3] + 12, notes[4] + 12):
+        M.add("pad", T(E) - .15, nappe(n, tenue, rng, 2600), .55)
+    M.add("bass", T(E), sub(r - 12, tenue * .8), 1.0)
+    M.add("drums", T(E), kick(.8), 1)
+    M.add("lead", T(E) + .06, rhodes(ton + 24 + 4, tenue, .6, rng), .3, -.2)
+    M.add("fx", T(E) - .05, soupir(2.8), .22)
 
-    # ——— écriture MIDI ———
-    mid = mido.MidiFile(ticks_per_beat=PPQ)
-    t0 = mido.MidiTrack()
-    t0.append(mido.MetaMessage("set_tempo", tempo=mido.bpm2tempo(bpm), time=0))
-    mid.tracks.append(t0)
-    for p in {id(p): p for p in P.values()}.values():
-        tr = mido.MidiTrack()
-        ev = sorted(p.ev, key=lambda e: (e[0], 0 if e[1].type == "note_off" else 1))
-        last = 0
-        for tk, msg in ev:
-            tk = max(0, tk)
-            tr.append(msg.copy(time=tk - last))
-            last = tk
-        mid.tracks.append(tr)
+    # ——— bus : sidechain doux de la grosse caisse sur nappe et Rhodes, réverbérations, texture vinyle ———
+    kick_env = np.abs(M.bus["drums"][:, 0])
+    kick_env = lp(kick_env, 8)
+    kick_env = kick_env / max(1e-6, kick_env.max())
+    duck = (1 - .35 * kick_env)[:, None]
+    keys = M.bus["keys"] * duck
+    pad = M.bus["pad"] * duck
+    lead = M.bus["lead"]
+    wet = reverb(keys * .5 + pad * .4 + lead * .9 + M.bus["fx"] * .6, 3.2, .03, 5000)
+    drums = M.bus["drums"]
+    mix = keys + pad + lead * .9 + M.bus["bass"] + drums * .85 + M.bus["fx"] + wet * .55 + reverb(drums, .8, .01, 7000, 8) * .12
+    # vinyle : craquements épars + souffle de bande très bas
+    n = len(mix)
+    craq = np.zeros(n)
+    pos = rng.integers(0, n, size=int(n / SR * 9))
+    craq[pos] = rng.uniform(-1, 1, len(pos)) * rng.uniform(.2, 1, len(pos)) ** 3
+    craq = bp(craq, 1200, 7000) * 1.4
+    souffle = lp(hp(rng.standard_normal(n), 2000), 9000) * .004
+    mix += np.stack([craq + souffle, np.roll(craq, 37) + souffle], 1) * .9
+    # couleur « bande » : léger filtre passe-bas, saturation douce, coupe des infra-graves
+    mix = hp(lp(mix, 11500), 28)
+    mix = np.tanh(mix / max(1e-6, np.abs(mix).max()) * 1.6) / np.tanh(1.6)
+    # silence avant le temps 0 et petite montée en entrée
+    a = int(debut * SR)
+    mix[: max(0, a - int(.02 * SR))] = 0
+
     dos = os.path.join(PUBS, pub, "musique")
     os.makedirs(dos, exist_ok=True)
-    tmp = os.path.join(dos, "composition")
-    mid.save(tmp + ".mid")
-    subprocess.run(["fluidsynth", "-ni", "-q", "-g", "0.45", "-r", "48000", "-R", "1", "-C", "1", "-F", tmp + ".wav", SF2, tmp + ".mid"],
-                   check=True, capture_output=True)
-    fin_s = debut + L * 60 / bpm + 3
+    wav = os.path.join(dos, "composition.wav")
+    import wave
+    with wave.open(wav, "wb") as w:
+        w.setnchannels(2), w.setsampwidth(2), w.setframerate(SR)
+        w.writeframes((np.clip(mix, -1, 1) * 32000).astype(np.int16).tobytes())
     sortie = os.path.join(dos, f"mixkit-{piste}.mp3")
-    # mastering : coupe des infra-graves, un peu d'air, compression de bus, -14 LUFS, plafond -1 dBTP
-    af = ("highpass=f=30,equalizer=f=250:t=q:w=1:g=-1.5,equalizer=f=9000:t=h:w=0.7:g=2,"
-          "acompressor=threshold=-18dB:ratio=2.5:attack=15:release=180:makeup=2,"
-          f"apad,atrim=0:{fin_s:.3f},loudnorm=I=-14:TP=-1:LRA=9")
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", tmp + ".wav", "-af", af, "-ar", "48000", "-c:a", "libmp3lame", "-b:a", "320k", sortie], check=True)
-    os.remove(tmp + ".wav")
-    print(f"{pub}: {style}, {bpm} BPM, frappe finale au temps {E} → {os.path.relpath(sortie, PUBS)}")
+    af = "acompressor=threshold=-20dB:ratio=2:attack=25:release=250:makeup=1.5,loudnorm=I=-15:TP=-1.5:LRA=8"
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", wav, "-af", af, "-ar", "48000", "-c:a", "libmp3lame", "-b:a", "320k", sortie], check=True)
+    os.remove(wav)
+    print(f"{pub}: {bpm} BPM{' (demi-tempo)' if demi else ''}, carton au temps {E} → {os.path.relpath(sortie, PUBS)}")
 
 
 for p in sys.argv[1:] or CONF:
