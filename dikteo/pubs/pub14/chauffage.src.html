@@ -81,7 +81,7 @@ function etincelles(x,y,seed,t,force=1,col=[255,200,140]){if(t<0||t>1)return;g.s
 let FADE=1;
 function etiquette(nom,prix,x,y,b0,b,extra){if(b<b0||FADE<=0)return;const k=expoOut(seg(b,b0,b0+1.1)),fl=Math.exp(-(b-b0)*B*4),vieux=b>b0+2.2?.55:1;
   g.font='700 36px Archivo';const w1=g.measureText(nom).width;g.font='800 46px JBMono';const w2=g.measureText(prix).width,w=w1+w2+76;
-  const cx=clamp(x,w/2+20,1060-w/2);
+  const xmax=(y+40>820&&y-40<1600)?940:1060,cx=clamp(x,w/2+20,xmax-w/2);   // zone sûre : pas sous les boutons de droite
   g.save();g.globalAlpha*=clamp(k*1.4)*vieux*FADE;if(k<1)g.filter=`blur(${((1-k)*8).toFixed(2)}px)`;g.translate(cx,y+(1-k)*14);g.scale(.94+.06*k,.94+.06*k);
   g.fillStyle='rgba(12,10,8,.88)';rr(-w/2,-40,w,80,28);g.fill();g.strokeStyle=`rgba(255,138,61,${.45+.5*fl})`;g.lineWidth=2.5;rr(-w/2,-40,w,80,28);g.stroke();
   texte(nom,-w/2+26,2,36,'#f3ece2',700,'Archivo','left');lueur(`rgba(255,138,61,${.4+.4*fl})`,16+30*fl);texte(prix,w/2-26,2,46,ORANGE,800,'JBMono','right');
@@ -125,7 +125,7 @@ function thermostat(k,temp,b){if(k<=0)return;const {x,y,r}=THERMO;g.save();g.tra
   const u=clamp((temp-12)/9);g.strokeStyle='rgba(255,255,255,.12)';g.lineWidth=7;g.beginPath();g.arc(0,0,r*.6,Math.PI*.75,Math.PI*2.25);g.stroke();
   g.strokeStyle=u>.5?ORANGE:'#7fb8ff';g.lineCap='round';g.beginPath();g.arc(0,0,r*.6,Math.PI*.75,Math.PI*(.75+1.5*u));g.stroke();
   lueur(u>.5?'rgba(255,138,61,.7)':'rgba(127,184,255,.7)',12);texte(`${temp.toFixed(0)}°`,0,2,40,u>.5?'#ffd2b0':'#cfe4ff',800,'JBMono');g.restore();}
-function calendrier(k,b){if(k<=0)return;const x=830,y=380;g.save();g.translate(x,y);g.scale(clamp(k,0,1.1),clamp(k,0,1.1));
+function calendrier(k,b){if(k<=0)return;const x=470,y=660;g.save();g.translate(x,y);g.scale(clamp(k,0,1.1),clamp(k,0,1.1));
   g.fillStyle='rgba(0,0,0,.4)';rr(-62,-58,132,140,14);g.fill();g.fillStyle='#ece7dd';rr(-66,-66,132,140,14);g.fill();g.fillStyle=O2;rr(-66,-66,132,36,14);g.fill();g.fillRect(-66,-46,132,16);
   const flip=b>=T_MO+.8?1:0;texte(flip?'JOUR 2':'JOUR 1',0,-48,18,'#fff',900,'Archivo');texte(flip?'2':'1',0,20,64,'#2a2622',900,'Archivo');g.restore();}
 
@@ -160,12 +160,12 @@ function seek(T){
   if(b<5){const wipe=seg(b,.1,1.4);sg.setTransform(1,0,0,1,0,0);sg.clearRect(0,0,SCRATCH.width,SCRATCH.height);
     sg.globalCompositeOperation='source-over';sg.drawImage(VITRE,0,0);sg.globalCompositeOperation='destination-out';
     sg.font='900 92px Archivo';sg.textAlign='center';sg.textBaseline='middle';sg.lineJoin='round';sg.lineCap='round';sg.lineWidth=18;
-    sg.save();sg.beginPath();sg.rect(0,0,SCRATCH.width*(.08+.9*wipe),SCRATCH.height);sg.clip();sg.strokeStyle='#000';sg.fillStyle='#000';sg.strokeText('CHAUFFAGISTE ?',SCRATCH.width/2,SCRATCH.height*.42);sg.fillText('CHAUFFAGISTE ?',SCRATCH.width/2,SCRATCH.height*.42);sg.restore();
+    sg.save();sg.beginPath();sg.rect(0,0,SCRATCH.width*(.08+.9*wipe),SCRATCH.height);sg.clip();sg.strokeStyle='#000';sg.fillStyle='#000';sg.strokeText('CHAUFFAGISTE ?',SCRATCH.width/2,SCRATCH.height*.36);sg.fillText('CHAUFFAGISTE ?',SCRATCH.width/2,SCRATCH.height*.36);sg.restore();
     const {x,y,w,h:fh}=FEN;g.save();g.globalAlpha=1-seg(b,3.4,4.4);
-    const gl=g.createRadialGradient(x+w/2,y+fh*.42,10,x+w/2,y+fh*.42,w*.6);gl.addColorStop(0,'rgba(240,150,80,.9)');gl.addColorStop(1,'rgba(200,100,40,.5)');g.fillStyle=gl;g.fillRect(x,y,w,fh);
+    const gl=g.createRadialGradient(x+w/2,y+fh*.36,10,x+w/2,y+fh*.36,w*.6);gl.addColorStop(0,'rgba(240,150,80,.9)');gl.addColorStop(1,'rgba(200,100,40,.5)');g.fillStyle=gl;g.fillRect(x,y,w,fh);
     g.drawImage(SCRATCH,x,y,w,fh);
     // les lettres essuyées restent nettes : la lumière chaude passe à travers
-    g.save();g.beginPath();g.rect(x,y,w*(.08+.9*wipe),fh);g.clip();g.font='900 30.7px Archivo';g.textAlign='center';g.textBaseline='middle';lueur('rgba(255,150,70,.9)',6);g.fillStyle='#ffe4c8';g.fillText('CHAUFFAGISTE ?',x+w/2,y+fh*.42);g.restore();
+    g.save();g.beginPath();g.rect(x,y,w*(.08+.9*wipe),fh);g.clip();g.font='900 30.7px Archivo';g.textAlign='center';g.textBaseline='middle';lueur('rgba(255,150,70,.9)',6);g.fillStyle='#ffe4c8';g.fillText('CHAUFFAGISTE ?',x+w/2,y+fh*.36);g.restore();
     g.restore();}
   // 1 · la chaudière se pose au mur
   const kc=b>=T_CH?spring((b-T_CH)*B,11,.82):0;chaudiere(kc,ease(seg(b,B_ON,B_ON+2)),t);
@@ -190,31 +190,31 @@ function seek(T){
   // les étiquettes, une par ligne dictée
   FADE=1-seg(b,B_ON,B_ON+.5);
   etiquette('Chaudière à condensation','3 200 €',540,980,T_CH+.4,b);
-  etiquette('6 radiateurs','1 680 €',700,1100,T_RAD+.5,b);
+  etiquette('6 radiateurs','1 680 €',670,1100,T_RAD+.5,b);
   etiquette('Thermostat connecté','180 €',540,740,T_TH+.4,b);
-  etiquette('Main-d’œuvre 2 jours','880 €',560,520,T_MO+.4,b);
+  etiquette('Main-d’œuvre 2 jours','880 €',560,490,T_MO+.4,b);
   // le contexte de l'accroche
-  if(b>1.2&&b<4.6){const so=seg(b,3.9,4.4);g.save();g.globalAlpha=1-so;if(so>0)g.filter=`blur(${(so*8).toFixed(2)}px)`;lueur('rgba(0,0,0,.9)',24);motsFlous('Encore une chaudière à chiffrer ce soir ?',540,1560,50,'#f3e6d6',800,'Archivo','center',b,1.2);g.restore();}
+  if(b>1.2&&b<4.6){const so=seg(b,3.9,4.4);g.save();g.globalAlpha=1-so;if(so>0)g.filter=`blur(${(so*8).toFixed(2)}px)`;lueur('rgba(0,0,0,.9)',24);motsFlous('Encore une chaudière à chiffrer ce soir ?',540,1540,40,'#f3e6d6',800,'Archivo','center',b,1.2);g.restore();}
   // la phrase dite, en haut : une seule à la fois, avec le micro
   ITEMS.forEach((it,i)=>{const b1=i<ITEMS.length-1?ITEMS[i+1].b-.15:B_ON-.3;if(b<it.b-.05||b>b1+.2)return;
     const k=expoOut(seg(b,it.b-.05,it.b+.7)),a=k*(1-seg(b,b1,b1+.2));g.save();g.globalAlpha=a;g.translate(0,(1-k)*-18);
-    g.fillStyle='rgba(10,8,6,.88)';rr(70,80,940,236,40);g.fill();
-    const gm=g.createLinearGradient(110,143,190,223);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(150,198,44,0,7);g.fill();
-    g.fillStyle='#fff';rr(141,173,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(150,193,17,.15*Math.PI,.85*Math.PI);g.stroke();
-    dictee(it,b,150,198,220,130,44);g.restore();});
+    g.fillStyle='rgba(10,8,6,.88)';rr(70,160,940,236,40);g.fill();
+    const gm=g.createLinearGradient(110,223,190,303);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(150,278,44,0,7);g.fill();
+    g.fillStyle='#fff';rr(141,253,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(150,273,17,.15*Math.PI,.85*Math.PI);g.stroke();
+    dictee(it,b,150,278,220,210,44);g.restore();});
   // le chauffage démarre : 21°, et le total
   if(b>=B_ON+.3&&b<B_ENV+.8){const kg=easeOut(seg(b,B_ON+.5,B_ON+2.3)),a=clamp((b-B_ON-.3)*3)*(1-seg(b,B_ENV+.2,B_ENV+.8)),val=TOTAL*kg;
     const txt=val.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}).replace(/ | /g,' ')+' €',fl=kg>=1?Math.exp(-(b-B_ON-2.3)*B*3):0;
-    g.save();g.globalAlpha=a;g.fillStyle='rgba(12,10,8,.9)';rr(110,100,860,180,30);g.fill();g.strokeStyle='rgba(255,138,61,.35)';g.lineWidth=2;rr(110,100,860,180,30);g.stroke();
-    texte('TOTAL TTC',150,190,30,'rgba(255,190,140,.8)',800,'Archivo','left');lueur(`rgba(255,138,61,${.6+.4*fl})`,18+40*fl);texte(txt,930,194,82,ORANGE,800,'JBMono','right');g.restore();}
+    g.save();g.globalAlpha=a;g.fillStyle='rgba(12,10,8,.9)';rr(110,160,860,180,30);g.fill();g.strokeStyle='rgba(255,138,61,.35)';g.lineWidth=2;rr(110,160,860,180,30);g.stroke();
+    texte('TOTAL TTC',150,250,30,'rgba(255,190,140,.8)',800,'Archivo','left');lueur(`rgba(255,138,61,${.6+.4*fl})`,18+40*fl);texte(txt,930,254,82,ORANGE,800,'JBMono','right');g.restore();}
   // l'envoi : le devis part par la fenêtre, une traînée chaude dans la neige
   if(b>=B_ENV&&b<B_FIN){const u=ease(seg(b,B_ENV,B_ENV+1.5));const P0=[540,1000],P1=[FEN.x+FEN.w/2,FEN.y+FEN.h/2],P2=[1200,-200];
     const at=v=>v<.5?[lerp(P0[0],P1[0],v*2),lerp(P0[1],P1[1],v*2)]:[lerp(P1[0],P2[0],v*2-1),lerp(P1[1],P2[1],v*2-1)];
     const [hx,hy]=at(u),fa=1-seg(b,B_ENV+1.3,B_ENV+1.6);g.save();g.globalAlpha=fa;g.globalCompositeOperation='lighter';
     g.beginPath();for(let i=0;i<=30;i++){const [px,py]=at(u*i/30);i?g.lineTo(px,py):g.moveTo(px,py);}g.strokeStyle='rgba(255,170,100,.5)';g.lineWidth=4;g.stroke();
     const gl=g.createRadialGradient(hx,hy,0,hx,hy,70);gl.addColorStop(0,'rgba(255,240,220,.95)');gl.addColorStop(.3,'rgba(255,160,80,.5)');gl.addColorStop(1,'rgba(255,120,40,0)');g.fillStyle=gl;g.beginPath();g.arc(hx,hy,70,0,7);g.fill();g.restore();}
-  if(b>=B_TXT&&b<B_FIN+.2){const k=expoOut(seg(b,B_TXT,B_TXT+.8)),a=1-seg(b,B_FIN-.3,B_FIN+.1);g.save();g.globalAlpha=a;g.save();g.globalAlpha*=k;g.fillStyle='rgba(12,10,8,.86)';rr(150,1640,780,190,40);g.fill();g.restore();
-    motsFlous('Envoyé à Mme Roux.',540,1700,64,'#fff',800,'Archivo','center',b,B_TXT+.1);motsFlous('Avant le premier froid.',540,1780,64,ORANGE,800,'Archivo','center',b,B_TXT+.75);g.restore();}
+  if(b>=B_TXT&&b<B_FIN+.2){const k=expoOut(seg(b,B_TXT,B_TXT+.8)),a=1-seg(b,B_FIN-.3,B_FIN+.1);g.save();g.globalAlpha=a;g.save();g.globalAlpha*=k;g.fillStyle='rgba(12,10,8,.86)';rr(150,1390,780,190,40);g.fill();g.restore();
+    motsFlous('Envoyé à Mme Roux.',540,1450,64,'#fff',800,'Archivo','center',b,B_TXT+.1);motsFlous('Avant le premier froid.',540,1530,64,ORANGE,800,'Archivo','center',b,B_TXT+.75);g.restore();}
   // le carton
   if(b>=B_FIN){const k=expoOut(seg(b,B_FIN,B_FIN+1.2));g.save();g.fillStyle=`rgba(8,6,5,${.84*clamp(k*1.3)})`;g.fillRect(0,0,W,H);
     const kl=expoOut(seg(b,B_FIN+.1,B_FIN+1.1));g.save();g.globalAlpha=kl;g.translate(280+70,770);g.scale(.84+.16*kl,.84+.16*kl);g.translate(-350,-770);
