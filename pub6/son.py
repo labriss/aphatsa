@@ -13,7 +13,8 @@ SKILL = os.path.expanduser("~/.claude/skills/sound-effects/sfx")
 VIDEO, SORTIE = sys.argv[1], sys.argv[2]
 SR = 48000
 B = 60 / 123
-D = 34 * B
+D = 38 * B
+OFF = 4  # temps d'ouverture ajoutés avant la première phrase
 # Morceau choisi par variables d'environnement (défaut : « Smile », Mixkit #1076, choisie par l'utilisateur le 10 nov. 2026) : numéro, tempo mesuré, phase, temps sautés.
 PISTE = os.environ.get("PISTE", "474")
 BPM_P = float(os.environ.get("BPM_P", "121"))
@@ -38,7 +39,7 @@ musique, bruits, journal = np.zeros((N, 2), np.float32), np.zeros((N, 2), np.flo
 
 def sfx(f, beat, db=-6.0, desc="", avance=0.0, finit=False):
     s = lire(os.path.join(SKILL, f))
-    t = beat * B - avance - (len(s) / SR if finit else 0)
+    t = (beat + OFF) * B - avance - (len(s) / SR if finit else 0)
     s = s / max(1e-6, np.abs(s).max()) * 10 ** (db / 20)
     a = max(0, int(t * SR))
     s = s[: N - a]
@@ -55,6 +56,7 @@ m[-k:] *= np.linspace(1, 0.0, k)[:, None]
 musique[: len(m)] = m
 
 deux = 2 / 60
+sfx("kit/pop.ogg", -OFF, -10, "« Plombier ? Encore un devis à recopier au propre ? »")
 SOBRE = True
 # Pub 6 (version téléphone, rapide) : souffle doux quand une phrase part se ranger, clic léger quand le prix se pose,
 # le total qui monte, le pouce sur « Valider et envoyer », l'avion qui part.
