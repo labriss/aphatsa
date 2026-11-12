@@ -54,7 +54,10 @@ export function intertitle(g, W, H, spec, t = 0) {
   const lines = spec.lines, gap = spec.gap ?? 1.28;
   const total = lines.reduce((s, l) => s + l.size * gap, 0);
   let yy = H / 2 - total / 2 + (spec.dy ?? 0);
+  let li = 0;
   for (const l of lines) {
+    const ap = spec.stagger && l.text.trim() ? Math.min(1, Math.max(0, (t - (spec.at ?? 0) - (li++) * spec.stagger) / .3)) : 1;
+    g.globalAlpha = ap * ap * (3 - 2 * ap);
     const f = `${l.italic ? 'italic ' : ''}${l.weight ?? 400} ${l.size}px "${l.font ?? FONT_BODY}"`;
     g.font = f; g.fillStyle = l.color ?? CARD_FG; g.textAlign = 'center'; g.textBaseline = 'middle';
     let sx = 0, sy = 0;
@@ -66,6 +69,7 @@ export function intertitle(g, W, H, spec, t = 0) {
     if (l.rule) { const tw = g.measureText(txt).width; g.fillRect(W / 2 - tw * .35, yy + l.size * gap - 4, tw * .7, 2); }
     yy += l.size * gap;
   }
+  g.globalAlpha = 1;
   g.restore();
 }
 

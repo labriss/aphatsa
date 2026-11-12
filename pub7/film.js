@@ -48,6 +48,7 @@ export function renderFilm(g, t) {
     exposure = .25 + .75 * ss((t - HIT.lampe) / .5);
   } else if (card) {
     intertitle(fg, FW, FH, card, t - sec.t0);
+    { const a = ss((t - sec.t0) / .4), d = sec.name === 'FIN' ? 1 : 1 - ss((t - (sec.t1 - .16)) / .16); exposure = .2 + .8 * a * d; }
     if (sec.name === 'FIN') {           // le logo Diktéo : la seule couleur du film
       mg.clearRect(0, 0, FW, FH); logo(mg, LOGO.cx, LOGO.cy, LOGO.size, true); logo(fg, LOGO.cx, LOGO.cy, LOGO.size, false); colour = mask;
     }
