@@ -1,6 +1,6 @@
 """Mixage : la partition de piano + le projecteur dans la cabine (le seul « son de salle » d'un film muet) → out/mix.wav
 Aucun bruitage, volontairement : le piano joue chaque gag. Le projecteur démarre au début, ronronne sous tout le film,
-reste seul pendant le SILENCE du carton « Il y avait une autre façon. », puis la queue de la pellicule claque à la fin."""
+reste seul pendant le SILENCE du carton « Une autre façon : il dicte son devis. », puis la queue de la pellicule claque à la fin."""
 import sys, os, json
 import numpy as np, soundfile as sf
 D = os.path.dirname(os.path.abspath(__file__))

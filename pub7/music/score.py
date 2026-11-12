@@ -1,5 +1,5 @@
 """Partition originale de « Le Soir du plombier » : un piano droit de cinéma qui joue la « cue sheet » (VSCO 2 CE, CC0).
-Misterioso (21 heures) → Agitato (la pile monte, vacille, s'écroule : trille, glissando, cluster) → plink… plonk →
+Misterioso (Plombier ? 21 heures) → Agitato (la pile monte, vacille, s'écroule : trille, glissando, cluster) → plink… plonk →
 SILENCE (carton) → Tenderly (la voix : une note par ligne du télégramme, note de grâce sur le sourcil) →
 accord joyeux (devis envoyé) → le thème, chaud (il rentre dîner) → accord final tenu.
 Toutes les durées viennent de ../timeline.json. Sortie : music/score.wav"""
@@ -40,6 +40,7 @@ B = bt('CARD1')
 chord(at('CARD1'), ['A1', 'E2', 'A2'], B * 4, .55, -.3)
 for i, p in enumerate(['A2', 'G#2', 'G2', 'F#2']): n(at('CARD1', i), p, B * .9, .45, -.2)
 n(at('CARD1', .5), 'E5', B * 1.5, .3, .3); n(at('CARD1', 2.5), 'C5', B * 1.5, .28, .3)
+chord(at('CARD1', 4), ['E1', 'E2', 'B2'], B * 1.5, .45, -.3); n(at('CARD1', 4.5), 'B4', B * 1, .26, .3)  # carton allongé : la basse tient jusqu'à la pile
 
 # ---------- GAG · Agitato (ré mineur) : main gauche « stride », la pile monte ----------
 B = bt('GAG')

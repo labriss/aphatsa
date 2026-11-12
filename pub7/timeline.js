@@ -5,9 +5,9 @@ export const FPS = 24;
 // [nom, bpm, temps, humeur]
 const SECS = [
   ['PRE',    96, 2,   'le projecteur démarre (pas de musique)'],
-  ['CARD1',  96, 4,   'Misterioso : « 21 heures. »'],
+  ['CARD1',  96, 5.5, 'Misterioso : « Plombier ? Encore un devis à taper à 21 heures ? »'],
   ['GAG',   112, 12,  'Agitato : la pile monte, vacille et s’écroule'],
-  ['CARD2',  96, 5.5, 'SILENCE : « Il y avait une autre façon. »'],
+  ['CARD2',  96, 5.5, 'SILENCE : « Une autre façon : il dicte son devis. »'],
   ['VOIX',   84, 8,   'Tenderly : la voix devient télégramme'],
   ['CARD3',  96, 5,   'accord joyeux : « Devis envoyé. 21 h 04. »'],
   ['MAISON', 84, 6,   'le thème, chaud : il rentre dîner'],
