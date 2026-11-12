@@ -41,3 +41,4 @@
 /dikteo/pubs/pub4/demo_*.html
 **/__pycache__/
 node_modules/
+/dikteo/pubs/pub4/node_modules
