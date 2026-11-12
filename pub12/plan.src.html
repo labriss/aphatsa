@@ -316,7 +316,7 @@ function seek(T){
   g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;
   scene(b,t);
   g.setTransform(1,0,0,1,0,0);
-  if(b>=B_FIN-.6){g.fillStyle=`rgba(10,5,2,${.8*ease(seg(b,B_FIN-.6,B_FIN+.4))})`;g.fillRect(0,0,W,H);}
+  if(b>=B_FIN-.6){g.fillStyle=`rgba(10,5,2,${.95*ease(seg(b,B_FIN-.6,B_FIN+.4))})`;g.fillRect(0,0,W,H);}
   boite(b);if(b>=B_FIN)carton(b);
 }
 window.seek=seek;
