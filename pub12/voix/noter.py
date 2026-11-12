@@ -4,8 +4,8 @@ import numpy as np
 import difflib, glob, json, os, re, subprocess, unicodedata
 from faster_whisper import WhisperModel
 ICI = os.path.dirname(os.path.abspath(__file__))
-ATTENDU = ["rebouchage des fissures forfait cent quatre-vingts euros", "sous-couche trente-deux mètres carrés sept euros le mètre",
-           "deux couches de peinture mat velours dix-huit euros le mètre", "protection et nettoyage quatre-vingt-dix euros"]
+ATTENDU = ["rebouchage des fissures forfait cent quatre-vingts euros", "sous-couche trente-deux mètres carrés à sept euros le mètre",
+           "deux couches de peinture mat velours dix-huit euros le mètre", "protection nettoyage quatre-vingt-dix euros"]
 NOMBRES = {"180": "cent quatre-vingts", "32": "trente-deux", "7": "sept", "18": "dix-huit", "90": "quatre-vingt-dix", "2": "deux", "m2": "mètres carrés", "m²": "mètres carrés"}
 def norm(s):
     s = s.lower().replace("€", " euros ")
@@ -14,7 +14,7 @@ def norm(s):
     return " ".join(re.sub(r"[^a-z0-9 ]", " ", s.replace("-", " ")).split())
 w = WhisperModel("small", device="cpu", compute_type="int8")
 res = {}
-for f in sorted(glob.glob(os.path.join(ICI, "prises", "*.wav"))):
+for f in sorted(glob.glob(os.path.join(ICI, "prises", os.environ.get("PREFIXE", "") + "*.wav"))):
     b = os.path.basename(f); i = int(re.search(r"_p(\d)_", b).group(1))
     segs = list(w.transcribe(np.frombuffer(subprocess.run(["ffmpeg","-v","error","-i",f,"-f","f32le","-ac","1","-ar","16000","-"],capture_output=True).stdout,np.float32), language="fr", beam_size=5)[0]); txt = " ".join(s.text for s in segs)
     nett = sum(s.avg_logprob for s in segs) / max(1, len(segs))

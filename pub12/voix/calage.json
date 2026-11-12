@@ -2,29 +2,29 @@
  {
   "phrase": 0,
   "prise": "K_p0_k2.wav",
-  "debut_b": 3.08,
-  "duree_b": 3.094,
-  "tempo": 1.2
+  "debut_b": 2.7800000000000002,
+  "duree_b": 3.33,
+  "tempo": 1.12
  },
  {
   "phrase": 1,
   "prise": "K_p1_k0.wav",
   "debut_b": 6.08,
-  "duree_b": 3.64,
-  "tempo": 1.177
+  "duree_b": 3.829,
+  "tempo": 1.12
  },
  {
   "phrase": 2,
-  "prise": "K_p2_k1.wav",
+  "prise": "K_p2_k2.wav",
   "debut_b": 10.08,
-  "duree_b": 3.659,
-  "tempo": 1.061
+  "duree_b": 3.868,
+  "tempo": 1.12
  },
  {
   "phrase": 3,
   "prise": "K_p3_k2.wav",
   "debut_b": 14.08,
-  "duree_b": 2.711,
-  "tempo": 1.2
+  "duree_b": 2.895,
+  "tempo": 1.12
  }
 ]

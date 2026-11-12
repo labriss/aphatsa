@@ -120,8 +120,19 @@ if os.path.exists(CHOIX) and os.environ.get("SANS_VOIX") != "1":
         calage.append(dict(phrase=i, prise=ch[str(i)], debut_b=bt + .08, duree_b=round(len(v) / SR / B, 3), tempo=round(tempo, 3)))
         journal.append(((bt + .08) * B, f"voix, phrase {i + 1}", ch[str(i)], "voix générée en local (Chatterbox ou Kokoro), référence SIWIS CC BY 4.0", "CC BY 4.0"))
     json.dump(calage, open(os.path.join(ICI, "voix", "calage.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+    # l'air de la pièce sous la voix : une dictée réelle n'est jamais posée sur un silence parfait
+    AIR = "ambience/fs-329533-room-tone-in-an-apartment-livi.ogg"
+    for c in calage:
+        d = c["duree_b"] * B + .5
+        a = lire(os.path.join(SKILL, AIR), 2 + c["phrase"] * 3.1, d)
+        t = np.arange(len(a)) / SR
+        a = a * (np.minimum(1, t / .2) * np.minimum(1, np.maximum(0, (d - t) / .3)))[:, None]
+        a = a / max(1e-6, np.abs(a).max()) * 10 ** (-30 / 20)
+        a0 = int((c["debut_b"] * B - .2) * SR)
+        voix[a0:a0 + len(a)] += a[: N - a0]
+        journal.append((c["debut_b"] * B - .2, "l'air de la pièce sous la dictée", AIR, INFO.get(AIR, {}).get("credit", AIR), INFO.get(AIR, {}).get("license", "?")))
 # la musique s'efface un peu sous la voix
-parle = (np.abs(voix).max(1) > .02).astype(np.float32)
+parle = (np.abs(voix).max(1) > .08).astype(np.float32)
 lisse = int(.35 * SR)
 parle = np.convolve(parle, np.ones(lisse) / lisse, mode="same")
 env = (1 - .45 * np.clip(parle * 1.5, 0, 1)).astype(np.float32)

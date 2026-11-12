@@ -14,10 +14,10 @@ from chatterbox.mtl_tts import ChatterboxMultilingualTTS
 ICI = os.path.dirname(os.path.abspath(__file__))
 # Écrit comme on le dit : les nombres en toutes lettres, la ponctuation pour les respirations.
 PHRASES = [
-    "Rebouchage des fissures, forfait cent quatre-vingts euros.",
-    "Sous-couche, trente-deux mètres carrés, sept euros le mètre.",
-    "Deux couches de peinture mat velours, dix-huit euros le mètre.",
-    "Protection et nettoyage, quatre-vingt-dix euros.",
+    "Rebouchage des fissures... forfait, cent quatre-vingts euros.",
+    "Sous-couche, trente-deux mètres carrés... à sept euros le mètre.",
+    "Deux couches de peinture mat velours... dix-huit euros le mètre.",
+    "Protection, nettoyage... quatre-vingt-dix euros.",
 ]
 REF, ETI = sys.argv[1], sys.argv[2]
 PRISES = int(sys.argv[3]) if len(sys.argv) > 3 else 3
@@ -29,7 +29,7 @@ t0 = time.time()
 m = ChatterboxMultilingualTTS.from_pretrained(device="cpu")
 print("modèle chargé", round(time.time() - t0), "s", flush=True)
 # réglages d'une dictée : posée, peu théâtrale (exagération basse), débit naturel
-REGLAGES = [(.35, .5, .7), (.45, .4, .8), (.3, .3, .65)]
+REGLAGES = [(.5, .3, .8), (.45, .35, .75), (.55, .3, .85)]
 for i in QUELLES:
     for k in range(PRISES):
         ex, cfg, temp = REGLAGES[k % len(REGLAGES)]
