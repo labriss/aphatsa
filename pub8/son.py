@@ -58,7 +58,7 @@ deux = 2 / 60
 SOBRE = False
 # Pub 8 : chaque galère tombe avec un coup sourd, « LES DEVIS » s'écrase lourdement, la voix balaie la pile,
 # le vrai écran se remplit, l'envoi, le carton.
-sfx("kit/pop.ogg", 0, -10, "« Artisan ? »")
+sfx("kit/pop.ogg", 0, -10, "« Chauffagiste ? Tes devis, encore ce soir ? »")
 for i in range(6):
     # un coup lourd et grave sous chaque bloc, de plus en plus fort à mesure que la pile monte
     sfx("impact/kenney-impact-impactpunch-heavy-00%d.ogg" % (i % 2), 1.6 + i * 1.5 + .6, -1 + i * .4, "une galère tombe sur la pile")
