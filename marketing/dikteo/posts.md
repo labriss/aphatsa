@@ -1,4 +1,4 @@
-# 10 posts prêts à publier (lien : https://fuiteo.vercel.app?utm_source=<reseau>&utm_campaign=lancement)
+# 10 posts prêts à publier (lien : https://dikteo.vercel.app?utm_source=<reseau>&utm_campaign=lancement)
 
 **1 — Lancement (tous)**
 Fini les devis le soir à la maison. 🎙️ Avec Diktéo, vous dictez sur le chantier, l'IA chiffre (quantités, prix, TVA), vous validez, le client signe en ligne. 30 secondes. Essayez → lien en bio.

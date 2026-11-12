@@ -3,12 +3,14 @@
 **Pitch (1 phrase)** : Dictez votre devis sur le chantier, Diktéo le chiffre, l'envoie et le fait signer.
 **Textes officiels des vidéos** : `labriss/fuiteo` → `video/publication.md` (vidéos à générer : `video/out/*.mp4`, non versionnées).
 **Cible** : artisans du bâtiment (plombiers, électriciens, menuisiers, peintres), 1 à 5 personnes.
-**Offres** : Gratuit 3 devis/mois sans CB · Artisan 19 € HT/mois · Atelier 49 € HT/mois. Site : https://fuiteo.vercel.app
+**Offres** : Gratuit 3 devis/mois sans CB · Artisan 19 € HT/mois · Atelier 49 € HT/mois. Site : https://dikteo.vercel.app
 
 ## 1. Pseudo unique partout
 `@dikteo` (secours : `@dikteo.app`, `@dikteo_fr`). Vérifier sur namechk.com avant inscription.
 
-## 2. Adresses mail (domaine conseillé : dikteo.fr, routage gratuit Cloudflare Email Routing → Gmail)
+## 2. Adresses mail
+Domaine en cours : **diktéo.fr** (Hostinger). ⚠️ Un accent dans une adresse mail (IDN/EAI) est refusé par beaucoup de formulaires d'inscription : réserver aussi **dikteo.fr** (sans accent) et l'utiliser pour TOUS les mails et comptes, diktéo.fr redirige dessus (301).
+Création : boîtes Hostinger (incluses) ou redirections gratuites vers Gmail.
 | Adresse | Usage |
 |---|---|
 | contact@dikteo.fr | site, clients |
