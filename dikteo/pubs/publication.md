@@ -12,7 +12,7 @@ se remplissent tout seuls. Vous relisez, vous validez, il part chez le client.
 
 Plombiers, électriciens, chauffagistes, carreleurs, peintres, menuisiers, maçons, couvreurs, serruriers, multiservice :
 3 devis par mois offerts, sans carte bancaire.
-👉 fuiteo.vercel.app
+👉 dikteo.vercel.app
 
 #artisan #plombier #batiment #devis #facture #artisanat #chantier #electricien #auto-entrepreneur #btp
 
@@ -23,7 +23,7 @@ Titre : Le devis dicté, envoyé du chantier — Diktéo
 Description :
 Diktéo, c'est le devis et la facture des artisans du bâtiment, pensé pour le téléphone.
 Vous dictez, l'IA remplit les lignes et la TVA, le total est calculé au centime, vous validez et le devis part.
-Gratuit pour commencer : 3 devis par mois, sans carte bancaire. https://fuiteo.vercel.app
+Gratuit pour commencer : 3 devis par mois, sans carte bancaire. https://dikteo.vercel.app
 
 Musique : « Promo Drop » par JoyInSound (Pixabay).
 
@@ -31,4 +31,4 @@ Musique : « Promo Drop » par JoyInSound (Pixabay).
 
 Le chantier est fini à 17 h, le devis à 23 h ? Plus maintenant.
 Diktéo transforme votre voix en devis chiffré, prêt à envoyer depuis le chantier.
-Gratuit pour commencer, sans carte bancaire : https://fuiteo.vercel.app
+Gratuit pour commencer, sans carte bancaire : https://dikteo.vercel.app
