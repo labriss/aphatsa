@@ -2,6 +2,7 @@ Musique : « Motivating Mornings » (Mixkit), Mixkit #474, Mixkit Stock Music Fr
 
 Bruitages :
 - "Classic Click" by adh.dreaming (https://freesound.org/people/adh.dreaming/sounds/671105/), CC0
+- "POP SFX Neutral" by ethernel0 (https://freesound.org/people/ethernel0/sounds/776016/), CC0
 - ding/fs-349504-triangle-open-04.ogg
 - ding/kenney-interface-confirmation-001.ogg
 - tick/fs528561.ogg
