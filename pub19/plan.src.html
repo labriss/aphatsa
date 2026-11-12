@@ -121,12 +121,12 @@ function seek(T_){
   // les épingles
   ARRETS.forEach(a=>{const [px,py]=surRoute(a.f);epingle(px,py,a.b+1.35,b,a.prix);});
   // l'utilitaire (il disparaît quand la bulle se remplit)
-  if(rem<1){g.save();g.globalAlpha=1-rem;const roule=ARRETS.every(a=>!(b>=a.b&&b<a.b+ARRET));utilitaire(vx,vy,va,b>B_DEPART-.5?(roule?1:.4):0);g.restore();}
+  if(rem<1){g.save();g.globalAlpha=(1-rem)*seg(b,1.75,2.1);const roule=ARRETS.every(a=>!(b>=a.b&&b<a.b+ARRET));utilitaire(vx,vy,va,b>B_DEPART-.5?(roule?1:.4):0);g.restore();}
   // l'accroche, écrite sur la ville
   g.setTransform(1,0,0,1,0,0);
   const gv=g.createRadialGradient(540,960,300,540,960,1300);gv.addColorStop(0,'rgba(0,0,0,0)');gv.addColorStop(1,'rgba(0,0,0,.7)');g.fillStyle=gv;g.fillRect(0,0,W,H);
-  if(b<2.7){const fa=1-seg(b,2.0,2.6);g.save();g.globalAlpha=fa;const k=spring(b*B,13,.6);g.translate(540,820);g.scale(.9+.1*clamp(k),.9+.1*clamp(k));lueur('rgba(232,101,15,.6)',40);texte('MULTISERVICE ?',0,0,100,'#fff',900);g.shadowColor='transparent';
-    const k2=seg(b,1.0,1.3);g.globalAlpha=fa*k2;texte('5 chantiers, 5 devis…',0,150,62,'#f3dccb',700);texte('ce soir ?',0,230,62,ORANGE,800);g.restore();}
+  if(b<2.7){const fa=1-seg(b,2.0,2.6);g.save();g.globalAlpha=fa;const k=spring(b*B,13,.6);g.translate(540,560);g.scale(.9+.1*clamp(k),.9+.1*clamp(k));lueur('rgba(232,101,15,.6)',40);texte('MULTISERVICE ?',0,0,100,'#fff',900);g.shadowColor='transparent';
+    const k2=seg(b,1.0,1.3);g.globalAlpha=fa*k2;texte('5 chantiers, 5 devis…',0,150,62,'#f3dccb',700);texte('ce soir ?',0,230,62,'#fff',800);g.restore();}
   // la bulle de dictée, au-dessus de l'utilitaire à chaque arrêt
   ARRETS.forEach(a=>{const b0=a.b,b1=a.b+1.6;if(b<b0-.05||b>b1+.3)return;const k=spring((b-b0)*B,15,.75),al=clamp(k*1.6)*(1-seg(b,b1,b1+.3));
     g.save();g.globalAlpha=al;g.translate(0,(1-clamp(k))*30);g.fillStyle='rgba(12,14,18,.88)';rr(80,1180,920,210,46);g.fill();g.strokeStyle='rgba(255,138,61,.3)';g.lineWidth=2;rr(80,1180,920,210,46);g.stroke();
@@ -143,7 +143,7 @@ function seek(T_){
   // la phrase de la fin
   if(b>=B_PHRASE&&b<B_FIN+.3){const k=spring((b-B_PHRASE)*B,14,.7),al=clamp(k*1.6)*(1-seg(b,B_FIN-.3,B_FIN+.3));g.save();g.globalAlpha=al;g.translate(0,(1-clamp(k))*30);
     g.fillStyle='rgba(12,14,18,.82)';rr(110,1560,860,190,46);g.fill();texte('5 devis envoyés',540,1625,64,'#fff',800);texte('depuis le camion.',540,1700,58,ORANGE,800);g.restore();}
-  if(b>=B_FIN-.4){g.fillStyle=`rgba(10,8,6,${.82*ease(seg(b,B_FIN-.4,B_FIN+.5))})`;g.fillRect(0,0,W,H);}
+  if(b>=B_FIN-.4){g.fillStyle=`rgba(10,8,6,${.97*ease(seg(b,B_FIN-.4,B_FIN+.5))})`;g.fillRect(0,0,W,H);}
   if(b>=B_FIN)carton(b);
 }
 function carton(b){const k=spring((b-B_FIN)*B,12,.8);g.save();g.globalAlpha=clamp(k*1.5);g.translate(0,(1-k)*36);
