@@ -294,7 +294,7 @@ function seek(T){
   let bars='';if(micOn&&b<10.5){const a=clamp((b-7)*2)*(1-seg(b,9.5,10.5));for(let i=0;i<24;i++){const x=i<12?20+i*26:694+(i-12)*26;
     const hh=10+a*120*Math.abs(Math.sin(t*9+i*1.7)*Math.sin(t*4.3+i*.6));bars+=`<rect x="${x}" y="${100-hh/2}" width="12" height="${hh}" rx="6" fill="#E8650F" opacity="${.45+.55*a}"/>`;}}
   $('onde').innerHTML=bars;
-  {const v=b<4?1-seg(b,3.4,4):seg(b,45.6,46.4);$('metier').style.opacity=v;$('metier').style.filter=v<1?`blur(${(1-v)*8}px)`:'';}
+  {const v=b<4?1-seg(b,3.4,4):seg(b,48.6,49.6);$('metier').style.opacity=v;$('metier').style.filter=v<1?`blur(${(1-v)*8}px)`:'';}
   {const k=actif(b,7)?expoOut(seg(b,7,7.7)):0;$('tuDictes').style.opacity=k*(1-seg(b,9.6,10));$('tuDictes').style.filter=k<1?`blur(${(1-k)*8}px)`:'';}
   // 3. le devis : trois lignes, puis le total
   [14,14.5,15].forEach((a,i)=>document.querySelectorAll('.r'+i).forEach(e=>{const k=actif(b,a)?spring((b-a)*B,16,.62):0;e.style.opacity=clamp(k*1.5);e.style.transform=`scaleX(${0.4+0.6*clamp(k)})`;e.style.transformOrigin=e.style.right?'100% 50%':'0 50%';}));
