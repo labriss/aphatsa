@@ -1,6 +1,6 @@
 # Son de la pub 17 (la porte)
 
-Usage : TikTok, Reels, Shorts, pubs en ligne. Musique : Mixkit #52, Mixkit Stock Music Free License.
+Usage : TikTok, Reels, Shorts, pubs en ligne. Musique : musique originale composée pour Diktéo (son/libre/composer.py, synthèse maison) — libre de droits.
 
 | t (s) | moment | son | licence |
 |---|---|---|---|

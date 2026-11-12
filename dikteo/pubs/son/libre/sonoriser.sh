@@ -13,7 +13,7 @@ for p in ${@:-pub4 pub8 pub10 pub11 pub12 pub13 pub14 pub15 pub16 pub17 pub18 pu
   s=$p/son.py; [ $p = pub4 ] && s=$p/son_boucle.py
   mkdir -p $p/tmp; python3 $s $L/${n}_muet.mp4 $L/$n.mp4 > $p/tmp/son.log 2>&1 || { echo "ECHEC son $p"; tail -3 $p/tmp/son.log; continue; }
   # crédits : la musique est une composition originale, pas Mixkit
-  m="musique originale composée pour Diktéo (son/libre/composer.py, instruments FluidR3_GM, licence MIT) — libre de droits"
+  m="musique originale composée pour Diktéo (son/libre/composer.py, synthèse maison) — libre de droits"
   sed -i -E "s|^Musique : .*|Musique : $m|; s|Musique : Mixkit #[0-9]+, Mixkit Stock Music Free License\.|Musique : $m.|" $p/son/CREDITS.txt $p/son/SOUND.md 2>/dev/null
   echo "$p : $(ffmpeg -nostats -i $L/$n.mp4 -af ebur128=peak=true -f null - 2>&1 | grep -E ' I:' | tail -1 | xargs)"
 done

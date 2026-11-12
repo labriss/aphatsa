@@ -1,4 +1,4 @@
-Musique : « The Long Road » (Mixkit), Mixkit #52, Mixkit Stock Music Free License
+Musique : musique originale composée pour Diktéo (son/libre/composer.py, synthèse maison) — libre de droits
 
 Bruitages :
 - "Classic Click" by adh.dreaming (https://freesound.org/people/adh.dreaming/sounds/671105/), CC0
