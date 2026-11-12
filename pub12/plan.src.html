@@ -41,6 +41,50 @@ function rr(x,y,w,h,r,c=g){c.beginPath();c.roundRect(x,y,w,h,r);}
 function texte(t,x,y,size,col,poids=700,font='Archivo',align='center',c=g){c.font=`${poids} ${size}px ${font}`;c.fillStyle=col;c.textAlign=align;c.textBaseline='middle';c.fillText(t,x,y);}
 function lueur(col,flou,c=g){c.shadowColor=col;c.shadowBlur=flou;}
 function toile(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return [c,c.getContext('2d')];}
+// ——— motion design (commun aux pubs 12, 13, 18, 19) ———
+// Courbes par rôle : une arrivée se pose sur une longue traîne (expo / power4.out), une sortie accélère (power3.in) et dure moitié moins.
+const expoOut=x=>(x=clamp(x),x>=1?1:1-Math.pow(2,-10*x));
+const p4Out=x=>1-Math.pow(1-clamp(x),5);
+const p3In=x=>Math.pow(clamp(x),3);
+// Une ligne qui arrive mot à mot : flou 6 px → net et opacité 0 → 1, sans bouger, 80 ms d'écart ; une fois posée, elle ne bouge plus.
+// Elle part en flou, mot à mot, en 0,09 s. Les temps sont en secondes.
+function ligneMots(txt,x,y,size,col,poids,font,t,t0,tSortie=1e9,align='center',pas=.08,duree=.16){
+  if(t<t0)return;g.save();g.font=`${poids} ${size}px ${font}`;g.textBaseline='middle';g.textAlign='left';g.fillStyle=col;
+  const mots=txt.split(' '),esp=g.measureText(' ').width,ls=mots.map(m=>g.measureText(m).width),tot=ls.reduce((a,v)=>a+v,0)+esp*(mots.length-1);
+  let xx=align==='center'?x-tot/2:align==='right'?x-tot:x;const a0=g.globalAlpha;
+  mots.forEach((m,i)=>{const e=expoOut(seg(t,t0+i*pas,t0+i*pas+duree)),s=p3In(seg(t,tSortie+i*.04,tSortie+i*.04+duree*.55)),a=e*(1-s);
+    if(a>.002){g.globalAlpha=a0*a;const fl=6*(1-e)+8*s;g.filter=fl>.2?`blur(${fl.toFixed(1)}px)`:'none';g.fillText(m,xx,y);}xx+=ls[i]+esp;});
+  g.restore();}
+// Un nom qui arrive lettre par lettre, avec un léger flou.
+function lettres(txt,x,y,size,col,poids,font,t,t0,pas=.055,duree=.2){
+  if(t<t0)return;g.save();g.font=`${poids} ${size}px ${font}`;g.textBaseline='middle';g.textAlign='left';g.fillStyle=col;const a0=g.globalAlpha;
+  for(let i=0;i<txt.length;i++){const e=expoOut(seg(t,t0+i*pas,t0+i*pas+duree));if(e<=.002)continue;g.globalAlpha=a0*e;const fl=5*(1-e);g.filter=fl>.2?`blur(${fl.toFixed(1)}px)`:'none';g.fillText(txt[i],x+g.measureText(txt.slice(0,i)).width,y);}
+  g.restore();}
+// Le carton de fin (le logo y est déjà arrivé par sa propre transition) : le nom lettre par lettre, la promesse mot à mot,
+// puis le bouton qui s'ouvre en largeur depuis son centre (flou horizontal → net). Tout reste immobile une fois posé.
+// tf : début du carton (s), k : facteur des délais (pub courte).
+function cartonFin(t,tf,k=1,tx=280,ty=700){
+  g.save();
+  lettres('Diktéo',tx+170,ty+72,138,'#fff',900,'Archivo',t,tf+.05*k);
+  const sw=seg(t,tf+.75*k,tf+.75*k+1.1);if(sw>0&&sw<1){g.save();g.globalCompositeOperation='lighter';const x=lerp(330,900,ease(sw));const gl=g.createLinearGradient(x-80,0,x+80,0);gl.addColorStop(0,'rgba(255,255,255,0)');gl.addColorStop(.5,'rgba(255,240,220,.4)');gl.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gl;g.fillRect(x-80,ty-10,160,160);g.restore();}
+  ligneMots('Tu dictes ton devis, Diktéo l’écrit.',540,940,48,'#f3dccb',600,'Archivo',t,tf+.4*k);
+  ligneMots('3 devis offerts par mois · sans carte',540,1060,44,'#fff',700,'Archivo',t,tf+.85*k);
+  const kb=p4Out(seg(t,tf+1.3*k,tf+1.3*k+.45));
+  if(kb>0){const w=lerp(104,540,kb),fl=10*(1-kb);g.save();g.globalAlpha*=clamp(kb*3);if(fl>.3)g.filter=`blur(${fl.toFixed(1)}px)`;
+    const gb=g.createLinearGradient(540-w/2,1150,540+w/2,1254);gb.addColorStop(0,O1);gb.addColorStop(.55,O2);gb.addColorStop(1,O3);g.fillStyle=gb;rr(540-w/2,1150,w,104,lerp(52,34,kb));g.fill();g.restore();
+    ligneMots('dikteo.vercel.app',540,1203,46,'#fff',800,'Archivo',t,tf+1.3*k+.18,1e9,'center',.08,.18);}
+  g.restore();}
+// Flou de mouvement : l'objet est dessiné à plusieurs instants de l'obturation, moyennés (comme une vraie caméra).
+// dessin(b) dessine avec le contexte global g ; ouv : ouverture en temps de la pub (même unité que b).
+let FM=null;
+function flouMouvement(dessin,b,ouv,n=6){
+  if(ouv<=1e-4){dessin(b);return;}
+  if(!FM)FM=[toile(W,H),toile(W,H)];const [[c1,f1],[c2,f2]]=FM,m=g.getTransform(),g0=g;
+  f2.setTransform(1,0,0,1,0,0);f2.globalAlpha=1;f2.globalCompositeOperation='source-over';f2.clearRect(0,0,W,H);
+  for(let i=0;i<n;i++){f1.setTransform(1,0,0,1,0,0);f1.globalAlpha=1;f1.filter='none';f1.globalCompositeOperation='source-over';f1.shadowColor='transparent';f1.clearRect(0,0,W,H);f1.setTransform(m);
+    g=f1;try{dessin(b-ouv*i/(n-1));}finally{g=g0;}
+    f2.globalCompositeOperation='lighter';f2.globalAlpha=1/n;f2.drawImage(c1,0,0);}
+  g.save();g.setTransform(1,0,0,1,0,0);g.drawImage(c2,0,0);g.restore();}
 let GRAINE=7;const R=()=>{GRAINE=(GRAINE*16807)%2147483647;return GRAINE/2147483647;};
 function grain(f,w,h,amp,coul=[1,1,1]){const d=f.getImageData(0,0,w,h),p=d.data;for(let i=0;i<p.length;i+=4){if(!p[i+3])continue;const n=(R()-.5)*amp;p[i]+=n*coul[0];p[i+1]+=n*coul[1];p[i+2]+=n*coul[2];}f.putImageData(d,0,0);}
 
@@ -187,7 +231,7 @@ function plante(b){if(b<B_PLANTE)return;const k=spring((b-B_PLANTE)*B,13,.55);g.
   g.restore();}
 
 // ——— la caméra : de près sur le mur, puis on recule pour voir la pièce finie ———
-function camera(b){const pr=ease(seg(b,B_LUM-.2,B_TOT+.6));const ba=seg(b,B_PRIM-.5,B_C2+1.6);return {x:540+(1-pr)*70*Math.sin(ba*Math.PI*3-Math.PI/2)*Math.sin(ba*Math.PI),y:lerp(lerp(780,1200,ease(seg(b,B_SCOTCH-.7,B_SCOTCH)))-110*ease(seg(b,B_BACHE+.9,B_LUM)),880,pr),z:lerp(1.1+.04*smooth(b/16),.86,pr)};}
+function camera(b){const pr=ease(seg(b,B_LUM-.2,B_TOT+.6));const ba=seg(b,B_PRIM-.5,B_C2+1.6);return {x:540+(1-pr)*70*Math.sin(ba*Math.PI*3-Math.PI/2)*Math.sin(ba*Math.PI),y:lerp(lerp(780,1200,ease(seg(b,B_SCOTCH-.7,B_SCOTCH)))-110*ease(seg(b,B_BACHE+.9,B_LUM)),880,pr),z:lerp(1.12,.86,pr)};}
 
 function scene(b,t){
   const cam=camera(b);g.setTransform(1,0,0,1,0,0);g.fillStyle='#0a0806';g.fillRect(0,0,W,H);
@@ -271,8 +315,6 @@ function boite(b){
   // le rond orange
   g.save();g.globalAlpha=app;const gm=g.createLinearGradient(dx-dS/2,dy-dS/2,dx+dS/2,dy+dS/2);gm.addColorStop(0,O1);gm.addColorStop(.55,O2);gm.addColorStop(1,O3);
   if(m>0)lueur('rgba(232,101,15,.5)',50*m);g.fillStyle=gm;rr(dx-dS/2,dy-dS/2,dS,dS,dR);g.fill();g.shadowColor='transparent';
-  // l'onde de la voix quand une phrase commence
-  for(const ph of PHRASES){const p=(b-ph.b)*B;if(p>0&&p<1.45*B+.1){g.strokeStyle=`rgba(255,138,61,${.5*(1-((p*2)%1))})`;g.lineWidth=3;g.beginPath();g.arc(dx,dy,46+((p*2)%1)*26,0,7);g.stroke();}}
   // l'icône dans le rond : micro, puis coche à l'envoi, puis la bulle Diktéo
   const ic=seg(b,B_ENV,B_ENV+.25),lg=seg(b,B_FIN-.25,B_FIN+.2);
   if(ic<1){g.save();g.globalAlpha*=1-ic;g.translate(dx,dy);g.fillStyle='#fff';rr(-9,-26,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.lineCap='round';g.beginPath();g.arc(0,-6,17,.15*Math.PI,.85*Math.PI);g.stroke();g.beginPath();g.moveTo(0,11);g.lineTo(0,20);g.stroke();g.restore();}
@@ -290,26 +332,16 @@ function boite(b){
     if(n<tout||((b*B*2.4)%1)<.6){g.font=`700 ${fs}px Archivo`;const w=g.measureText(n2>0?ph.dit2.slice(0,n2):ph.dit.slice(0,n1)).width;g.fillStyle=n<tout?'#fff':'rgba(255,255,255,.6)';g.fillRect(226+w,n2>0?234:174,4,44);}
     g.restore();});
   const at=seg(b,B_TOT+.2,B_TOT+.5)*(1-seg(b,B_ENV-.15,B_ENV+.1))*clamp(k);
-  if(at>0){g.save();g.globalAlpha=at;texte('TOTAL DU DEVIS · TTC',590,172,34,'#f3dccb',700);lueur('rgba(255,138,61,.6)',26);texte('1 177,00 €',590,256,100,ORANGE,800,'JBMono');g.shadowColor='transparent';
+  if(at>0){g.save();g.globalAlpha=clamp(k)*(1-seg(b,B_ENV-.15,B_ENV+.1));ligneMots('TOTAL DU DEVIS · TTC',590,172,34,'#f3dccb',700,'Archivo',b*B,(B_TOT+.2)*B);g.globalAlpha=at;lueur('rgba(255,138,61,.6)',26);texte('1 177,00 €',590,256,100,ORANGE,800,'JBMono');g.shadowColor='transparent';
     const gl=seg(b,B_GLINT,B_GLINT+1);if(gl>0&&gl<1){g.save();rr(90,115,900,230,52);g.clip();g.globalCompositeOperation='lighter';const x=lerp(0,1200,ease(gl));
       const gs=g.createLinearGradient(x-120,0,x+120,0);gs.addColorStop(0,'rgba(255,240,220,0)');gs.addColorStop(.5,'rgba(255,240,220,.25)');gs.addColorStop(1,'rgba(255,240,220,0)');g.translate(x,230);g.transform(1,0,-.4,1,0,0);g.translate(-x,-230);g.fillStyle=gs;g.fillRect(x-120,100,240,260);g.restore();}
     const d=(b-B_GLINT-.5)*B;if(d>0&&d<.8){const s=Math.sin(d/.8*Math.PI);g.fillStyle=`rgba(255,235,210,${.6*s})`;for(const [sx,sy,sz] of [[890,210,30],[340,290,18]]){g.beginPath();g.moveTo(sx,sy-sz);g.quadraticCurveTo(sx,sy,sx+sz,sy);g.quadraticCurveTo(sx,sy,sx,sy+sz);g.quadraticCurveTo(sx,sy,sx-sz,sy);g.quadraticCurveTo(sx,sy,sx,sy-sz);g.fill();}}
     g.restore();}
   const ae=seg(b,B_ENV+.1,B_ENV+.4)*clamp(k);
-  if(ae>0){g.save();g.globalAlpha=ae;texte('Envoyé à',240,192,58,'#fff',800,'Archivo','left');texte('Mme Garnier.',240,266,64,ORANGE,900,'Archivo','left');g.restore();}
+  if(ae>0){g.save();g.globalAlpha=clamp(k);ligneMots('Envoyé à',240,192,58,'#fff',800,'Archivo',b*B,(B_ENV+.1)*B,1e9,'left');ligneMots('Mme Garnier.',240,266,64,ORANGE,900,'Archivo',b*B,(B_ENV+.1)*B+.16,1e9,'left');g.restore();}
 }
 
-function carton(b){
-  const k=spring((b-B_FIN)*B,12,.8);g.save();g.globalAlpha=clamp(k*1.5);g.translate(0,(1-k)*36);
-  const tx=540-260,ty=700;
-  texte('Diktéo',tx+170,ty+72,138,'#fff',900,'Archivo','left');
-  const sw=seg(b,B_FIN+.5,B_FIN+2.2);if(sw>0&&sw<1){g.save();g.globalCompositeOperation='lighter';const x=lerp(330,900,sw);const gl=g.createLinearGradient(x-80,0,x+80,0);gl.addColorStop(0,'rgba(255,255,255,0)');gl.addColorStop(.5,'rgba(255,240,220,.5)');gl.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gl;g.fillRect(x-80,ty-10,160,160);g.restore();}
-  texte('Tu dictes ton devis, Diktéo l’écrit.',540,940,48,'#f3dccb',600,'Archivo');
-  texte('3 devis offerts par mois · sans carte',540,1060,44,'#fff',700,'Archivo');
-  const gb=g.createLinearGradient(290,1150,790,1250);gb.addColorStop(0,O1);gb.addColorStop(.55,O2);gb.addColorStop(1,O3);g.fillStyle=gb;rr(270,1150,540,104,34);g.fill();
-  texte('dikteo.vercel.app',540,1203,46,'#fff',800,'Archivo');g.restore();
-}
-
+function carton(b){cartonFin(b*B,B_FIN*B);}
 function seek(T){
   preparer();
   const t=((T%DN)+DN)%DN,b=t/B;
