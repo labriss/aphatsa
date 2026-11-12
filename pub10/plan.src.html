@@ -35,6 +35,14 @@ const TRAIT='#d6ecff',BLEU='#7fb8ff',O1='#E8650F',O2='#C9480A',O3='#A8350A',ORAN
 function rr(x,y,w,h,r){g.beginPath();g.roundRect(x,y,w,h,r);}
 function texte(t,x,y,size,col,poids=700,font='Archivo',align='center'){g.font=`${poids} ${size}px ${font}`;g.fillStyle=col;g.textAlign=align;g.textBaseline='middle';g.fillText(t,x,y);}
 function lueur(col,flou){g.shadowColor=col;g.shadowBlur=flou;}
+// motion design : arrivée sur une longue traîne, mots qui passent du flou au net puis restent immobiles
+const expoOut=x=>(x=clamp(x),x>=1?1:1-Math.pow(2,-10*x));
+function motsFlous(txt,x,y,size,col,poids,font,align,b,b0,ecart=.12,duree=.4){g.font=`${poids} ${size}px ${font}`;
+  const ws=txt.split(' '),sp=g.measureText(' ').width,lw=ws.map(w=>g.measureText(w).width),tot=lw.reduce((a,c)=>a+c,0)+sp*(ws.length-1);
+  let x0=align==='center'?x-tot/2:align==='right'?x-tot:x;
+  ws.forEach((w,i)=>{const k=expoOut(seg(b,b0+i*ecart,b0+i*ecart+duree));if(k>0){g.save();g.globalAlpha*=k;if(k<1)g.filter=`blur(${((1-k)*8).toFixed(2)}px)`;texte(w,x0,y,size,col,poids,font,'left');g.restore();}x0+=lw[i]+sp;});}
+// sortie : plus courte que l'arrivée, un flou qui monte et s'efface
+function sortie(k){if(k<=0)return;g.globalAlpha*=1-k;g.filter=`blur(${(k*8).toFixed(2)}px)`;}
 
 // ——— le papier bleu du plan : dégradé profond, quadrillage fin et gros, grain ———
 const FOND=(()=>{const c=document.createElement('canvas');c.width=W;c.height=H;const f=c.getContext('2d');
@@ -118,8 +126,8 @@ function tuyau(pts,larg,u=1){const Q=pts.map(p=>P(...p));let L=0;const ls=[];for
 function onde(x,y,r,d){if(d<0||d>.7)return;const [px,py]=P(x,y,0);const k=d/.7;g.save();g.globalCompositeOperation='lighter';g.strokeStyle=`rgba(255,160,80,${.9*(1-k)})`;g.lineWidth=5*(1-k)+1;
   g.beginPath();g.ellipse(px,py,V.s*(r+k*220),V.s*(r+k*220)*Math.cos(V.ph),0,0,7);g.stroke();g.restore();}
 // le prix, debout au-dessus de l'objet
-function prixDebout(txt,p,b0,b,align='center'){if(b<b0)return;const k=spring((b-b0)*B,15,.55),fl=Math.exp(-(b-b0)*B*4);
-  g.save();g.globalAlpha*=clamp(k*1.6);g.translate(p[0],p[1]);g.scale(.6+.4*clamp(k),.6+.4*clamp(k));
+function prixDebout(txt,p,b0,b,align='center'){if(b<b0)return;const k=expoOut((b-b0)*B/.55),fl=Math.exp(-(b-b0)*B*4);
+  g.save();g.globalAlpha*=k;if(k<1)g.filter=`blur(${((1-k)*8).toFixed(2)}px)`;g.translate(p[0],p[1]);g.scale(.92+.08*k,.92+.08*k);
   g.font='800 60px JBMono';const w=g.measureText(txt).width+48,x0=align==='left'?-12:-w/2;g.fillStyle='rgba(4,14,28,.8)';rr(x0,-44,w,88,26);g.fill();
   g.strokeStyle=`rgba(255,138,61,${.5+.5*fl})`;g.lineWidth=2.5;rr(x0,-44,w,88,26);g.stroke();
   lueur(`rgba(255,138,61,${.6+.4*fl})`,24+40*fl);texte(txt,x0+w/2,2,60,ORANGE,800,'JBMono');g.restore();}
@@ -171,10 +179,10 @@ function alerte(p,a,t){if(a<=0)return;const bob=Math.abs(Math.sin(t*5))*18;g.sav
 function etoile(x,y,r,a){if(a<=0||r<=0)return;g.save();g.globalCompositeOperation='lighter';g.globalAlpha*=a;g.fillStyle='#fff6d8';lueur('rgba(255,210,120,1)',16);g.beginPath();
   for(let i=0;i<8;i++){const ang=i*Math.PI/4,R=i%2?r*.3:r;g.lineTo(x+Math.cos(ang)*R,y+Math.sin(ang)*R);}g.closePath();g.fill();g.restore();}
 // l'étiquette d'un travail : son nom et son prix, debout dans la scène
-function etiquette3D(nom,prix,p,b0,b1,b){if(b<b0||b>b1+.3)return;const k=spring((b-b0)*B,15,.6),a=clamp(k*1.6)*(1-seg(b,b1,b1+.3)),fl=Math.exp(-(b-b0)*B*4);
+function etiquette3D(nom,prix,p,b0,b1,b){if(b<b0||b>b1+.2)return;const k=expoOut((b-b0)*B/.55),out=seg(b,b1,b1+.2),a=k*(1-out),fl=Math.exp(-(b-b0)*B*4);
   g.font='700 40px Archivo';const w1=g.measureText(nom).width;g.font='800 54px JBMono';const w2=g.measureText(prix).width,w=w1+w2+88;
   const x=clamp(p[0]+70*V.s+w/2,w/2+24,1056-w/2);
-  g.save();g.globalAlpha*=a;g.translate(x,p[1]);g.scale(.7+.3*clamp(k),.7+.3*clamp(k));
+  g.save();g.globalAlpha*=a;const fb=Math.max(1-k,out);if(fb>0)g.filter=`blur(${(fb*8).toFixed(2)}px)`;g.translate(x,p[1]);g.scale(.94+.06*k,.94+.06*k);
   g.fillStyle='rgba(4,14,28,.88)';rr(-w/2,-48,w,96,32);g.fill();g.strokeStyle=`rgba(255,138,61,${.5+.5*fl})`;g.lineWidth=3;rr(-w/2,-48,w,96,32);g.stroke();
   texte(nom,-w/2+30,2,40,'#fff',700,'Archivo','left');lueur(`rgba(255,138,61,${.6+.4*fl})`,24+40*fl);texte(prix,w/2-30,2,54,ORANGE,800,'JBMono','right');g.restore();}
 
@@ -192,10 +200,10 @@ function dessinItem(it,u,b,t){
   return p;
 }
 function etiquette(it,b){        // la cote et le prix, qui s'allument comme un néon
-  const k=spring((b-(it.b+.9))*B,14,.6);if(b<it.b+.9)return;
+  if(b<it.b+.9)return;const k=expoOut((b-(it.b+.9))*B/.55);
   const [lx,ly]=it.lab,[x,y]=it.at;
   const off=lx>x?110:-60;trace([[x+(lx>x?80:-80),y],[lx>x?lx-10:lx+20,ly]],clamp(k*1.3),2,BLEU);
-  g.save();g.globalAlpha*=clamp(k*1.6);g.translate(lx,ly);g.scale(.7+.3*clamp(k),.7+.3*clamp(k));
+  g.save();g.globalAlpha*=k;if(k<1)g.filter=`blur(${((1-k)*8).toFixed(2)}px)`;g.translate(lx,ly);
   const flash=Math.exp(-(b-(it.b+.9))*3);lueur(`rgba(255,138,61,${.6+.4*flash})`,28+40*flash);
   texte(it.prix,off,0,62,ORANGE,800,'JBMono');
   g.restore();
@@ -219,7 +227,7 @@ function dictee(it,b,mx,my,tx,y0,size){
 }
 function seek(T){
   const t=((T%DN)+DN)%DN,b=t/B;
-  g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.shadowBlur=0;g.setLineDash([]);
+  g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.shadowBlur=0;g.setLineDash([]);g.filter='none';
   // (tout remis à zéro : sinon l'image précédente reste en fantôme)
   g.drawImage(FOND,0,0);
   const cam=camAt(b);
@@ -236,10 +244,9 @@ function seek(T){
     sols(ease(seg(b,B_3D+.4,B_3D+1.6)));
     // le cartouche se trace d'abord, avec l'accroche dedans
     cartouche(b,seg(b,0,1.2));
-    const kh=spring(b*B,13,.6);
-    if(b<4.4){g.save();g.globalAlpha=clamp(kh*1.5)*(1-seg(b,3.6,4.4));lueur('rgba(255,138,61,.8)',30);texte('PLOMBIER ?',CART.x+CART.w/2,CART.y+168,96,'#fff',900,'Archivo');g.restore();}
+    if(b<4.4){g.save();sortie(seg(b,3.9,4.4));lueur('rgba(255,138,61,.8)',30);motsFlous('PLOMBIER ?',CART.x+CART.w/2,CART.y+168,96,'#fff',900,'Archivo','center',b,-.3,.18,.5);g.restore();}
     // la phrase de contexte, écrite dans le cartouche juste en dessous
-    if(b>.9&&b<4.4){const k=spring((b-.9)*B,15,.7);g.save();g.globalAlpha=clamp(k*1.6)*(1-seg(b,3.6,4.4));g.translate(0,(1-clamp(k))*14);texte('Marre d’écrire tes devis le soir ?',CART.x+CART.w/2,CART.y+252,40,ORANGE,700,'Archivo');g.restore();}
+    if(b>.7&&b<4.4){g.save();sortie(seg(b,3.9,4.4));motsFlous('Marre d’écrire tes devis le soir ?',CART.x+CART.w/2,CART.y+252,40,ORANGE,700,'Archivo','center',b,.7,.13,.4);g.restore();}
     // la pièce se trace
     const pPiece=trace(PIECE,seg(b,2.4,4.6),6,TRAIT,true);etincelles(pPiece,3,t,1.2);
     const pPorte=arc(140,1300,120,-Math.PI/2,0,seg(b,4.2,4.9),3);etincelles(pPorte,9,t,.8);
@@ -247,8 +254,8 @@ function seek(T){
     // les éléments dictés, dessinés avec leur vrai symbole ; les prix à plat s'effacent quand le plan bascule
     ITEMS.forEach((it,i)=>{if(b<it.b)return;const u=seg(b,it.b,it.b+.9);etincelles(dessinItem(it,u,b,t),20+i*13,t,1);g.save();g.globalAlpha*=1-k3;etiquette(it,b);g.restore();});
     // le total dans le cartouche : il frappe, onde de lumière et éclats
-    if(b>=B_TOT){const k=spring((b-B_TOT)*B,16,.5),d=(b-B_TOT)*B;
-      g.save();g.translate(CART.x+CART.w-150,CART.y+205);g.scale(1.5-.5*clamp(k),1.5-.5*clamp(k));g.globalAlpha*=clamp(k*2);lueur('rgba(255,138,61,.9)',30+50*Math.exp(-d*4));
+    if(b>=B_TOT){const d=(b-B_TOT)*B,k=expoOut(d/.6);
+      g.save();g.translate(CART.x+CART.w-150,CART.y+205);g.scale(1.18-.18*k,1.18-.18*k);g.globalAlpha*=k;if(k<1)g.filter=`blur(${((1-k)*8).toFixed(2)}px)`;lueur('rgba(255,138,61,.9)',30+50*Math.exp(-d*4));
       texte('806,30 €',0,0,50,ORANGE,800,'JBMono');g.restore();
       if(d<.8){g.save();g.globalCompositeOperation='lighter';g.strokeStyle=`rgba(255,170,90,${.8*(1-d/.8)})`;g.lineWidth=6*(1-d/.8);g.beginPath();g.arc(CART.x+CART.w-150,CART.y+205,40+d*420,0,7);g.stroke();
         for(let i=0;i<26;i++){const a=i/26*Math.PI*2+rnd(i),v=180+rnd(i*5)*260;g.fillStyle=`rgba(255,${190+rnd(i)*60|0},120,${1-d/.8})`;g.beginPath();g.arc(CART.x+CART.w-150+Math.cos(a)*v*d,CART.y+205+Math.sin(a)*v*d,3,0,7);g.fill();}g.restore();}}
@@ -323,23 +330,25 @@ function seek(T){
     g.fillStyle='rgba(120,150,190,.35)';g.beginPath();g.moveTo(-.7,1.7);g.lineTo(9,-8.5);g.lineTo(1.2,4);g.closePath();g.fill();g.restore();
   }
   ITEMS.forEach((it,i)=>{const b1=i<ITEMS.length-1?ITEMS[i+1].b-.15:B_TOT-.2;if(b<it.b-.05||b>b1+.2)return;
-    const k=spring((b-it.b)*B,15,.75),a=clamp(k*1.6)*(1-seg(b,b1,b1+.2));g.save();g.globalAlpha=a;
+    const k=expoOut((b-it.b)*B/.45),a=k*(1-seg(b,b1,b1+.2));g.save();g.globalAlpha=a;
     g.fillStyle='rgba(4,14,28,.8)';rr(70,96,940,236,40);g.fill();
     const gm=g.createLinearGradient(110,159,190,239);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(150,214,44,0,7);g.fill();
     g.fillStyle='#fff';rr(141,189,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(150,209,17,.15*Math.PI,.85*Math.PI);g.stroke();
     dictee(it,b,150,214,220,146,44);g.restore();});
   // l'envoi
-  if(b>=B_ENV&&b<B_FIN+.2){const k=ease(seg(b,B_ENV+.3,B_ENV+.9)),a=k*(1-seg(b,B_FIN-.3,B_FIN+.2));g.save();g.globalAlpha=a;g.translate(540,1150+(1-k)*24);
-    texte('Envoyé à Mme Fontaine.',0,0,64,'#fff',800);texte('Depuis le chantier.',0,90,64,ORANGE,800);g.restore();}
+  if(b>=B_ENV&&b<B_FIN){g.save();sortie(seg(b,B_FIN-.35,B_FIN));g.translate(540,1150);
+    motsFlous('Envoyé à Mme Fontaine.',0,0,64,'#fff',800,'Archivo','center',b,B_ENV+.3,.16,.45);motsFlous('Depuis le chantier.',0,90,64,ORANGE,800,'Archivo','center',b,B_ENV+.9,.16,.45);g.restore();}
   // le carton, avec un reflet de lumière qui passe sur le logo
-  if(b>=B_FIN){const k=spring((b-B_FIN)*B,12,.8);g.save();g.globalAlpha=clamp(k*1.5);g.translate(0,(1-k)*36);
-    const tx=540-260,ty=700;const gr=g.createLinearGradient(tx,ty,tx+140,ty+140);gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);
+  if(b>=B_FIN){const k=expoOut((b-B_FIN)*B/.7);g.save();
+    const tx=540-260,ty=700;g.save();g.globalAlpha=k;g.translate(tx+70,ty+70);g.scale(.82+.18*k,.82+.18*k);g.translate(-tx-70,-ty-70);const gr=g.createLinearGradient(tx,ty,tx+140,ty+140);gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);
     lueur('rgba(232,101,15,.6)',50);g.fillStyle=gr;rr(tx,ty,140,140,40);g.fill();g.shadowColor='transparent';
     g.save();g.translate(tx+18,ty+16);g.scale(4.4,4.4);g.fillStyle='#fff';g.fill(new Path2D('M6.5 2.5H12a9 9 0 0 1 0 18H9.2L4.5 23V4.5a2 2 0 0 1 2-2ZM9.2 9.5a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1Zm3.1-2.5a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1Zm3.1 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Z'),'evenodd');g.restore();
-    texte('Diktéo',tx+170,ty+72,138,'#fff',900,'Archivo','left');
+    g.restore();
+    {g.font='900 138px Archivo';let xl=tx+170;[...'Diktéo'].forEach((ch,i)=>{const kl=expoOut(seg(b,B_FIN+.15+i*.06,B_FIN+.55+i*.06));if(kl>0){g.save();g.globalAlpha=kl;if(kl<1)g.filter=`blur(${((1-kl)*8).toFixed(2)}px)`;texte(ch,xl,ty+72,138,'#fff',900,'Archivo','left');g.restore();}g.font='900 138px Archivo';xl+=g.measureText(ch).width;});}
     const sw=seg(b,B_FIN+.5,B_FIN+2.2);if(sw>0&&sw<1){g.save();g.globalCompositeOperation='lighter';const x=lerp(200,900,sw);const gl=g.createLinearGradient(x-80,0,x+80,0);gl.addColorStop(0,'rgba(255,255,255,0)');gl.addColorStop(.5,'rgba(255,240,220,.5)');gl.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gl;g.fillRect(x-80,ty-10,160,160);g.restore();}
-    texte('Tu dictes ton devis, Diktéo l’écrit.',540,940,46,'#f1e7da',700,'Archivo');
-    texte('3 devis offerts par mois · sans carte',540,1060,44,'#fff',700,'Archivo');
+    motsFlous('Tu dictes ton devis, Diktéo l’écrit.',540,940,46,'#f1e7da',700,'Archivo','center',b,B_FIN+.7,.1,.4);
+    motsFlous('3 devis offerts par mois · sans carte',540,1060,44,'#fff',700,'Archivo','center',b,B_FIN+1.4,.08,.4);
+    {const kb=expoOut(seg(b,B_FIN+2,B_FIN+2.7));g.globalAlpha=kb;if(kb<1)g.filter=`blur(${((1-kb)*8).toFixed(2)}px)`;}
     const gb=g.createLinearGradient(290,1150,790,1250);gb.addColorStop(0,O1);gb.addColorStop(.55,O2);gb.addColorStop(1,O3);g.fillStyle=gb;rr(270,1150,540,104,34);g.fill();
     texte('dikteo.vercel.app',540,1203,46,'#fff',800,'Archivo');g.restore();}
 }
