@@ -196,6 +196,7 @@ function seek(T_){
   PHRASES.forEach((ph,i)=>{ph.mots.forEach((m,j)=>cases.push([j,i]));cases.push([4,i]);});
   // la vague retourne d'abord la chape nue, puis les mots
   for(let r=-5;r<=7;r++)for(let c=-2;c<=6;c++){const occ=c>=0&&c<=4&&r>=0&&r<=3;if(occ)continue;const v=Math.max(vague(c,r),vague(-1,-4));if(b<v)continue;
+    {const m=g.getTransform(),sx=m.a*cx(c)+m.e,sy=m.d*cy(r)+m.f,mg=T*m.a*.7+150;if(sx<-mg||sx>W+mg||sy<-mg||sy>H+mg)continue;}   // hors champ : pas dessiné
     carreau(cx(c),cy(r),FINIS[(((c+2)*11+(r+4)*7)%60+60)%60],v,b);}
   PHRASES.forEach((ph,i)=>{for(let j=0;j<5;j++){const b0=quand(i,j),v=vague(j,i);const face=j<4?faceMot(ph.mots[j]):facePrix(ph.prix);
     const fl=b>=v?seg(b,v,v+.55):null;
