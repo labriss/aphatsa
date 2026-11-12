@@ -13,7 +13,7 @@ SKILL = os.path.expanduser("~/.claude/skills/sound-effects/sfx")
 VIDEO, SORTIE = sys.argv[1], sys.argv[2]
 SR = 48000
 B = 60 / 140
-D = 46 * B
+D = 47 * B
 # « Beautiful Dream », Mixkit #493 (acoustique) : 70 BPM mesurés, calé sur son double 140 ; phase 0,114 s ; on part du temps 16.
 PISTE, BPM_P, PHASE_P, SAUT_P = "493", 140.0, 0.114, 16
 TITRE_P = "« Beautiful Dream » (Mixkit)"
@@ -90,9 +90,9 @@ for i, p in enumerate((5.5, 11.5, 17.5, 23.5)):
 bruit(29.5, 2.4, -12, "le chiffon d'huile", 30, "highpass=f=200,lowpass=f=1400", pulse=1.8, attaque=.3, chute=.6)
 sfx("ding/fs-349504-triangle-open-04.ogg", 31.9, -14, "le coup de lumière sur le bois huilé")
 fer(32.9, -9, "le total gravé", 40, gros=True)
-sfx("whoosh/fs-683101-quick-woosh.ogg", 35.5, -11, "le devis part", 2 / 60)
+sfx("whoosh/fs-683101-quick-woosh.ogg", 35, -11, "le devis part", 2 / 60)
 sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 35.9, -9, "envoyé à Mme Roux")
-sfx("ding/kenney-interface-confirmation-002.ogg", 37.9, -11, "le carton Diktéo")
+sfx("ding/kenney-interface-confirmation-002.ogg", 38.7, -11, "le carton Diktéo")
 
 # la musique un peu plus basse pendant la pile, pour laisser la place aux chocs
 tb = np.arange(N) / SR / B

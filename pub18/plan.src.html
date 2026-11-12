@@ -18,10 +18,10 @@ html,body{margin:0;background:#050505;overflow:hidden}
 /* Pub 18 « le copeau » (menuisiers). Vue de dessus : un plateau de chêne brut sur l'établi, la nuit, sous la lampe.
    Le menuisier dicte : à chaque phrase, le rabot passe, la planche sort lisse derrière lui, et la phrase s'écrit sur le
    copeau qui se déroule ; le prix se grave au fer au bout de la passe. Puis l'huile : le fil du bois s'allume,
-   le total se grave en braises. 140 BPM (1 temps = 0,429 s), 46 temps (19,7 s).
+   le total se grave en braises. 140 BPM (1 temps = 0,429 s), 47 temps (20,1 s).
    b0 « MENUISIER ? » au crayon    b1.6 « Tes devis, encore le soir à la main ? »    b3.6 « TU DICTES »
    b5, 10.5, 16, 21.5 : une passe de rabot par phrase    b27 l'huile    b29.5 le total gravé    b32.5 envoyé    b34.5 logo, carton */
-const W=1080,H=1920,B=60/140,NB=46,DN=NB*B;
+const W=1080,H=1920,B=60/140,NB=47,DN=NB*B;
 const cv=document.getElementById('c');let g=cv.getContext('2d');
 const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
 const lerp=(a,b,k)=>a+(b-a)*k;
@@ -78,7 +78,7 @@ const PHRASES=[
   {b:23.5,copeau:'« Pose et finitions, une journée,', prix:'320 €'},
 ];
 const PASSE=3.9;                                 // le rabot traverse en 3,6 temps (1,7 s)
-const B_HUILE=29.5, B_TOT=32.3, B_ENV=35.5, B_FIN=37.7;
+const B_HUILE=29.5, B_TOT=32.3, B_ENV=35, B_FIN=38.5;
 const xRabot=(i,b)=>lerp(-200,W+230,smooth(seg(b,PHRASES[i].b+.3,PHRASES[i].b+.3+PASSE)));
 
 // le rabot vu de dessus : semelle de fonte, poignée de bois, bouton avant, lame
@@ -184,7 +184,7 @@ function seek(T_){
   g.setTransform(1,0,0,1,0,0);
   const gv=g.createRadialGradient(540,900,180,540,980,1250);gv.addColorStop(0,'rgba(0,0,0,0)');gv.addColorStop(.6,'rgba(0,0,0,.22)');gv.addColorStop(1,'rgba(0,0,0,.78)');g.fillStyle=gv;g.fillRect(0,0,W,H);
   g.save();g.globalCompositeOperation='multiply';g.fillStyle='rgb(228,214,198)';g.fillRect(0,0,W,H);g.restore();
-  if(b>=B_FIN-.6){g.fillStyle=`rgba(10,6,3,${.8*ease(seg(b,B_FIN-.6,B_FIN+.4))})`;g.fillRect(0,0,W,H);}
+  if(b>=B_FIN-.6){g.fillStyle=`rgba(10,6,3,${.97*ease(seg(b,B_FIN-.6,B_FIN+.4))})`;g.fillRect(0,0,W,H);}
   micro(b);
   if(b>=B_FIN)carton(b);
 }
