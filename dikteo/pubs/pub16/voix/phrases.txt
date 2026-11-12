@@ -1,5 +1,6 @@
-# texte dit | texte affiché | place en secondes. Fenêtres de 1,5 s : dictée télégraphique.
-Parpaings, cinquante-cinq le mètre.|mur en parpaings 18 m² 55 euros le mètre|1.39
-Dalle béton, quatre-vingt-cinq le mètre.|dalle béton 12 m² 85 euros le mètre|1.39
-Linteau béton, cent quarante euros.|linteau béton 140 euros|1.39
+# texte dit | texte affiché | place en secondes. Fenêtres de 1,5 s : dictée courte.
+# (« parpins » : écrit comme on le dit ; espeak prononce « parpaing » avec un g final)
+Parpins, cinquante-cinq le mètre.|mur en parpaings 18 m² 55 euros le mètre|1.39
+Dalle, quatre-vingt-cinq le mètre.|dalle béton 12 m² 85 euros le mètre|1.39
+Linteau, cent quarante euros.|linteau béton 140 euros|1.39
 Deux jours, huit cent quatre-vingts euros.|main-d'œuvre deux jours 880 euros|1.83

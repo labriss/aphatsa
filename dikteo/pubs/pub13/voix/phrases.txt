@@ -1,5 +1,6 @@
 # texte dit | texte affiché | place en secondes
+# (« plintes » : écrit comme on le dit ; « plinthes » est lu à l'anglaise par espeak)
 Dépose de l'ancien carrelage, cent quatre-vingts euros.|dépose ancien carrelage 12 m² 180 euros|2.05
 Ragréage du sol, deux cent seize euros.|ragréage du sol 12 m² 216 euros|2.05
-Grès cérame, soixante par soixante, cinq cent quarante euros.|grès cérame 60×60 posé 540 euros|2.05
-Joints et plinthes, cent soixante euros.|joints et plinthes au mètre 160 euros|2.3
+Grès cérame posé, cinq cent quarante euros.|grès cérame 60×60 posé 540 euros|2.05
+Les joints, les plintes, cent soixante euros.|joints et plinthes au mètre 160 euros|2.3

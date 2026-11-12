@@ -105,7 +105,7 @@ DEBUTS, FIN = [5.5, 11.5, 17.5, 23.5], 29.5
 sys.path.insert(0, os.path.join(ICI, "..", "son", "voix"))
 from poser import poser_voix  # noqa: E402
 voix, sous_voix = poser_voix(ICI, lire, N, SR, B, DEBUTS, FIN, journal, INFO, SKILL)
-mix = musique * (env * sous_voix)[:, None] * 10 ** (-7 / 20) + bruits + voix
+mix = musique * (env * sous_voix)[:, None] * 10 ** (float(os.environ.get("MUSIQUE_DB", "-4")) / 20) + bruits * 10 ** (float(os.environ.get("BRUITS_DB", "-5")) / 20) + voix
 mix /= max(1e-6, np.abs(mix).max()) / 0.9
 wav = os.path.join(ICI, "tmp", "son.wav")
 with wave.open(wav, "wb") as w:

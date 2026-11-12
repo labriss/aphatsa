@@ -1,0 +1,14 @@
+{
+ "voix": "siwis",
+ "calage": [
+  {
+   "phrase": 0,
+   "prise": "siwis_p0_d1_k0.wav",
+   "debut_s": 2.878,
+   "duree_s": 2.834,
+   "tempo": 1.0,
+   "retard_s": 0.0,
+   "depasse_s": 0.0
+  }
+ ]
+}

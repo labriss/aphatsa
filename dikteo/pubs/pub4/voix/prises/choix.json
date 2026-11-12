@@ -6,7 +6,7 @@
   "tom": 5.259
  },
  "choix": {
-  "0": "siwis_p0_d0_k0.wav"
+  "0": "siwis_p0_d1_k0.wav"
  },
  "a_revoir": [],
  "prises": {
@@ -112,6 +112,17 @@
   "siwis_p0_d0_k0.wav": {
    "voix": "siwis",
    "phrase": 0,
+   "exact": 0.897,
+   "prix_ok": true,
+   "utmos": 3.0,
+   "duree": 2.93,
+   "tempo": 1.086,
+   "score": 4.63,
+   "entendu": "Remplacement du chauffe-eau, €872."
+  },
+  "siwis_p0_d1_k0.wav": {
+   "voix": "siwis",
+   "phrase": 0,
    "exact": 0.991,
    "prix_ok": true,
    "utmos": 3.0,
@@ -120,7 +131,7 @@
    "score": 4.877,
    "entendu": "Remplacement du chauffe au 872 euros."
   },
-  "siwis_p0_d1_k0.wav": {
+  "siwis_p0_d2_k0.wav": {
    "voix": "siwis",
    "phrase": 0,
    "exact": 0.897,
@@ -130,17 +141,6 @@
    "tempo": 1.0,
    "score": 4.828,
    "entendu": "Remplacement du chauffe-eau, €872."
-  },
-  "siwis_p0_d2_k0.wav": {
-   "voix": "siwis",
-   "phrase": 0,
-   "exact": 0.897,
-   "prix_ok": true,
-   "utmos": 3.0,
-   "duree": 2.4,
-   "tempo": 1.0,
-   "score": 4.788,
-   "entendu": "remplacement du chauffe-eau, €872."
   },
   "tom_p0_d0_k0.wav": {
    "voix": "tom",

@@ -1,6 +1,6 @@
 # Son de la pub 10 (le plan devient le devis)
 
-Usage : TikTok, Reels, Shorts, pubs en ligne. Musique : musique originale composée pour Diktéo (son/libre/composer.py, instruments FluidR3_GM, licence MIT) — libre de droits.
+Usage : TikTok, Reels, Shorts, pubs en ligne. Musique : musique originale composée pour Diktéo (son/libre/composer.py, synthèse maison) — libre de droits.
 
 | t (s) | moment | son | licence |
 |---|---|---|---|

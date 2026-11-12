@@ -11,3 +11,4 @@ Bruitages :
 - par migoreng1 — https://freesound.org/people/migoreng1/sounds/786514/ — CC0 1.0 (dérivé : hauteur/vitesse/couches)
 - soft_impact3 par peoplearehappy — https://freesound.org/people/peoplearehappy/sounds/841274/ — CC0 1.0 (dérivé : hauteur/vitesse/couches)
 - synthèse maison Diktéo (numpy), CC0 1.0
+- voix de synthèse Kokoro-82M (Apache 2.0), voix ff_siwis (données SIWIS, CC BY 4.0), générée en local

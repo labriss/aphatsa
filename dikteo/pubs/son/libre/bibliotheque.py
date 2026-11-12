@@ -230,5 +230,9 @@ ecrire("typing/fs-416777-digital-typing-wav.ogg", ty, c("fs384187.ogg"))
 sc = filtre(RNG.standard_normal(int(1.4 * SR)), "band", [1800, 7000]) * (0.5 + 0.5 * np.abs(np.sin(2 * np.pi * 5.5 * t(1.4)))) ** 2
 ecrire("typing/fs-pencil-scribble.ogg", sc * env(1.4, .02, 2), MAISON)
 
+# survols d'interface (pub 4) : trois notes de marimba douces, en montant
+for i, f0 in enumerate((659.3, 784.0, 987.8)):
+    ecrire(f"ui-blip/kenney-ui-rollover{i + 1}.ogg", cloche(f0, .35, ((1, 1), (4.0, .12), (10.0, .03)), .09), MAISON)
+
 json.dump(dict(bundled=manifest, default_kit=[]), open(os.path.join(OUT, "manifest.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
 print(f"{len(manifest)} sons dans {OUT}")

@@ -3,7 +3,8 @@ Pour chaque prise : ce que Whisper (small, sherpa-onnx, en local) entend, compar
 la note de naturel UTMOS si prises/utmos.json existe (utmos.py), la durée utile (silences coupés) et le resserrement
 qu'il faudrait pour tenir dans la place de la phrase (au plus ×1,15).
 Une seule voix par pub (c'est le même artisan qui dicte) : celle dont les meilleures prises notent le mieux, ou VOIX=<nom>.
-~/outils/venv-tts/bin/python noter.py <dossier voix de la pub> → prises/choix.json"""
+~/outils/venv-tts/bin/python noter.py <dossier voix de la pub> → prises/choix.json (SORTIE=<nom> pour un autre fichier,
+par ex. VOIX=pierre SORTIE=choix_homme.json : une variante qu'on essaie avec VOIX_CHOIX=<chemin> au mixage)"""
 import difflib
 import glob
 import json
@@ -89,6 +90,6 @@ for i in range(len(DIT)):
         choix[str(i)] = max(c)[1]
 manque = [i for i in range(len(DIT)) if str(i) not in choix or res[choix[str(i)]]["score"] < 0]
 json.dump(dict(voix=voix, familles=familles, choix=choix, a_revoir=manque, prises=res),
-          open(os.path.join(DOS, "prises", "choix.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+          open(os.path.join(DOS, "prises", os.environ.get("SORTIE", "choix.json")), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
 print("FAMILLES", familles)
 print("VOIX", voix, "CHOIX", json.dumps({k: (v, res[v]["entendu"], res[v]["tempo"]) for k, v in choix.items()}, ensure_ascii=False), "À REVOIR", manque)

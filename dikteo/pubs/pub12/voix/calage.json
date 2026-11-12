@@ -1,30 +1,41 @@
-[
- {
-  "phrase": 0,
-  "prise": "K_p0_k2.wav",
-  "debut_b": 2.7800000000000002,
-  "duree_b": 3.33,
-  "tempo": 1.12
- },
- {
-  "phrase": 1,
-  "prise": "K_p1_k0.wav",
-  "debut_b": 6.08,
-  "duree_b": 3.829,
-  "tempo": 1.12
- },
- {
-  "phrase": 2,
-  "prise": "K_p2_k2.wav",
-  "debut_b": 10.08,
-  "duree_b": 3.868,
-  "tempo": 1.12
- },
- {
-  "phrase": 3,
-  "prise": "K_p3_k2.wav",
-  "debut_b": 14.08,
-  "duree_b": 2.895,
-  "tempo": 1.12
- }
-]
+{
+ "voix": "siwis",
+ "calage": [
+  {
+   "phrase": 0,
+   "prise": "siwis_p0_d2_k0.wav",
+   "debut_s": 1.962,
+   "duree_s": 2.195,
+   "tempo": 1.15,
+   "retard_s": 0.0,
+   "depasse_s": 0.022
+  },
+  {
+   "phrase": 1,
+   "prise": "siwis_p1_d1_k0.wav",
+   "debut_s": 4.292,
+   "duree_s": 2.69,
+   "tempo": 1.051,
+   "retard_s": 0.0,
+   "depasse_s": 0.023
+  },
+  {
+   "phrase": 2,
+   "prise": "siwis_p2_d0_k0.wav",
+   "debut_s": 7.115,
+   "duree_s": 2.653,
+   "tempo": 1.0,
+   "retard_s": 0.0,
+   "depasse_s": 0.0
+  },
+  {
+   "phrase": 3,
+   "prise": "siwis_p3_d1_k0.wav",
+   "debut_s": 9.939,
+   "duree_s": 2.351,
+   "tempo": 1.025,
+   "retard_s": 0.0,
+   "depasse_s": 0.019
+  }
+ ]
+}

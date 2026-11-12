@@ -1,5 +1,5 @@
 # texte dit | texte affiché | place en secondes
 Dépose de l'ancien placard, forfait cent vingt euros.|dépose de l'ancien placard forfait 120 euros|2.45
-Placard sur mesure en chêne massif, mille quatre cent cinquante euros.|placard sur mesure en chêne massif 1450 euros|2.45
+Placard en chêne massif, mille quatre cent cinquante euros.|placard sur mesure en chêne massif 1450 euros|2.45
 Quincaillerie et portes coulissantes, cent quatre-vingts euros.|quincaillerie et portes coulissantes 180 euros|2.45
 Pose et finitions, une journée, trois cent vingt euros.|pose et finitions une journée 320 euros|2.45

@@ -1,5 +1,5 @@
-# texte dit | texte affiché | place en secondes. Fenêtres de 1,39 s : dictée télégraphique.
-Chaudière, trois mille deux cents euros.|chaudière à condensation 3200 euros|1.28
-Six radiateurs, deux cent quatre-vingts.|six radiateurs 280 euros pièce|1.28
-Thermostat, cent quatre-vingts euros.|thermostat connecté 180 euros|1.28
+# texte dit | texte affiché | place en secondes. Fenêtres de 1,39 s : dictée courte.
+Chaudière, trois mille deux cents.|chaudière à condensation 3200 euros|1.28
+Radiateurs, deux cent quatre-vingts.|six radiateurs 280 euros pièce|1.28
+Thermostat, cent quatre-vingts.|thermostat connecté 180 euros|1.28
 Deux jours, huit cent quatre-vingts.|main-d'œuvre deux jours 880 euros|1.5

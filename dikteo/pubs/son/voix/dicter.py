@@ -30,7 +30,7 @@ PIPER = {"tom": ("tom-medium", None), "tj1": ("tjiho-model1", None), "tj2": ("tj
 # dont les phrases n'ont qu'environ 1,4 s.
 SERRE = os.environ.get("DEBITS") == "serre"
 DEBITS_PIPER = {"tom": (.8, .72, .66) if SERRE else (.95, .87, .8)}
-DEBITS_K = (1.12, 1.22, 1.32) if SERRE else (1.0, 1.08, 1.16)
+DEBITS_K = (1.12, 1.22, 1.32) if SERRE else (.92, 1.0, 1.08)
 
 
 def piper(nom):

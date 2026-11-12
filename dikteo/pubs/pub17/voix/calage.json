@@ -1,0 +1,41 @@
+{
+ "voix": "siwis",
+ "calage": [
+  {
+   "phrase": 0,
+   "prise": "siwis_p0_d2_k0.wav",
+   "debut_s": 2.432,
+   "duree_s": 1.441,
+   "tempo": 1.017,
+   "retard_s": 0.0,
+   "depasse_s": 0.026
+  },
+  {
+   "phrase": 1,
+   "prise": "siwis_p1_d0_k0.wav",
+   "debut_s": 4.011,
+   "duree_s": 1.435,
+   "tempo": 1.027,
+   "retard_s": 0.0,
+   "depasse_s": 0.019
+  },
+  {
+   "phrase": 2,
+   "prise": "siwis_p2_d0_k0.wav",
+   "debut_s": 5.589,
+   "duree_s": 1.308,
+   "tempo": 1.0,
+   "retard_s": 0.0,
+   "depasse_s": 0.0
+  },
+  {
+   "phrase": 3,
+   "prise": "siwis_p3_d0_k0.wav",
+   "debut_s": 7.168,
+   "duree_s": 1.848,
+   "tempo": 1.0,
+   "retard_s": 0.0,
+   "depasse_s": 0.0
+  }
+ ]
+}

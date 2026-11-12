@@ -1,5 +1,5 @@
-# texte dit | texte affiché | place en secondes. Fenêtres de 1,49 s : dictée télégraphique.
+# texte dit | texte affiché | place en secondes. Fenêtres de 1,49 s : dictée courte.
 Quarante tuiles, douze euros pièce.|quarante tuiles à remplacer 12 euros pièce|1.37
-Gouttière zinc, quarante-cinq le mètre.|gouttière zinc 8 mètres 45 euros le mètre|1.37
-Écran sous toiture, dix-huit le mètre.|écran sous toiture 25 m² 18 euros le mètre|1.37
+Gouttière, quarante-cinq le mètre.|gouttière zinc 8 mètres 45 euros le mètre|1.37
+Sous-toiture, dix-huit le mètre.|écran sous toiture 25 m² 18 euros le mètre|1.37
 Une journée, quatre cent quarante.|main-d'œuvre une journée 440 euros|1.78

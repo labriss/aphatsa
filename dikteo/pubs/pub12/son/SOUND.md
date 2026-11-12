@@ -1,25 +1,31 @@
 # Son de la pub 12 (le rouleau)
 
-Usage : TikTok, Reels, Shorts, pubs en ligne. Musique : musique originale composée pour Diktéo (son/libre/composer.py, instruments FluidR3_GM, licence MIT) — libre de droits.
+Usage : TikTok, Reels, Shorts, pubs en ligne. Musique : musique originale composée pour Diktéo (son/libre/composer.py, synthèse maison) — libre de droits.
 
 | t (s) | moment | son | licence |
 |---|---|---|---|
 | -0.017 | le jet de la bombe | whoosh/fs-264777-swoosh.ogg | CC0 1.0 |
 | 0.000 | « PEINTRE ? » bombé | impact/kenney-impact-impactsoft-heavy-000.ogg | CC0 1.0 |
 | 0.513 | la question bombée | whoosh/fs-264777-swoosh.ogg | CC0 1.0 |
+| 1.762 | l'air de la pièce sous la dictée | ambience/fs-329533-room-tone-in-an-apartment-livi.ogg | CC0 1.0 |
 | 1.906 | une phrase dictée | kit/click.ogg | CC0 1.0 |
+| 1.962 | voix, phrase 1 | siwis_p0_d2_k0.wav | CC BY 4.0 |
 | 2.541 | le couteau lisse l'enduit | transition/fs-850347-swipe-various.ogg | CC0 1.0 |
 | 2.894 | le couteau lisse l'enduit | transition/fs-850347-swipe-various.ogg | CC0 1.0 |
 | 3.247 | le couteau lisse l'enduit | transition/fs-850347-swipe-various.ogg | CC0 1.0 |
 | 3.600 | le couteau lisse l'enduit | transition/fs-850347-swipe-various.ogg | CC0 1.0 |
+| 4.092 | l'air de la pièce sous la dictée | ambience/fs-329533-room-tone-in-an-apartment-livi.ogg | CC0 1.0 |
 | 4.235 | une phrase dictée | kit/click.ogg | CC0 1.0 |
+| 4.292 | voix, phrase 2 | siwis_p1_d1_k0.wav | CC BY 4.0 |
 | 4.659 | coup de rouleau, sous-couche | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 5.012 | coup de rouleau, sous-couche | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 5.365 | coup de rouleau, sous-couche | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 5.718 | coup de rouleau, sous-couche | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 6.071 | coup de rouleau, sous-couche | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 6.424 | coup de rouleau, sous-couche | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
+| 6.915 | l'air de la pièce sous la dictée | ambience/fs-329533-room-tone-in-an-apartment-livi.ogg | CC0 1.0 |
 | 7.059 | une phrase dictée | kit/click.ogg | CC0 1.0 |
+| 7.115 | voix, phrase 3 | siwis_p2_d0_k0.wav | CC BY 4.0 |
 | 7.482 | coup de rouleau, 1re couche | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 7.715 | coup de rouleau, 1re couche | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 7.948 | coup de rouleau, 1re couche | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
@@ -32,7 +38,9 @@ Usage : TikTok, Reels, Shorts, pubs en ligne. Musique : musique originale compos
 | 9.388 | 2e couche | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 9.529 | 2e couche | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 9.671 | 2e couche | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
+| 9.739 | l'air de la pièce sous la dictée | ambience/fs-329533-room-tone-in-an-apartment-livi.ogg | CC0 1.0 |
 | 9.882 | une phrase dictée | kit/click.ogg | CC0 1.0 |
+| 9.939 | voix, phrase 4 | siwis_p3_d1_k0.wav | CC BY 4.0 |
 | 10.306 | le ruban de masquage s'arrache | transition/fs-786514-swoosh-v2.ogg | CC0 1.0 |
 | 11.012 | la bâche glisse | whoosh/fs-169867-swoosh.ogg | CC0 1.0 |
 | 12.071 | les appliques s'allument | click/kenney-interface-toggle-001.ogg | CC0 1.0 |

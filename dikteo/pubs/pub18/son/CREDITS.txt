@@ -7,3 +7,4 @@ Bruitages :
 - par cMilan — https://freesound.org/people/cMilan/sounds/426767/ — CC0 1.0 (dérivé : hauteur/vitesse/couches)
 - par malle99 — https://freesound.org/people/malle99/sounds/384187/ — CC0 1.0
 - synthèse maison Diktéo (numpy), CC0 1.0
+- voix de synthèse Kokoro-82M (Apache 2.0), voix ff_siwis (données SIWIS, CC BY 4.0), générée en local

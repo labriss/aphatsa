@@ -83,7 +83,7 @@ sfx("ding/kenney-interface-confirmation-002.ogg", 26.4, -11, "le carton Diktéo"
 tb = np.arange(N) / SR / B
 env = np.where(tb < 0, 1.0, 1.0).astype(np.float32)
 env = uniform_filter1d(env, int(.2 * SR), mode="constant").astype(np.float32)
-mix = musique * env[:, None] * 10 ** (-7 / 20) + bruits
+mix = musique * env[:, None] * 10 ** (float(os.environ.get("MUSIQUE_DB", "-4")) / 20) + bruits * 10 ** (float(os.environ.get("BRUITS_DB", "-5")) / 20)
 mix /= max(1e-6, np.abs(mix).max()) / 0.9
 wav = os.path.join(ICI, "tmp", "son.wav")
 with wave.open(wav, "wb") as w:
