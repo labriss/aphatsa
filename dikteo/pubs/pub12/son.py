@@ -98,47 +98,13 @@ sfx("whoosh/fs-683101-quick-woosh.ogg", 20.6, -10, "le devis part", 2 / 60)
 sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 20.9, -9, "envoyé à Mme Garnier")
 sfx("ding/kenney-interface-confirmation-002.ogg", 22.7, -11, "le carton Diktéo")
 
-# ——— la voix : le peintre dicte ses 4 lignes (voix générée en local, choisie par voix/noter.py) ———
-# Traitée comme une vraie dictée au téléphone : coupe des graves, présence, petite pièce, compression douce.
-# Chaque phrase commence avec son bandeau ; si elle est plus longue que sa place, elle est resserrée (au plus ×1,2).
-voix = np.zeros((N, 2), np.float32)
-CHOIX = os.environ.get("VOIX_CHOIX", os.path.join(ICI, "voix", "prises", "choix.json"))
-DEBUTS = [2.7, 6, 10, 14]
-CHAINE = "highpass=f=110,lowpass=f=9000,equalizer=f=3000:t=q:w=1:g=3,acompressor=threshold=-20dB:ratio=3:attack=5:release=90,aecho=0.8:0.4:19:0.10"
-calage = []
-if os.path.exists(CHOIX) and os.environ.get("SANS_VOIX") != "1":
-    ch = json.load(open(CHOIX, encoding="utf-8"))["choix"]
-    for i, bt in enumerate(DEBUTS):
-        f = os.path.join(ICI, "voix", "prises", ch[str(i)])
-        brut = lire(f)
-        place = ((DEBUTS[i + 1] if i < 3 else 17.1) - bt) * B - .25
-        tempo = min(1.12, max(1.0, len(brut) / SR / place))
-        v = lire(f, af=f"atempo={tempo:.4f}," + CHAINE + ",silenceremove=start_periods=1:start_threshold=-45dB")
-        v = v / max(1e-6, np.abs(v).max()) * .9
-        a0 = int((bt + .08) * B * SR)
-        v = v[: N - a0]
-        voix[a0:a0 + len(v)] += v
-        calage.append(dict(phrase=i, prise=ch[str(i)], debut_b=bt + .08, duree_b=round(len(v) / SR / B, 3), tempo=round(tempo, 3)))
-        journal.append(((bt + .08) * B, f"voix, phrase {i + 1}", ch[str(i)], "voix générée en local (Chatterbox ou Kokoro), référence SIWIS CC BY 4.0", "CC BY 4.0"))
-    json.dump(calage, open(os.path.join(ICI, "voix", "calage.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
-    # l'air de la pièce sous la voix : une dictée réelle n'est jamais posée sur un silence parfait
-    AIR = "ambience/fs-329533-room-tone-in-an-apartment-livi.ogg"
-    for c in calage:
-        d = c["duree_b"] * B + .5
-        a = lire(os.path.join(SKILL, AIR), 2 + c["phrase"] * 3.1, d)
-        t = np.arange(len(a)) / SR
-        a = a * (np.minimum(1, t / .2) * np.minimum(1, np.maximum(0, (d - t) / .3)))[:, None]
-        a = a / max(1e-6, np.abs(a).max()) * 10 ** (-30 / 20)
-        a0 = int((c["debut_b"] * B - .2) * SR)
-        voix[a0:a0 + len(a)] += a[: N - a0]
-        journal.append((c["debut_b"] * B - .2, "l'air de la pièce sous la dictée", AIR, INFO.get(AIR, {}).get("credit", AIR), INFO.get(AIR, {}).get("license", "?")))
-# la musique s'efface un peu sous la voix
-parle = (np.abs(voix).max(1) > .08).astype(np.float32)
-lisse = int(.35 * SR)
-parle = uniform_filter1d(parle, lisse, mode="constant")
-env = (1 - .45 * np.clip(parle * 1.5, 0, 1)).astype(np.float32)
-bruits += voix * .95
-mix = musique * env[:, None] * 10 ** (-7 / 20) + bruits
+# ——— la voix : le peintre dicte ses 4 lignes (son/voix : dicter.py → noter.py → voix/prises/choix.json) ; absente sans choix.json ———
+# une phrase par bandeau (temps de musique) ; FIN : les appliques s'allument
+DEBUTS, FIN = [2.7, 6, 10, 14], 17.1
+sys.path.insert(0, os.path.join(ICI, "..", "son", "voix"))
+from poser import poser_voix  # noqa: E402
+voix, sous_voix = poser_voix(ICI, lire, N, SR, B, DEBUTS, FIN, journal, INFO, SKILL)
+mix = musique * sous_voix[:, None] * 10 ** (-7 / 20) + bruits + voix
 mix /= max(1e-6, np.abs(mix).max()) / 0.9
 wav = os.path.join(ICI, "tmp", "son.wav")
 with wave.open(wav, "wb") as w:

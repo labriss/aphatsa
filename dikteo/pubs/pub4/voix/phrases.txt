@@ -1,0 +1,2 @@
+# texte dit | texte attendu (affiché) | place en secondes (du début de la phrase à l'événement suivant)
+Remplacement du chauffe-eau, huit cent soixante-douze euros.|remplacement du chauffe-eau 872 euros|2.7

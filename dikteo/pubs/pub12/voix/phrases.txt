@@ -1,0 +1,5 @@
+# texte dit | texte affiché | place en secondes (« mate, velours » séparés : sinon « madzellour »)
+Rebouchage des fissures, forfait cent quatre-vingts euros.|rebouchage des fissures forfait 180 euros|2.21
+Sous-couche, trente-deux mètres carrés, à sept euros le mètre.|sous-couche 32 m² à 7 euros le mètre|2.7
+Deux couches, mate, velours, dix-huit euros le mètre.|deux couches de peinture mat velours 18 euros le mètre|2.7
+Protection, nettoyage, quatre-vingt-dix euros.|protection nettoyage 90 euros|2.39

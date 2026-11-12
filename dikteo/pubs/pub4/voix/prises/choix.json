@@ -1,0 +1,245 @@
+{
+ "voix": "siwis",
+ "familles": {
+  "pierre": 5.566,
+  "siwis": 5.805,
+  "tom": 5.259
+ },
+ "choix": {
+  "0": "siwis_p0_d0_k0.wav"
+ },
+ "a_revoir": [],
+ "prises": {
+  "pierre_p0_d0_k0.wav": {
+   "voix": "pierre",
+   "phrase": 0,
+   "exact": 0.967,
+   "prix_ok": false,
+   "utmos": 3.0,
+   "duree": 2.87,
+   "tempo": 1.064,
+   "score": 2.789,
+   "entendu": "Remplacement du chauffe-eau 870/12€"
+  },
+  "pierre_p0_d0_k1.wav": {
+   "voix": "pierre",
+   "phrase": 0,
+   "exact": 0.793,
+   "prix_ok": false,
+   "utmos": 3.0,
+   "duree": 3.1,
+   "tempo": 1.148,
+   "score": 0.319,
+   "entendu": "remplacement du chauffe-eau 8602€"
+  },
+  "pierre_p0_d0_k2.wav": {
+   "voix": "pierre",
+   "phrase": 0,
+   "exact": 0.897,
+   "prix_ok": true,
+   "utmos": 3.0,
+   "duree": 2.74,
+   "tempo": 1.014,
+   "score": 4.81,
+   "entendu": "Remplacement du chauffe-eau, €872."
+  },
+  "pierre_p0_d1_k0.wav": {
+   "voix": "pierre",
+   "phrase": 0,
+   "exact": 0.948,
+   "prix_ok": true,
+   "utmos": 3.0,
+   "duree": 2.75,
+   "tempo": 1.019,
+   "score": 4.876,
+   "entendu": "Rampassement du chauffe-eau, 872 euros."
+  },
+  "pierre_p0_d1_k1.wav": {
+   "voix": "pierre",
+   "phrase": 0,
+   "exact": 0.947,
+   "prix_ok": false,
+   "utmos": 3.0,
+   "duree": 2.91,
+   "tempo": 1.077,
+   "score": 2.727,
+   "entendu": "remplacement du chauffe-eau 870 euros."
+  },
+  "pierre_p0_d1_k2.wav": {
+   "voix": "pierre",
+   "phrase": 0,
+   "exact": 1.0,
+   "prix_ok": true,
+   "utmos": 3.0,
+   "duree": 2.8,
+   "tempo": 1.035,
+   "score": 4.912,
+   "entendu": "remplacement du chauffe-eau 872€"
+  },
+  "pierre_p0_d2_k0.wav": {
+   "voix": "pierre",
+   "phrase": 0,
+   "exact": 0.982,
+   "prix_ok": true,
+   "utmos": 3.0,
+   "duree": 2.74,
+   "tempo": 1.015,
+   "score": 4.937,
+   "entendu": "remplacement du chauffeau 872 euros."
+  },
+  "pierre_p0_d2_k1.wav": {
+   "voix": "pierre",
+   "phrase": 0,
+   "exact": 0.897,
+   "prix_ok": true,
+   "utmos": 3.0,
+   "duree": 2.65,
+   "tempo": 1.0,
+   "score": 4.835,
+   "entendu": "Remplacement du chauffe-eau, €872."
+  },
+  "pierre_p0_d2_k2.wav": {
+   "voix": "pierre",
+   "phrase": 0,
+   "exact": 0.938,
+   "prix_ok": true,
+   "utmos": 3.0,
+   "duree": 2.7,
+   "tempo": 1.001,
+   "score": 4.904,
+   "entendu": "Remplacement du chauffot 872 euros."
+  },
+  "siwis_p0_d0_k0.wav": {
+   "voix": "siwis",
+   "phrase": 0,
+   "exact": 0.991,
+   "prix_ok": true,
+   "utmos": 3.0,
+   "duree": 2.82,
+   "tempo": 1.044,
+   "score": 4.877,
+   "entendu": "Remplacement du chauffe au 872 euros."
+  },
+  "siwis_p0_d1_k0.wav": {
+   "voix": "siwis",
+   "phrase": 0,
+   "exact": 0.897,
+   "prix_ok": true,
+   "utmos": 3.0,
+   "duree": 2.61,
+   "tempo": 1.0,
+   "score": 4.828,
+   "entendu": "Remplacement du chauffe-eau, €872."
+  },
+  "siwis_p0_d2_k0.wav": {
+   "voix": "siwis",
+   "phrase": 0,
+   "exact": 0.897,
+   "prix_ok": true,
+   "utmos": 3.0,
+   "duree": 2.4,
+   "tempo": 1.0,
+   "score": 4.788,
+   "entendu": "remplacement du chauffe-eau, €872."
+  },
+  "tom_p0_d0_k0.wav": {
+   "voix": "tom",
+   "phrase": 0,
+   "exact": 0.991,
+   "prix_ok": true,
+   "utmos": 3.0,
+   "duree": 3.3,
+   "tempo": 1.221,
+   "score": 1.434,
+   "entendu": "remplacement du chauffe au 872 euros."
+  },
+  "tom_p0_d0_k1.wav": {
+   "voix": "tom",
+   "phrase": 0,
+   "exact": 0.948,
+   "prix_ok": false,
+   "utmos": 3.0,
+   "duree": 3.36,
+   "tempo": 1.243,
+   "score": -0.685,
+   "entendu": "remplacement du chauffe-eau, 860 d'eau euros."
+  },
+  "tom_p0_d0_k2.wav": {
+   "voix": "tom",
+   "phrase": 0,
+   "exact": 0.991,
+   "prix_ok": true,
+   "utmos": 3.0,
+   "duree": 3.33,
+   "tempo": 1.232,
+   "score": 1.406,
+   "entendu": "remplacement du chauffe au 872 euros."
+  },
+  "tom_p0_d1_k0.wav": {
+   "voix": "tom",
+   "phrase": 0,
+   "exact": 0.705,
+   "prix_ok": false,
+   "utmos": 3.0,
+   "duree": 3.2,
+   "tempo": 1.183,
+   "score": -2.901,
+   "entendu": "remplacement du chauffe au mi-se-sous-sous-sous-"
+  },
+  "tom_p0_d1_k1.wav": {
+   "voix": "tom",
+   "phrase": 0,
+   "exact": 0.934,
+   "prix_ok": false,
+   "utmos": 3.0,
+   "duree": 2.96,
+   "tempo": 1.098,
+   "score": 2.658,
+   "entendu": "remplacement du chauffe au 870 et 12 euros."
+  },
+  "tom_p0_d1_k2.wav": {
+   "voix": "tom",
+   "phrase": 0,
+   "exact": 0.947,
+   "prix_ok": false,
+   "utmos": 3.0,
+   "duree": 3.14,
+   "tempo": 1.163,
+   "score": -0.485,
+   "entendu": "remplacement du chauffe au 862 euros"
+  },
+  "tom_p0_d2_k0.wav": {
+   "voix": "tom",
+   "phrase": 0,
+   "exact": 1.0,
+   "prix_ok": true,
+   "utmos": 3.0,
+   "duree": 2.9,
+   "tempo": 1.073,
+   "score": 4.817,
+   "entendu": "remplacement du chauffe-eau, 872 euros."
+  },
+  "tom_p0_d2_k1.wav": {
+   "voix": "tom",
+   "phrase": 0,
+   "exact": 1.0,
+   "prix_ok": true,
+   "utmos": 3.0,
+   "duree": 2.93,
+   "tempo": 1.085,
+   "score": 4.787,
+   "entendu": "remplacement du chauffe-eau 872 euros."
+  },
+  "tom_p0_d2_k2.wav": {
+   "voix": "tom",
+   "phrase": 0,
+   "exact": 0.911,
+   "prix_ok": false,
+   "utmos": 3.0,
+   "duree": 2.9,
+   "tempo": 1.075,
+   "score": 2.679,
+   "entendu": "remplacement du chauffe au mi-162 euros"
+  }
+ }
+}

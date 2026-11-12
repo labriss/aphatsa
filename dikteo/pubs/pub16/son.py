@@ -77,7 +77,13 @@ sfx("ding/kenney-interface-confirmation-002.ogg", 19.5, -11, "le carton Diktéo"
 tb = np.arange(N) / SR / B
 env = np.where(tb < 0, 1.0, 1.0).astype(np.float32)
 env = uniform_filter1d(env, int(.2 * SR), mode="constant").astype(np.float32)
-mix = musique * env[:, None] * 10 ** (-7 / 20) + bruits
+# ——— la voix : l'artisan dicte ses lignes (son/voix : dicter.py → noter.py → prises/choix.json) ; absente sans choix.json ———
+# une phrase par bandeau « TU DICTES » (temps de musique) ; FIN : le total, la dernière phrase doit être dite avant
+DEBUTS, FIN = [3.6, 6, 8.4, 10.8], 13.4
+sys.path.insert(0, os.path.join(ICI, "..", "son", "voix"))
+from poser import poser_voix  # noqa: E402
+voix, sous_voix = poser_voix(ICI, lire, N, SR, B, DEBUTS, FIN, journal, INFO, SKILL)
+mix = musique * (env * sous_voix)[:, None] * 10 ** (-7 / 20) + bruits + voix
 mix /= max(1e-6, np.abs(mix).max()) / 0.9
 wav = os.path.join(ICI, "tmp", "son.wav")
 with wave.open(wav, "wb") as w:

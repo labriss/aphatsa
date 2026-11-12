@@ -85,7 +85,13 @@ sfx("riser/fs-464250-echo-chromatic-riser-wav.ogg", 41.5, -16, "monte jusqu'au c
 sfx("kit/pop.ogg", 41.5, -8, "le carton Diktéo")
 sfx("whoosh/fs-830856.ogg" if not os.path.exists(os.path.join(SKILL, "whoosh/fs830856.ogg")) else "whoosh/fs830856.ogg", 48.6, -9, "la caméra replonge", deux)
 
-mix = musique * 10 ** (-9 / 20) + bruits
+# ——— la voix : quand la bille enfonce le micro (7), on entend la dictée, jusqu'aux lignes du devis (14) ———
+# (son/voix : dicter.py → noter.py → voix/prises/choix.json) ; absente sans choix.json
+DEBUTS, FIN = [7], 14
+sys.path.insert(0, os.path.join(ICI, "..", "son", "voix"))
+from poser import poser_voix  # noqa: E402
+voix, sous_voix = poser_voix(ICI, lire, N, SR, B, DEBUTS, FIN, journal, INFO, SKILL)
+mix = musique * sous_voix[:, None] * 10 ** (-9 / 20) + bruits + voix
 mix /= max(1e-6, np.abs(mix).max()) / 0.9
 wav = os.path.join(ICI, "tmp", "son.wav")
 with wave.open(wav, "wb") as w:

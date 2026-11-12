@@ -1,0 +1,5 @@
+# texte dit | texte affiché | place en secondes. Fenêtres de 1,46 s : la dictée est télégraphique, comme sur un vrai chantier.
+Tableau, quatre cent quatre-vingts euros.|tableau électrique 3 rangées 480 euros|1.36
+Douze prises, trente-deux pièce.|douze prises 32 euros pièce|1.36
+Mise à la terre, cent cinquante.|mise à la terre 150 euros|1.36
+Six heures, à cinquante-cinq.|main-d'œuvre 6 heures à 55 euros|1.55

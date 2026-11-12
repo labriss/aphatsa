@@ -43,3 +43,11 @@
 node_modules/
 /dikteo/pubs/pub4/node_modules
 /dikteo/pubs/pub4/boucle.html
+# Diktéo — pubs : voix générées (médias non versionnés ; on garde phrases.txt, choix.json, calage.json et les scripts)
+/dikteo/pubs/*/voix/prises/*.wav
+/dikteo/pubs/*/voix/prises/*.mp3
+/dikteo/pubs/*/voix/*.wav
+/dikteo/pubs/*/voix/*.mp3
+/dikteo/pubs/*/voix/*.onnx
+/dikteo/pubs/*/voix/*.log
+/dikteo/pubs/*/voix_essai*.mp3

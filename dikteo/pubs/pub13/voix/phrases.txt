@@ -1,4 +1,5 @@
-Dépose de l'ancien carrelage, cent quatre-vingts euros.|dépose de l'ancien carrelage 180 euros
-Ragréage du sol, deux cent seize euros.|ragréage du sol 216 euros
-Du grès cérame, en soixante par soixante, cinq cent quarante euros.|du grès cérame en 60 par 60 540 euros
-Les joints, et les plinthes, cent soixante euros.|les joints et les plinthes 160 euros
+# texte dit | texte affiché | place en secondes
+Dépose de l'ancien carrelage, cent quatre-vingts euros.|dépose ancien carrelage 12 m² 180 euros|2.05
+Ragréage du sol, deux cent seize euros.|ragréage du sol 12 m² 216 euros|2.05
+Grès cérame, soixante par soixante, cinq cent quarante euros.|grès cérame 60×60 posé 540 euros|2.05
+Joints et plinthes, cent soixante euros.|joints et plinthes au mètre 160 euros|2.3
