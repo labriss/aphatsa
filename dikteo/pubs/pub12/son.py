@@ -7,6 +7,7 @@ import sys
 import wave
 
 import numpy as np
+from scipy.ndimage import uniform_filter1d
 
 ICI = os.path.dirname(os.path.abspath(__file__))
 SKILL = os.path.expanduser("~/.claude/skills/sound-effects/sfx")
@@ -134,7 +135,7 @@ if os.path.exists(CHOIX) and os.environ.get("SANS_VOIX") != "1":
 # la musique s'efface un peu sous la voix
 parle = (np.abs(voix).max(1) > .08).astype(np.float32)
 lisse = int(.35 * SR)
-parle = np.convolve(parle, np.ones(lisse) / lisse, mode="same")
+parle = uniform_filter1d(parle, lisse, mode="constant")
 env = (1 - .45 * np.clip(parle * 1.5, 0, 1)).astype(np.float32)
 bruits += voix * .95
 mix = musique * env[:, None] * 10 ** (-7 / 20) + bruits

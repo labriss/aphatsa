@@ -1,6 +1,6 @@
 # Son de la pub 18 (le copeau)
 
-Usage : TikTok, Reels, Shorts, pubs en ligne. Musique : Mixkit #493, Mixkit Stock Music Free License.
+Usage : TikTok, Reels, Shorts, pubs en ligne. Musique : musique originale composée pour Diktéo (son/libre/composer.py, instruments FluidR3_GM, licence MIT) — libre de droits.
 
 | t (s) | moment | son | licence |
 |---|---|---|---|

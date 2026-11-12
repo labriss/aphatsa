@@ -1,14 +1,12 @@
-Musique : « It's Love » (Mixkit), Mixkit #134, Mixkit Stock Music Free License
+Musique : musique originale composée pour Diktéo (son/libre/composer.py, instruments FluidR3_GM, licence MIT) — libre de droits
 
 Bruitages :
-- "Classic Click" by adh.dreaming (https://freesound.org/people/adh.dreaming/sounds/671105/), CC0
-- ding/fs-571513-soft-notifications-bell-ding-d.ogg
-- ding/kenney-interface-confirmation-001.ogg
-- ding/kenney-interface-confirmation-002.ogg
-- impact/fs-177242-cinematic-impact.ogg
-- impact/kenney-impact-impactsoft-heavy-000.ogg
-- pop/fs-447910-plop.ogg
-- riser/fs-685256-riser-sound-effect-short-wav.ogg
-- transition/fs-816262-broomstick-whoosh-3-quiet-okm1.ogg
-- whoosh/fs-169867-swoosh.ogg
-- whoosh/fs-683101-quick-woosh.ogg
+- Classic Click par adh.dreaming — https://freesound.org/people/adh.dreaming/sounds/671105/ — CC0 1.0
+- par Breviceps — https://freesound.org/people/Breviceps/sounds/447910/ — CC0 1.0
+- par LegitCheese — https://freesound.org/people/LegitCheese/sounds/571513/ — CC0 1.0
+- par Sadiquecat — https://freesound.org/people/Sadiquecat/sounds/816262/ — CC0 1.0
+- par Sadiquecat — https://freesound.org/people/Sadiquecat/sounds/816262/ — CC0 1.0 (dérivé : hauteur/vitesse/couches)
+- par migoreng1 — https://freesound.org/people/migoreng1/sounds/786514/ — CC0 1.0 (dérivé : hauteur/vitesse/couches)
+- par syntheffects — https://freesound.org/people/syntheffects/sounds/685256/ — CC0 1.0
+- soft_impact3 par peoplearehappy — https://freesound.org/people/peoplearehappy/sounds/841274/ — CC0 1.0 (dérivé : hauteur/vitesse/couches)
+- synthèse maison Diktéo (numpy), CC0 1.0

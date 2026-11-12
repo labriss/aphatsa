@@ -7,6 +7,7 @@ import sys
 import wave
 
 import numpy as np
+from scipy.ndimage import uniform_filter1d
 
 ICI = os.path.dirname(os.path.abspath(__file__))
 SKILL = os.path.expanduser("~/.claude/skills/sound-effects/sfx")
@@ -62,7 +63,7 @@ SOBRE = False
 def vibre(beat, db=-8.0, desc="le téléphone vibre"):
     tt = np.arange(int(.32 * SR)) / SR
     env = ((tt < .13) | ((tt > .18) & (tt < .31))).astype(np.float32)
-    env = np.convolve(env, np.ones(240) / 240, mode="same")
+    env = uniform_filter1d(env, 240, mode="constant")
     x = (np.sign(np.sin(2 * np.pi * 172 * tt)) * .5 + np.sin(2 * np.pi * 86 * tt) * .5) * env
     x = (x / max(1e-6, np.abs(x).max()) * 10 ** (db / 20)).astype(np.float32)
     a0 = int(beat * B * SR); x = x[: N - a0]
@@ -84,7 +85,7 @@ sfx("ding/kenney-interface-confirmation-001.ogg", 31.2, -13, "le carton Diktéo"
 # la musique un peu plus basse pendant la pile, pour laisser la place aux chocs
 tb = np.arange(N) / SR / B
 env = np.where((tb > 11.2) & (tb < 13.6), 10 ** (-14 / 20), 1.0).astype(np.float32)
-env = np.convolve(env, np.ones(int(.2 * SR)) / int(.2 * SR), mode="same").astype(np.float32)
+env = uniform_filter1d(env, int(.2 * SR), mode="constant").astype(np.float32)
 mix = musique * env[:, None] * 10 ** (-7 / 20) + bruits
 mix /= max(1e-6, np.abs(mix).max()) / 0.9
 wav = os.path.join(ICI, "tmp", "son.wav")

@@ -7,6 +7,7 @@ import sys
 import wave
 
 import numpy as np
+from scipy.ndimage import uniform_filter1d
 
 ICI = os.path.dirname(os.path.abspath(__file__))
 SKILL = os.path.expanduser("~/.claude/skills/sound-effects/sfx")
@@ -77,7 +78,7 @@ sfx("ding/kenney-interface-confirmation-002.ogg", 28, -11, "le carton Diktéo")
 # la musique un peu plus basse pendant la pile, pour laisser la place aux chocs
 tb = np.arange(N) / SR / B
 env = np.where(tb < 0, 1.0, 1.0).astype(np.float32)
-env = np.convolve(env, np.ones(int(.2 * SR)) / int(.2 * SR), mode="same").astype(np.float32)
+env = uniform_filter1d(env, int(.2 * SR), mode="constant").astype(np.float32)
 mix = musique * env[:, None] * 10 ** (-7 / 20) + bruits
 mix /= max(1e-6, np.abs(mix).max()) / 0.9
 wav = os.path.join(ICI, "tmp", "son.wav")
