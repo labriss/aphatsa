@@ -12,17 +12,18 @@ ICI = os.path.dirname(os.path.abspath(__file__))
 SKILL = os.path.expanduser("~/.claude/skills/sound-effects/sfx")
 VIDEO, SORTIE = sys.argv[1], sys.argv[2]
 SR = 48000
-B = 60 / 123
+VIT = 1.2  # la boucle joue 20 % plus vite (« trop lente », 12 nov.) : musique accélérée d'autant, hauteur conservée
+B = 60 / (123 * VIT)
 INTRO = 4  # temps d'accroche avant l'histoire
 D = 50 * B
-DEBUT_MUSIQUE = 30.581 - INTRO * B  # un temps du morceau (grille vérifiée sur les grosses caisses, écart médian 4 ms)
+DEBUT_MUSIQUE = 30.581 - INTRO * 60 / 123  # un temps du morceau (grille vérifiée sur les grosses caisses, écart médian 4 ms)
 
 MAN = json.load(open(os.path.join(SKILL, "manifest.json"), encoding="utf-8"))
 INFO = {e["file"]: e for e in MAN["bundled"] + MAN["default_kit"] if e.get("file")}
 
 
-def lire(chemin, debut=0.0, duree=None):
-    cmd = ["ffmpeg", "-v", "error", "-ss", str(debut), "-i", chemin] + (["-t", str(duree)] if duree else [])
+def lire(chemin, debut=0.0, duree=None, af=None):
+    cmd = ["ffmpeg", "-v", "error", "-ss", str(debut), "-i", chemin] + (["-t", str(duree)] if duree else []) + (["-af", af] if af else [])
     raw = subprocess.run(cmd + ["-f", "f32le", "-ac", "2", "-ar", str(SR), "-"], capture_output=True, check=True).stdout
     return np.frombuffer(raw, np.float32).reshape(-1, 2).copy()
 
@@ -41,7 +42,7 @@ def sfx(f, beat, db=-6.0, desc="", avance=0.0, finit=False):
     journal.append((t, desc, f, INFO.get(f, {}).get("credit", f), INFO.get(f, {}).get("license", "?")))
 
 
-m = lire(os.path.join(ICI, "musique", "mixkit-130.mp3"), DEBUT_MUSIQUE, D + 0.5)[:N]
+m = lire(os.path.join(ICI, "musique", "mixkit-130.mp3"), DEBUT_MUSIQUE, (D + 0.5) * VIT, af=f"atempo={VIT}")[:N]
 m = m / max(1e-6, np.abs(m).max())
 k = int(0.03 * SR)
 m[:k] *= np.linspace(0, 1, k)[:, None]
