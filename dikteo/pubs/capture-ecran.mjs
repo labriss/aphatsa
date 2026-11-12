@@ -32,7 +32,8 @@ const page = await ctx.newPage();
 // L'horloge simulée est arrêtée : le temps du film n'avance que quand on le décide, image par image.
 await page.clock.install({ time: new Date("2026-11-03T09:41:00") });
 await page.clock.pauseAt(new Date("2026-11-03T09:41:01"));
-await page.goto("http://localhost:3000/", { timeout: 180000, waitUntil: "load" });
+// SITE : adresse du site à filmer (par défaut le serveur local).
+await page.goto(process.env.SITE || "http://localhost:3000/", { timeout: 180000, waitUntil: "load" });
 // Écran aux coins droits : c'est le téléphone 3D qui l'arrondit.
 await page.addStyleTag({ content: "nextjs-portal{display:none!important} [data-ui] > div.overflow-hidden{border-radius:0!important}" });
 // L'appli s'hydrate en temps réel pendant que le film, lui, reste à zéro.

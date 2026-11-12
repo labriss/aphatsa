@@ -63,10 +63,14 @@ def planche(v, d, sortie):
     lignes = (len(vignettes) + cols - 1) // cols
     p = Image.new("RGB", (cols * w, lignes * (h + 22)), (20, 20, 20))
     dr = ImageDraw.Draw(p)
-    try:
-        f = ImageFont.truetype("arialbd.ttf", 16)
-    except OSError:
-        f = ImageFont.load_default()
+    f = None
+    for nom in ("arialbd.ttf", "Arial Bold.ttf"):  # Windows, puis macOS
+        try:
+            f = ImageFont.truetype(nom, 16)
+            break
+        except OSError:
+            pass
+    f = f or ImageFont.load_default()
     for i, (t, im) in enumerate(vignettes):
         x, y = (i % cols) * w, (i // cols) * (h + 22)
         p.paste(im.resize((w, h)), (x, y + 22))

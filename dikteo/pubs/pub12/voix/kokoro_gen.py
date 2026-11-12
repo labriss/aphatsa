@@ -1,5 +1,5 @@
 """Les 4 phrases de la pub 12 avec Kokoro (Apache 2.0), voix française ff_siwis, 3 débits.
-~/outils/venv-kokoro/Scripts/python kokoro_gen.py → prises/K_p<i>_k<j>.wav"""
+~/outils/venv-kokoro/bin/python (Windows : Scripts/python) kokoro_gen.py → prises/K_p<i>_k<j>.wav"""
 import os, soundfile as sf
 from kokoro_onnx import Kokoro
 ICI = os.path.dirname(os.path.abspath(__file__)); D = os.path.expanduser("~/outils/kokoro")

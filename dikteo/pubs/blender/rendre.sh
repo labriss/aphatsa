@@ -3,7 +3,9 @@
 # Usage : bash blender/rendre.sh [plan ...]   (par défaut : goutte cuisine_nuit cuisine_soir telephone)
 set -euo pipefail
 cd "$(dirname "$0")"
-B="${BLENDER:-/c/Program Files/Blender Foundation/Blender 5.2/blender.exe}"
+if [ "$(uname -s)" = Darwin ]; then B_DEFAUT=/Applications/Blender.app/Contents/MacOS/Blender
+else B_DEFAUT="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"; fi
+B="${BLENDER:-$B_DEFAUT}"
 # BROUILLON=1 : petite image, peu d'échantillons, dans renders/brouillon (pour monter tout de suite).
 if [ -n "${BROUILLON:-}" ]; then export APERCU=1; R=$(cd .. && pwd)/renders/brouillon; else R=$(cd .. && pwd)/renders/final; fi
 for plan in "${@:-goutte cuisine_nuit cuisine_soir telephone}"; do

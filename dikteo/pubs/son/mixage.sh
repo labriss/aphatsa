@@ -5,9 +5,10 @@
 # Usage : bash son/mixage.sh [30|15|6]   (écrit out/mix_<version>s.wav)
 set -euo pipefail
 cd "$(dirname "$0")/.."
+if [ -z "${PY:-}" ]; then PY=python; [ "$(uname -s)" = Darwin ] && { PY=python3; [ -x ~/outils/venv-video/bin/python ] && PY=~/outils/venv-video/bin/python; }; fi  # macOS : venv-video ; Windows : python
 V=${1:-30}
-python son/musique.py "$V" "out/musique_${V}s.wav" > /dev/null
-python son/bruitages.py "$V" "out/bruitages_${V}s.wav" > /dev/null
+"$PY" son/musique.py "$V" "out/musique_${V}s.wav" > /dev/null
+"$PY" son/bruitages.py "$V" "out/bruitages_${V}s.wav" > /dev/null
 ffmpeg -v error -y -i "out/musique_${V}s.wav" -i "out/bruitages_${V}s.wav" \
   -filter_complex "[0:a][1:a]amix=inputs=2:normalize=0:duration=first" -c:a pcm_s24le "out/mix_brut_${V}s.wav"
 mesure=$(ffmpeg -hide_banner -nostats -i "out/mix_brut_${V}s.wav" -af loudnorm=I=-16:TP=-4.5:LRA=11:print_format=json -f null - 2>&1 | sed -n '/^{/,/^}/p')

@@ -2,7 +2,7 @@
 Chatterbox multilingue (Resemble AI, licence MIT), en local sur le processeur, cloné sur une vraie voix française
 enregistrée pour la synthèse (base SIWIS, CC BY 4.0). Plusieurs références × plusieurs prises par phrase ;
 noter.py choisit ensuite la meilleure prise.
-~/outils/venv-voix2/Scripts/python generer.py <ref.wav> <etiquette> [prises=3] [phrases=0,1,2,3]"""
+~/outils/venv-voix2/bin/python (Windows : Scripts/python) generer.py <ref.wav> <etiquette> [prises=3] [phrases=0,1,2,3]"""
 import os
 import sys
 import time

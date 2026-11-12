@@ -1,4 +1,4 @@
-"""Note de naturel (UTMOS22, prédicteur de MOS) de chaque prise : ~/outils/venv-voix2/Scripts/python utmos.py → prises/utmos.json"""
+"""Note de naturel (UTMOS22, prédicteur de MOS) de chaque prise : ~/outils/venv-voix2/bin/python (Windows : Scripts/python) utmos.py → prises/utmos.json"""
 import glob, json, os
 import torch, torchaudio
 ICI = os.path.dirname(os.path.abspath(__file__))

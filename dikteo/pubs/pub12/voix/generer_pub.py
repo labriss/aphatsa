@@ -1,6 +1,6 @@
 """Voix d'une pub : Chatterbox multilingue (MIT) cloné sur la référence donnée (ref_H.wav : lecteur LibriVox
 « Bernard », domaine public). Une ligne de phrases.txt = « texte dit|texte attendu par Whisper ».
-~/outils/venv-voix2/Scripts/python generer_pub.py <ref.wav> <dossier voix de la pub> [prises=2] [phrases=0,2] [premiere_prise=0]"""
+~/outils/venv-voix2/bin/python (Windows : Scripts/python) generer_pub.py <ref.wav> <dossier voix de la pub> [prises=2] [phrases=0,2] [premiere_prise=0]"""
 import os, sys, time
 import torch, torchaudio
 from chatterbox.mtl_tts import ChatterboxMultilingualTTS

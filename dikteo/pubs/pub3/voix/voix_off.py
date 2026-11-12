@@ -1,5 +1,5 @@
 """Voix off de la pub 3 avec Chatterbox Multilingual (MIT), timbre guidé par une voix de synthèse (Piper « tom »).
-~/outils/venv-voix2/Scripts/python voix_off.py [nom ...] → v2/<nom>_<k>.wav (plusieurs prises par réplique)."""
+~/outils/venv-voix2/bin/python (Windows : Scripts/python) voix_off.py [nom ...] → v2/<nom>_<k>.wav (plusieurs prises par réplique)."""
 import os
 import sys
 

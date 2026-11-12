@@ -1,7 +1,7 @@
 """Voix off française avec Piper (voix « siwis », licence CC-BY 4.0 : créditer « SIWIS French Speech Synthesis Database »).
 
 Usage (avec l'environnement .venv-voix, où onnxruntime fonctionne) :
-  .venv-voix/Scripts/python voix.py <fichier de répliques> <dossier de sortie> [--vitesse 0.92]
+  .venv-voix/bin/python (Windows : Scripts/python) voix.py <fichier de répliques> <dossier de sortie> [--vitesse 0.92]
 
 Fichier de répliques : une ligne par réplique, « nom|texte ». Le texte est écrit pour l'oreille (« Dikté-o »,
 « té-vé-a ») : le sous-titre, lui, garde l'orthographe normale.

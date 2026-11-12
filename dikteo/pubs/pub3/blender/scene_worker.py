@@ -1,5 +1,6 @@
 """L'ouvrier 3D (Quaternius, CC0) en colère dans une cuisine le soir. blender -b -P scene_worker.py -- <sortie.png> [encre]"""
 import math
+import os
 import random
 import sys
 
@@ -8,7 +9,7 @@ from mathutils import Vector
 
 args = sys.argv[sys.argv.index("--") + 1:]
 SORTIE, ENCRE = args[0], len(args) > 1 and args[1] == "encre"
-GLB = SORTIE.rsplit("\\", 2)[0] + "\\modeles3d\\Worker.glb"
+GLB = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(SORTIE))), "modeles3d", "Worker.glb")
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 sc = bpy.context.scene
