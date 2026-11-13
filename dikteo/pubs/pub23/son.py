@@ -16,7 +16,7 @@ SR = 48000
 B = 60 / 85
 D = 28 * B
 # Musique : pub23/musique/mixkit-2301.mp3 (à fournir). Phase et saut à mesurer sur la piste ; par défaut on part du début, à 85 BPM.
-PISTE, BPM_P, PHASE_P, SAUT_P = "2301", 85.0, 0.0, 0
+PISTE, BPM_P, PHASE_P, SAUT_P = "2301", 85.0, 0.399, 32  # grille de la musique composée (son/libre/composer.py)
 TITRE_P = "Mixkit #2301"
 DEBUT_MUSIQUE = PHASE_P + SAUT_P * 60 / BPM_P
 
