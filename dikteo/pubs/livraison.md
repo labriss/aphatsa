@@ -66,6 +66,26 @@ Dépose, chêne massif, quincaillerie, pose : tu dictes à l'atelier, plus rien 
 Une phrase par intervention, Diktéo fait le reste.
 #multiservice #hommetoutesmains #depannage #artisan #devis #autoentrepreneur #btp
 
+## pub20 · plaquiste · `dikteo_pub20_cloison.mp4`
+Ton devis ne s'écrit plus sur un bout de placo. 😮‍💨
+Cloison, faux plafond, laine de verre, bandes : tu dictes dans la pièce, le devis est chiffré avant que la poussière retombe.
+#plaquiste #platrerie #placo #renovation #artisan #devis #btp
+
+## pub21 · climaticien · `dikteo_pub21_clim.mp4`
+Il fait 34° chez le client. Le devis, lui, est fait à froid. 😮‍💨
+Clim réversible, liaison frigorifique, support, mise en service : dicté sur place, envoyé avant la prochaine canicule.
+#climaticien #climatisation #pompeachaleur #frigoriste #artisan #devis #btp
+
+## pub22 · charpentier · `dikteo_pub22_charpente.mp4`
+Ton devis ne se fait plus sur une poutre. 😮‍💨
+Chevrons, traitement du bois, panne en chêne, main-d'œuvre : tu dictes sous le toit, Diktéo chiffre.
+#charpentier #charpente #ossaturebois #couverture #artisan #devis #btp
+
+## pub23 · paysagiste · `dikteo_pub23_jardin.mp4`
+Le jardin est fini. Le devis aussi. 😮‍💨
+Gazon, arbustes, bordure, déchets verts : dicté au fond du jardin, envoyé avant de ranger les outils.
+#paysagiste #amenagementjardin #jardin #espacesverts #artisan #devis #autoentrepreneur
+
 ## pub4 · tous métiers (boucle) · `dikteo_pub4_boucle.mp4`
 Encore un devis ce soir ? Dicte-le, et souffle. 😮‍💨
 Plombiers, électriciens, peintres, carreleurs, couvreurs, maçons, menuisiers, serruriers, chauffagistes.
@@ -73,7 +93,7 @@ Plombiers, électriciens, peintres, carreleurs, couvreurs, maçons, menuisiers, 
 
 ---
 
-## Calendrier conseillé (3 semaines, un post tous les 2 jours)
+## Calendrier conseillé (4 semaines, un post tous les 2 jours)
 Les artisans regardent leur téléphone le soir (19 h – 21 h) et le dimanche soir (moment des devis en retard) :
 on publie à ces heures-là. On commence par la pub qui parle à tous, puis on alterne les métiers les plus nombreux.
 
@@ -90,6 +110,10 @@ on publie à ces heures-là. On commence par la pub qui parle à tous, puis on a
 | J16 | 20 h | pub15 couvreur | |
 | J18 | 20 h | pub18 menuisier | |
 | J20 | 20 h | pub17 serrurier | |
+| J22 | 20 h | pub21 climaticien | |
+| J24 | 20 h | pub20 plaquiste | |
+| J26 | 20 h | pub23 paysagiste | printemps : à remonter en mars |
+| J28 (dimanche) | 19 h 30 | pub22 charpentier | |
 
 Mesure : au bout de 7 jours par post, comparer vues, taux de visionnage complet et clics (UTM dans les statistiques du site).
 Les 2 meilleures passent en publicité payante (Meta et TikTok), ciblées sur le métier, avec le lien UTM `utm_medium=paid`.
