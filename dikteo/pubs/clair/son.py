@@ -25,8 +25,10 @@ POSE += [(ENV - .1, "whoosh/fs-683101-quick-woosh.ogg", -12), (TAP - .05, "click
 POSE += [(SIGNE + .1, "ding/kenney-interface-confirmation-001.ogg", -5), (SIGNE + .5, "ding/fs-571513-soft-notifications-bell-ding-d.ogg", -11)]
 POSE += [(F - .2, "transition/fs-683096-woosh.ogg", -10), (F, "impact/kenney-impact-impactsoft-heavy-001.ogg", -9), (F + 1.0, "ding/kenney-interface-glass-001.ogg", -9)]
 
-entrees, chaines = ["-i", VIDEO, "-i", os.path.join(ICI, "musique", "mixkit-clair.mp3")], []
-chaines.append(f"[1:a]atrim=0:{FIN:.3f},afade=t=out:st={FIN - .6:.3f}:d=0.6,volume=-4dB[m]")
+# MUSIQUE=<fichier> et DEBUT_M=<secondes> choisissent un morceau (ex. Mixkit) et le passage ; défaut : la composition maison
+MUS = os.environ.get("MUSIQUE", os.path.join(ICI, "musique", "mixkit-clair.mp3")); DM = float(os.environ.get("DEBUT_M", "0"))
+entrees, chaines = ["-i", VIDEO, "-ss", f"{DM:.3f}", "-i", MUS], []
+chaines.append(f"[1:a]atrim=0:{FIN:.3f},afade=t=in:d=0.04,afade=t=out:st={FIN - 1.2:.3f}:d=1.2,volume={os.environ.get('MUSIQUE_DB', '-4')}dB[m]")
 for k, (t, f, g, *d) in enumerate(POSE):
     entrees += ["-i", os.path.join(SFX, f)]
     tr = f"atrim=0:{d[0]:.3f},afade=t=out:st={max(0, d[0] - .15):.3f}:d=0.15," if d else ""
