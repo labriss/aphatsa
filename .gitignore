@@ -51,3 +51,7 @@ node_modules/
 /dikteo/pubs/*/voix/*.onnx
 /dikteo/pubs/*/voix/*.log
 /dikteo/pubs/*/voix_essai*.mp3
+/dikteo/pubs/clair/*.html
+!/dikteo/pubs/clair/clair.src.html
+/dikteo/pubs/clair/musique/
+/dikteo/pubs/clair/*.log

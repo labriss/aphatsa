@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<style>
+/*FONTS*/
+/* Pub « claire » : accroche métier → promesse → démo de l'appli en 3 étapes → carton. 1080 × 1920, 96 BPM (temps = 0,625 s). */
+:root{
+  --fond:#0E1412; --fond2:#15201B; --texte:#E7EDEA; --doux:#9AAAA3; --trait:#2A3631;
+  --o1:#E8650F; --o2:#C9480A; --o3:#A8350A; --orange:#F2843A;
+  --papier:#F2F5F3; --feuille:#FFFFFF; --encre:#15201B; --encre2:#56645E; --bord:#D2DBD6; --vert:#1E7A4C;
+  --titre:'Archivo',sans-serif; --corps:'PublicSans',sans-serif; --mono:'JBMono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--fond)}
+body{font-family:var(--corps);color:var(--texte);position:relative}
+.abs{position:absolute}
+#lueur{inset:0;background:radial-gradient(900px 900px at 50% 62%,rgba(232,101,15,.20),transparent 70%)}
+.scene{inset:0;opacity:0}
+/* A — accroche */
+#heure{left:50%;top:330px;transform:translateX(-50%);font:600 44px var(--mono);color:var(--doux);display:flex;gap:18px;align-items:center;
+  border:2px solid var(--trait);border-radius:999px;padding:14px 34px}
+#heure i{display:block;width:16px;height:16px;border-radius:50%;background:#E5484D}
+#metier{left:40px;right:40px;top:600px;text-align:center;white-space:nowrap;font:900 168px/1 var(--titre);letter-spacing:-.03em;text-transform:uppercase}
+#question{left:90px;right:90px;top:840px;text-align:center;font:600 64px/1.2 var(--corps);color:var(--texte)}
+#question b{color:var(--orange)}
+/* B — promesse */
+.p{left:60px;right:60px;text-align:center}
+#p1{top:560px;font:600 62px var(--corps);color:var(--doux)}
+#p2{top:690px;font:900 150px/1 var(--titre);letter-spacing:-.03em}
+#p3{top:880px;font:900 118px/1.04 var(--titre);letter-spacing:-.03em;color:var(--orange)}
+#p3 u{text-decoration:none;background:linear-gradient(90deg,var(--o1),var(--o3)) no-repeat 0 92%/var(--sous,0%) 14px}
+/* étapes */
+#etape{left:70px;right:70px;top:190px;display:flex;gap:30px;align-items:center}
+#num{flex:none;width:118px;height:118px;border-radius:50%;background:linear-gradient(135deg,var(--o1),var(--o2) 55%,var(--o3));
+  color:#fff;font:900 70px/118px var(--titre);text-align:center}
+#etxt{min-width:0}
+#et1{font:900 74px/1.02 var(--titre);letter-spacing:-.02em}
+#et2{font:500 40px/1.2 var(--corps);color:var(--doux);margin-top:10px}
+/* téléphone */
+#tel{left:195px;top:430px;transform-origin:50% 0;width:690px;height:1330px;border-radius:96px;background:#06090A;padding:22px;
+  box-shadow:0 60px 140px rgba(0,0,0,.55),0 0 0 3px #2E3A35}
+#ecran{position:relative;width:100%;height:100%;border-radius:76px;overflow:hidden;background:var(--papier);color:var(--encre)}
+#encoche{left:50%;top:22px;width:190px;height:52px;border-radius:30px;background:#06090A;transform:translateX(-50%);z-index:5}
+#barre{left:0;right:0;top:0;height:200px;z-index:3;background:var(--papier);padding:96px 46px 0;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;box-shadow:0 12px 14px -10px rgba(21,32,27,.18)}
+#barre>div:first-child{min-width:0;flex:1}
+#barre .t{font:800 32px var(--titre);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#barre .c{font:500 26px var(--corps);color:var(--encre2);margin-top:6px}
+#barre .n{flex:none;white-space:nowrap;font:600 22px var(--mono);color:var(--encre2);border:2px solid var(--bord);border-radius:14px;padding:8px 14px;margin-top:4px}
+/* 1 — dictée */
+#dictee{left:36px;right:36px;top:220px}
+#bulle{background:var(--feuille);border:2px solid var(--bord);border-radius:34px;padding:30px 32px;min-height:420px;font:500 35px/1.42 var(--corps)}
+#bulle .lab{display:flex;align-items:center;gap:12px;font:700 22px var(--corps);letter-spacing:.08em;text-transform:uppercase;color:var(--o2);margin-bottom:16px}
+#bulle .lab i{width:14px;height:14px;border-radius:50%;background:#E5484D}
+#curseur{display:inline-block;width:4px;height:38px;background:var(--o2);vertical-align:-7px;margin-left:3px}
+#onde{left:0;right:0;top:760px;height:120px;display:flex;gap:9px;justify-content:center;align-items:center}
+#onde span{width:11px;border-radius:6px;background:var(--o2)}
+#chrono{left:0;right:0;top:900px;text-align:center;font:600 30px var(--mono);color:var(--encre2)}
+#micro{left:50%;top:960px;width:178px;height:178px;margin-left:-89px;border-radius:50%;
+  background:linear-gradient(135deg,var(--o1),var(--o2) 55%,var(--o3));display:grid;place-items:center;box-shadow:0 18px 40px rgba(201,72,10,.35)}
+.anneau{left:50%;top:1049px;width:178px;height:178px;margin:-89px 0 0 -89px;border-radius:50%;border:4px solid var(--o1)}
+/* 2 — devis */
+#devis{left:36px;right:36px;top:210px}
+#resume{font:500 25px/1.35 var(--corps);color:var(--encre2);background:var(--feuille);border:2px solid var(--bord);border-radius:22px;padding:16px 22px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ia{display:inline-flex;gap:10px;align-items:center;margin:22px 0 14px;font:700 24px var(--corps);color:var(--o2);letter-spacing:.06em;text-transform:uppercase}
+.ligne{display:flex;gap:18px;align-items:center;background:var(--feuille);border:2px solid var(--bord);border-radius:24px;padding:20px 24px;margin-bottom:14px}
+.ligne .g{flex:1;min-width:0}
+.ligne .d{font:700 27px/1.22 var(--corps);color:var(--encre)}
+.ligne .q{font:500 23px var(--mono);color:var(--encre2);margin-top:6px}
+.ligne .m{flex:none;font:600 30px var(--mono);color:var(--encre)}
+#totaux{margin-top:10px;padding:8px 6px 0}
+#totaux div{display:flex;justify-content:space-between;font:500 26px var(--corps);color:var(--encre2);padding:5px 0}
+#totaux div span:last-child{font-family:var(--mono)}
+#totaux .ttc{color:var(--encre);font:800 34px var(--titre);border-top:2px solid var(--bord);margin-top:8px;padding-top:16px}
+#totaux .ttc span:last-child{font:700 42px var(--mono);color:var(--o2)}
+/* 3 — envoi */
+#envoyer{left:36px;right:36px;top:950px;z-index:4;box-shadow:0 18px 40px rgba(201,72,10,.35);height:112px;border-radius:28px;background:linear-gradient(90deg,var(--o1),var(--o2) 55%,var(--o3));
+  color:#fff;font:800 38px/112px var(--titre);text-align:center}
+#doigt{width:110px;height:110px;border-radius:50%;background:rgba(21,32,27,.22);border:4px solid rgba(255,255,255,.9);left:440px;top:950px;z-index:6}
+#signe{inset:0;z-index:7;background:var(--papier);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:0 50px;text-align:center}
+#coche{width:220px;height:220px;border-radius:50%;background:var(--vert);display:grid;place-items:center}
+#signe h3{font:900 66px var(--titre);letter-spacing:-.02em;color:var(--encre)}
+#signe p{font:500 32px/1.35 var(--corps);color:var(--encre2)}
+#signe .mt{font:700 52px var(--mono);color:var(--vert)}
+#signe .bpa{margin-top:10px;border:2px dashed var(--bord);border-radius:20px;padding:18px 26px;font:italic 600 34px var(--corps);color:var(--encre)}
+/* F — carton */
+#marque{left:50%;top:420px;width:250px;height:250px;margin-left:-125px}
+#nom{left:0;right:0;top:700px;text-align:center;font:900 150px/1 var(--titre);letter-spacing:-.04em}
+#slogan{left:70px;right:70px;top:900px;text-align:center;font:700 64px/1.15 var(--titre)}
+#slogan b{color:var(--orange)}
+#trois{left:70px;right:70px;top:1100px;display:flex;justify-content:center;gap:22px;flex-wrap:wrap;font:600 38px var(--corps);color:var(--doux)}
+#trois span{border:2px solid var(--trait);border-radius:999px;padding:12px 26px}
+#cta{left:50%;top:1290px;transform:translateX(-50%);border-radius:999px;padding:30px 80px;background:linear-gradient(90deg,var(--o1),var(--o2) 55%,var(--o3));
+  color:#fff;font:900 76px var(--titre);letter-spacing:-.02em;white-space:nowrap}
+#offre{left:60px;right:60px;top:1470px;text-align:center;font:500 36px/1.35 var(--corps);color:var(--doux)}
+</style></head><body>
+<div id="lueur" class="abs"></div>
+
+<section id="A" class="scene abs">
+  <div id="heure" class="abs"><i></i><span id="hh">22:47</span></div>
+  <div id="metier" class="abs"></div>
+  <div id="question" class="abs">Tes devis, tu les tapes encore <b>le soir&nbsp;?</b></div>
+</section>
+
+<section id="B" class="scene abs">
+  <div id="p1" class="p abs">Avec Diktéo,</div>
+  <div id="p2" class="p abs">tu parles,</div>
+  <div id="p3" class="p abs">l'IA écrit<br>ton <u>devis.</u></div>
+</section>
+
+<section id="C" class="scene abs">
+  <div id="etape" class="abs"><div id="num">1</div><div id="etxt"><div id="et1"></div><div id="et2"></div></div></div>
+  <div id="tel" class="abs"><div id="ecran">
+    <div id="encoche" class="abs"></div>
+    <div id="barre" class="abs"><div><div class="t" id="titre"></div><div class="c" id="client"></div></div><div class="n" id="numero">D-0042</div></div>
+    <div id="dictee" class="abs">
+      <div id="bulle"><div class="lab"><i></i>Tu dictes</div><span id="texte"></span><span id="curseur"></span></div>
+    </div>
+    <div id="onde" class="abs"></div>
+    <div id="chrono" class="abs">00:00</div>
+    <div class="anneau abs" id="an1"></div><div class="anneau abs" id="an2"></div>
+    <div id="micro" class="abs"><svg width="74" height="74" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3" fill="#fff"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></div>
+    <div id="devis" class="abs">
+      <div id="resume"></div>
+      <div id="ia"><svg width="26" height="26" viewBox="0 0 24 24"><path d="M12 2l2.2 6.3L20.5 10l-6.3 2.2L12 18.5l-2.2-6.3L3.5 10l6.3-1.7z" fill="currentColor"/></svg>Rempli par l'IA</div>
+      <div id="lignes"></div>
+      <div id="totaux"><div><span>Total HT</span><span id="tht"></span></div><div><span id="ltva">TVA</span><span id="ttva"></span></div><div class="ttc"><span>Total TTC</span><span id="tttc"></span></div></div>
+    </div>
+    <div id="envoyer" class="abs">Envoyer le devis</div>
+    <div id="doigt" class="abs"></div>
+    <div id="signe" class="abs">
+      <div id="coche"><svg width="130" height="130" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path id="cpath" d="M5 12.5l4.5 4.5L19 7.5" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg></div>
+      <h3>Devis signé</h3>
+      <p id="sclient"></p>
+      <div class="mt" id="smt"></div>
+      <div class="bpa" id="sbpa"></div>
+    </div>
+  </div></div>
+</section>
+
+<section id="F" class="scene abs">
+  <svg id="marque" class="abs" viewBox="0 0 24 24"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8650F"/><stop offset=".55" stop-color="#C9480A"/><stop offset="1" stop-color="#A8350A"/></linearGradient></defs>
+    <path fill="url(#g)" fill-rule="evenodd" d="M6.5 2.5H12a9 9 0 0 1 0 18H9.2L4.5 23V4.5a2 2 0 0 1 2-2ZM9.2 9.5a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1Zm3.1-2.5a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1Zm3.1 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Z"/></svg>
+  <div id="nom" class="abs">Diktéo</div>
+  <div id="slogan" class="abs">Tes devis <b>dictés à la voix.</b></div>
+  <div id="trois" class="abs"><span>Tu parles</span><span>L'IA chiffre</span><span>Il signe</span></div>
+  <div id="cta" class="abs">diktéo.fr</div>
+  <div id="offre" class="abs">Gratuit pour commencer<br>Dictée IA dès 19 € HT/mois</div>
+</section>
+
+<script>
+const D = /*DONNEES*/null;
+const B = 60 / 96;                      // un temps
+const T_ = {A: 0, B: 4 * B, C: 8 * B, IA: 15 * B, ENV: 21 * B, F: 26 * B, FIN: 31 * B};
+window.VIDEO = {w: 1080, h: 1920, duration: T_.FIN};
+const $ = id => document.getElementById(id);
+const cl = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const p = (t, a, d) => cl((t - a) / d);
+const eo = x => 1 - Math.pow(1 - x, 3);
+const eb = x => { const c = 1.70158; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const eu = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const euro = c => (c / 100).toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2}).replace(/ | /g, ' ') + ' €';
+const nb = q => String(q).replace('.', ',');
+
+// données du métier
+$('metier').textContent = D.label + '\u00a0?';
+$('titre').textContent = D.title;
+$('client').textContent = D.client + ' · ' + D.city;
+$('resume').textContent = '« ' + D.spoken + ' »';
+$('sclient').textContent = D.client + ' a accepté ton devis';
+$('sbpa').textContent = 'Bon pour accord — ' + D.client;
+let ht = 0, tva = 0; const taux = new Set();
+$('lignes').innerHTML = D.lines.map(l => {
+  const m = Math.round(l.quantity * l.unitPriceHtCents); ht += m; tva += Math.round(m * l.vatRateBp / 10000); taux.add(l.vatRateBp / 100);
+  return `<div class="ligne"><div class="g"><div class="d">${l.designation}</div><div class="q">${nb(l.quantity)} ${l.unit} × ${euro(l.unitPriceHtCents)}</div></div><div class="m">${euro(m)}</div></div>`;
+}).join('');
+const ttc = ht + tva;
+$('ltva').textContent = 'TVA ' + [...taux].map(nb).join(' / ') + ' %';
+$('smt').textContent = euro(ttc);
+const lignes = [...document.querySelectorAll('.ligne')];
+const barres = []; for (let i = 0; i < 34; i++) { const s = document.createElement('span'); $('onde').appendChild(s); barres.push(s); }
+
+const ETAPES = [
+  ['Tu dictes ton devis', 'au téléphone, sur le chantier'],
+  ["L'IA écrit les lignes", 'quantités, prix, TVA et total'],
+  ["Tu l'envoies, il signe", 'par e-mail, SMS ou WhatsApp'],
+];
+const TAPE = [T_.C + 1.0, T_.IA - .55];           // frappe de la dictée
+const LIGNE = i => T_.IA + .5 * B + i * B;         // chaque ligne sur un temps
+const TOT = T_.IA + 4.5 * B;
+const TAP = T_.ENV + B, SIGNE = TAP + .5 * B;
+window.REPERES = {B, ...T_, TAPE, LIGNES: D.lines.map((_, i) => LIGNE(i)), TOT, TAP, SIGNE, MICRO: T_.C + .5 * B};
+
+function vis(el, o, y = 0, s = 1) { el.style.opacity = o; el.style.transform = (el.dataset.base || '') + ` translateY(${y}px) scale(${s})`; }
+
+function seek(t) {
+  { const m = $('metier'); m.style.fontSize = '168px'; const w = m.scrollWidth; if (w > 1000) m.style.fontSize = Math.floor(168 * 1000 / w) + 'px'; }
+  // A — accroche
+  const a = $('A'); a.style.opacity = t < T_.B ? 1 - p(t, T_.B - .2, .2) : 0;
+  const pm = eb(p(t, .05, .45)); $('metier').style.opacity = p(t, .05, .2); $('metier').style.transform = `scale(${.6 + .4 * pm})`;
+  vis($('question'), p(t, .55, .3), 40 * (1 - eo(p(t, .55, .4))));
+  vis($('heure'), p(t, 0, .25)); $('heure').style.transform = 'translateX(-50%)';
+  const mn = 47 + Math.floor(cl((t - .3) / 1.9) * 51); const h = 22 + Math.floor(mn / 60);
+  $('hh').textContent = String(h).padStart(2, '0') + ':' + String(mn % 60).padStart(2, '0');
+
+  // B — promesse
+  const b = $('B'); b.style.opacity = t >= T_.B && t < T_.C ? 1 - p(t, T_.C - .2, .2) : 0;
+  [['p1', T_.B], ['p2', T_.B + B], ['p3', T_.B + 2 * B]].forEach(([id, s]) => { const k = eb(p(t, s, .35)); vis($(id), p(t, s, .15), 50 * (1 - k), .85 + .15 * k); });
+  $('p3').style.setProperty('--sous', (100 * eo(p(t, T_.B + 3 * B, .4))) + '%');
+
+  // C — téléphone et étapes
+  const c = $('C'); c.style.opacity = t >= T_.C && t < T_.F ? 1 - p(t, T_.F - .25, .25) : 0;
+  const k = eo(p(t, T_.C, .55)); $('tel').style.transform = `translateY(${(1 - k) * 700}px) scale(${1.15 - .04 * p(t, T_.F - .4, .4)})`;
+  const ie = t < T_.IA ? 0 : t < T_.ENV ? 1 : 2; const se = [T_.C, T_.IA, T_.ENV][ie];
+  $('num').textContent = ie + 1; $('et1').textContent = ETAPES[ie][0]; $('et2').textContent = ETAPES[ie][1];
+  const ke = eb(p(t, se, .4)); $('etape').style.opacity = p(t, se, .15); $('etape').style.transform = `translateX(${(1 - ke) * -80}px)`;
+  $('num').style.transform = `scale(${.5 + .5 * eb(p(t, se, .35))})`;
+
+  // 1 — dictée
+  const enDictee = t < T_.IA;
+  ['dictee', 'onde', 'chrono', 'micro', 'an1', 'an2'].forEach(id => $(id).style.opacity = enDictee ? 1 - p(t, T_.IA - .2, .2) : 0);
+  const n = Math.round(D.spoken.length * eu(p(t, TAPE[0], TAPE[1] - TAPE[0])));
+  $('texte').textContent = n ? '« ' + D.spoken.slice(0, n) + (n === D.spoken.length ? ' »' : '') : '';
+  $('curseur').style.opacity = (Math.floor(t * 3) % 2 || (t > TAPE[0] && t < TAPE[1])) ? 1 : 0;
+  const parle = t > window.REPERES.MICRO && t < TAPE[1] + .2;
+  barres.forEach((s, i) => { const v = parle ? .25 + .75 * Math.abs(Math.sin(t * 9 + i * .7) * Math.sin(t * 3.3 + i * 1.9)) : .12; s.style.height = (14 + v * 100) + 'px'; s.style.opacity = parle ? 1 : .35; });
+  const sec = parle ? Math.floor((t - window.REPERES.MICRO) * 2.4) : 0; $('chrono').textContent = '00:' + String(sec).padStart(2, '0');
+  const tap = p(t, window.REPERES.MICRO - .1, .2); $('micro').style.transform = `scale(${1 - .1 * Math.sin(Math.PI * tap)})`;
+  [0, .6].forEach((o, j) => { const f = parle ? ((t - window.REPERES.MICRO + o) % 1.2) / 1.2 : 0; const r = $('an' + (j + 1)); r.style.transform = `scale(${1 + f * .9})`; r.style.opacity = enDictee && parle ? .5 * (1 - f) : 0; });
+
+  // 2 — devis rempli
+  const dv = $('devis'); dv.style.opacity = t >= T_.IA ? p(t, T_.IA, .25) : 0; dv.style.transform = `translateY(${-230 * eu(p(t, T_.ENV, .45))}px)`;
+  vis($('resume'), p(t, T_.IA, .3), -20 * (1 - eo(p(t, T_.IA, .3))));
+  $('ia').style.opacity = p(t, T_.IA + .25, .25);
+  lignes.forEach((el, i) => { const kk = eb(p(t, LIGNE(i), .35)); vis(el, p(t, LIGNE(i), .12), 70 * (1 - kk), .9 + .1 * kk); });
+  const kt = eo(p(t, TOT, .7)); $('totaux').style.opacity = p(t, TOT, .15);
+  $('tht').textContent = euro(Math.round(ht * kt)); $('ttva').textContent = euro(Math.round(tva * kt)); $('tttc').textContent = euro(Math.round(ttc * kt));
+
+  // 3 — envoi et signature
+  const ke2 = eb(p(t, T_.ENV, .35)); $('envoyer').style.opacity = p(t, T_.ENV, .15); $('envoyer').style.transform = `translateY(${(1 - ke2) * 160}px) scale(${1 - .05 * Math.sin(Math.PI * p(t, TAP - .08, .2))})`;
+  const kd = p(t, T_.ENV + .25, TAP - T_.ENV - .25); $('doigt').style.opacity = t > T_.ENV + .25 && t < TAP + .3 ? Math.min(p(t, T_.ENV + .25, .15), 1 - p(t, TAP + .1, .2)) : 0;
+  $('doigt').style.transform = `translate(${(1 - eo(kd)) * 120}px,${(1 - eo(kd)) * 160}px) scale(${1 - .2 * Math.sin(Math.PI * p(t, TAP - .08, .2))})`;
+  const ks = eo(p(t, SIGNE, .35)); $('signe').style.opacity = t >= SIGNE ? ks : 0; $('signe').style.transform = `translateY(${(1 - ks) * 80}px)`;
+  $('coche').style.transform = `scale(${eb(p(t, SIGNE + .1, .4))})`; $('cpath').style.strokeDashoffset = 1 - eo(p(t, SIGNE + .3, .35));
+  ['sclient', 'smt', 'sbpa'].forEach((id, i) => vis($(id), p(t, SIGNE + .45 + i * .2, .25), 20 * (1 - eo(p(t, SIGNE + .45 + i * .2, .3)))));
+
+  // F — carton
+  const f = $('F'); f.style.opacity = t >= T_.F ? p(t, T_.F, .2) : 0;
+  const km = eb(p(t, T_.F, .5)); $('marque').style.transform = `scale(${.4 + .6 * km}) rotate(${(1 - km) * -12}deg)`; $('marque').style.opacity = p(t, T_.F, .2);
+  [['nom', .2], ['slogan', .45], ['trois', .75], ['offre', 1.3]].forEach(([id, d]) => { const kk = eo(p(t, T_.F + d, .4)); vis($(id), p(t, T_.F + d, .2), 40 * (1 - kk)); });
+  const kc = eb(p(t, T_.F + 1.0, .45)); $('cta').style.opacity = p(t, T_.F + 1.0, .15); $('cta').style.transform = `translateX(-50%) scale(${.6 + .4 * kc + .03 * Math.sin(Math.max(0, t - T_.F - 1.6) * 6)})`;
+  $('lueur').style.opacity = .7 + .3 * Math.sin(t * .8);
+}
+window.seek = seek;
+seek(new URLSearchParams(location.search).has('t') ? +new URLSearchParams(location.search).get('t') : 0);
+</script>
+</body></html>

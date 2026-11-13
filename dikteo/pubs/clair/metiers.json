@@ -1,0 +1,548 @@
+[
+ {
+  "id": "plombier",
+  "label": "Plombier",
+  "plural": "plombiers",
+  "client": "Mme Fontaine",
+  "city": "Villeurbanne",
+  "title": "Remplacement du chauffe-eau",
+  "spoken": "Chauffe-eau électrique 200 litres, 520 euros. Groupe de sécurité et raccords laiton, 48 euros. Dépose de l'ancien ballon, 60 euros. Main-d'œuvre, 3 heures à 55 euros.",
+  "lines": [
+   {
+    "designation": "Chauffe-eau électrique 200 L vertical",
+    "quantity": 1,
+    "unit": "u",
+    "unitPriceHtCents": 52000,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Groupe de sécurité et raccords laiton",
+    "quantity": 1,
+    "unit": "u",
+    "unitPriceHtCents": 4800,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Dépose et évacuation de l'ancien ballon",
+    "quantity": 1,
+    "unit": "forfait",
+    "unitPriceHtCents": 6000,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Main-d'œuvre",
+    "quantity": 3,
+    "unit": "h",
+    "unitPriceHtCents": 5500,
+    "vatRateBp": 1000
+   }
+  ]
+ },
+ {
+  "id": "electricien",
+  "label": "Électricien",
+  "plural": "électriciens",
+  "client": "M. Lebrun",
+  "city": "Caluire",
+  "title": "Mise aux normes du tableau",
+  "spoken": "Tableau électrique 3 rangées pré-équipé, 340 euros. 2 disjoncteurs différentiels 30 milliampères à 68 euros. 6 prises 16 ampères à 14 euros 50. Main-d'œuvre, 5 heures à 52 euros.",
+  "lines": [
+   {
+    "designation": "Tableau électrique 3 rangées pré-équipé",
+    "quantity": 1,
+    "unit": "u",
+    "unitPriceHtCents": 34000,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Interrupteur différentiel 30 mA type A",
+    "quantity": 2,
+    "unit": "u",
+    "unitPriceHtCents": 6800,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Prise de courant 16 A encastrée",
+    "quantity": 6,
+    "unit": "u",
+    "unitPriceHtCents": 1450,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Main-d'œuvre",
+    "quantity": 5,
+    "unit": "h",
+    "unitPriceHtCents": 5200,
+    "vatRateBp": 1000
+   }
+  ]
+ },
+ {
+  "id": "chauffagiste",
+  "label": "Chauffagiste",
+  "plural": "chauffagistes",
+  "client": "Mme Garnier",
+  "city": "Bron",
+  "title": "Désembouage et entretien",
+  "spoken": "Désembouage du circuit de chauffage, 390 euros. 4 robinets thermostatiques à 45 euros. Entretien de la chaudière gaz, 120 euros. Main-d'œuvre, 2 heures à 58 euros.",
+  "lines": [
+   {
+    "designation": "Désembouage du circuit de chauffage",
+    "quantity": 1,
+    "unit": "forfait",
+    "unitPriceHtCents": 39000,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Robinet thermostatique",
+    "quantity": 4,
+    "unit": "u",
+    "unitPriceHtCents": 4500,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Entretien chaudière gaz",
+    "quantity": 1,
+    "unit": "u",
+    "unitPriceHtCents": 12000,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Main-d'œuvre",
+    "quantity": 2,
+    "unit": "h",
+    "unitPriceHtCents": 5800,
+    "vatRateBp": 1000
+   }
+  ]
+ },
+ {
+  "id": "carreleur",
+  "label": "Carreleur",
+  "plural": "carreleurs",
+  "client": "M. Petit",
+  "city": "Écully",
+  "title": "Carrelage salle de bain",
+  "spoken": "Faïence murale, 12 mètres carrés à 38 euros. Carrelage de sol, 6 mètres carrés à 45 euros. Colle et joints, 95 euros. Pose, 18 mètres carrés à 42 euros.",
+  "lines": [
+   {
+    "designation": "Faïence murale 30 × 60",
+    "quantity": 12,
+    "unit": "m2",
+    "unitPriceHtCents": 3800,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Carrelage de sol grès cérame",
+    "quantity": 6,
+    "unit": "m2",
+    "unitPriceHtCents": 4500,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Colle et joints",
+    "quantity": 1,
+    "unit": "forfait",
+    "unitPriceHtCents": 9500,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Pose",
+    "quantity": 18,
+    "unit": "m2",
+    "unitPriceHtCents": 4200,
+    "vatRateBp": 1000
+   }
+  ]
+ },
+ {
+  "id": "peintre",
+  "label": "Peintre",
+  "plural": "peintres",
+  "client": "Mme Laurent",
+  "city": "Lyon 6e",
+  "title": "Peinture du séjour",
+  "spoken": "Préparation des murs, enduit et ponçage, 42 mètres carrés à 12 euros. Peinture acrylique 2 couches, 42 mètres carrés à 18 euros. Plafond, 20 mètres carrés à 22 euros. Protection et nettoyage, 80 euros.",
+  "lines": [
+   {
+    "designation": "Préparation des murs (enduit, ponçage)",
+    "quantity": 42,
+    "unit": "m2",
+    "unitPriceHtCents": 1200,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Peinture acrylique 2 couches",
+    "quantity": 42,
+    "unit": "m2",
+    "unitPriceHtCents": 1800,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Peinture du plafond",
+    "quantity": 20,
+    "unit": "m2",
+    "unitPriceHtCents": 2200,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Protection et nettoyage",
+    "quantity": 1,
+    "unit": "forfait",
+    "unitPriceHtCents": 8000,
+    "vatRateBp": 1000
+   }
+  ]
+ },
+ {
+  "id": "menuisier",
+  "label": "Menuisier",
+  "plural": "menuisiers",
+  "client": "M. Fabre",
+  "city": "Oullins",
+  "title": "Porte d'entrée",
+  "spoken": "Porte d'entrée aluminium, 1450 euros. Dépose de l'ancienne porte, 150 euros. Seuil et quincaillerie, 85 euros. Main-d'œuvre, 4 heures à 50 euros.",
+  "lines": [
+   {
+    "designation": "Porte d'entrée aluminium isolante",
+    "quantity": 1,
+    "unit": "u",
+    "unitPriceHtCents": 145000,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Dépose de l'ancienne porte",
+    "quantity": 1,
+    "unit": "forfait",
+    "unitPriceHtCents": 15000,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Seuil et quincaillerie",
+    "quantity": 1,
+    "unit": "u",
+    "unitPriceHtCents": 8500,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Main-d'œuvre",
+    "quantity": 4,
+    "unit": "h",
+    "unitPriceHtCents": 5000,
+    "vatRateBp": 1000
+   }
+  ]
+ },
+ {
+  "id": "macon",
+  "label": "Maçon",
+  "plural": "maçons",
+  "client": "M. Robin",
+  "city": "Vénissieux",
+  "title": "Ouverture d'un mur porteur",
+  "spoken": "Démolition et étaiement, 900 euros. Poutre IPN posée, 680 euros. Évacuation des gravats, 220 euros. Main-d'œuvre, 8 heures à 48 euros.",
+  "lines": [
+   {
+    "designation": "Démolition et étaiement",
+    "quantity": 1,
+    "unit": "forfait",
+    "unitPriceHtCents": 90000,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Poutre IPN fournie et posée",
+    "quantity": 1,
+    "unit": "u",
+    "unitPriceHtCents": 68000,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Évacuation des gravats",
+    "quantity": 1,
+    "unit": "forfait",
+    "unitPriceHtCents": 22000,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Main-d'œuvre",
+    "quantity": 8,
+    "unit": "h",
+    "unitPriceHtCents": 4800,
+    "vatRateBp": 1000
+   }
+  ]
+ },
+ {
+  "id": "couvreur",
+  "label": "Couvreur",
+  "plural": "couvreurs",
+  "client": "Mme Perrin",
+  "city": "Tassin",
+  "title": "Réfection de toiture",
+  "spoken": "Tuiles mécaniques, 40 mètres carrés à 35 euros. Écran sous-toiture, 40 mètres carrés à 12 euros. Gouttière zinc, 12 mètres à 38 euros. Échafaudage, 450 euros.",
+  "lines": [
+   {
+    "designation": "Tuiles mécaniques posées",
+    "quantity": 40,
+    "unit": "m2",
+    "unitPriceHtCents": 3500,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Écran sous-toiture",
+    "quantity": 40,
+    "unit": "m2",
+    "unitPriceHtCents": 1200,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Gouttière zinc",
+    "quantity": 12,
+    "unit": "ml",
+    "unitPriceHtCents": 3800,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Échafaudage",
+    "quantity": 1,
+    "unit": "forfait",
+    "unitPriceHtCents": 45000,
+    "vatRateBp": 1000
+   }
+  ]
+ },
+ {
+  "id": "serrurier",
+  "label": "Serrurier",
+  "plural": "serruriers",
+  "client": "M. Mercier",
+  "city": "Lyon 3e",
+  "title": "Remplacement de la serrure",
+  "spoken": "Serrure 3 points certifiée A2P, 290 euros. Cylindre haute sécurité, 120 euros. Déplacement, 45 euros. Main-d'œuvre, 1 heure et demie à 60 euros.",
+  "lines": [
+   {
+    "designation": "Serrure 3 points A2P",
+    "quantity": 1,
+    "unit": "u",
+    "unitPriceHtCents": 29000,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Cylindre haute sécurité",
+    "quantity": 1,
+    "unit": "u",
+    "unitPriceHtCents": 12000,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Déplacement",
+    "quantity": 1,
+    "unit": "forfait",
+    "unitPriceHtCents": 4500,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Main-d'œuvre",
+    "quantity": 1.5,
+    "unit": "h",
+    "unitPriceHtCents": 6000,
+    "vatRateBp": 1000
+   }
+  ]
+ },
+ {
+  "id": "plaquiste",
+  "label": "Plaquiste",
+  "plural": "plaquistes",
+  "client": "M. Garcia",
+  "city": "Villeurbanne",
+  "title": "Cloison et faux plafond",
+  "spoken": "Cloison en plaques de plâtre sur ossature, 14 mètres carrés à 42 euros. Faux plafond, 12 mètres carrés à 48 euros. Isolant laine de verre, 14 mètres carrés à 12 euros. Bandes et enduit, 180 euros.",
+  "lines": [
+   {
+    "designation": "Cloison plaques de plâtre sur ossature métallique",
+    "quantity": 14,
+    "unit": "m2",
+    "unitPriceHtCents": 4200,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Faux plafond plaques de plâtre",
+    "quantity": 12,
+    "unit": "m2",
+    "unitPriceHtCents": 4800,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Isolant laine de verre 100 mm",
+    "quantity": 14,
+    "unit": "m2",
+    "unitPriceHtCents": 1200,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Bandes, enduit et ponçage",
+    "quantity": 1,
+    "unit": "forfait",
+    "unitPriceHtCents": 18000,
+    "vatRateBp": 1000
+   }
+  ]
+ },
+ {
+  "id": "climaticien",
+  "label": "Climaticien",
+  "plural": "climaticiens",
+  "client": "Mme Lefèvre",
+  "city": "Bron",
+  "title": "Climatisation du séjour",
+  "spoken": "Climatiseur réversible mural 3,5 kilowatts, 1 290 euros. Liaison frigorifique, 6 mètres à 35 euros. Support mural de l'unité extérieure, 85 euros. Mise en service, 190 euros.",
+  "lines": [
+   {
+    "designation": "Climatiseur réversible mural 3,5 kW",
+    "quantity": 1,
+    "unit": "u",
+    "unitPriceHtCents": 129000,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Liaison frigorifique isolée",
+    "quantity": 6,
+    "unit": "ml",
+    "unitPriceHtCents": 3500,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Support mural de l'unité extérieure",
+    "quantity": 1,
+    "unit": "u",
+    "unitPriceHtCents": 8500,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Mise en service et contrôle d'étanchéité",
+    "quantity": 1,
+    "unit": "forfait",
+    "unitPriceHtCents": 19000,
+    "vatRateBp": 1000
+   }
+  ]
+ },
+ {
+  "id": "charpentier",
+  "label": "Charpentier",
+  "plural": "charpentiers",
+  "client": "M. Bonnet",
+  "city": "Tassin",
+  "title": "Chevrons et traitement",
+  "spoken": "Remplacement de 6 chevrons en sapin, 68 euros pièce. Traitement insecticide et fongicide, 40 mètres carrés à 14 euros. Panne en chêne, 4 mètres à 95 euros. Main-d'œuvre, 16 heures à 52 euros.",
+  "lines": [
+   {
+    "designation": "Chevron sapin traité 63 × 75 posé",
+    "quantity": 6,
+    "unit": "u",
+    "unitPriceHtCents": 6800,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Traitement insecticide et fongicide",
+    "quantity": 40,
+    "unit": "m2",
+    "unitPriceHtCents": 1400,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Panne en chêne",
+    "quantity": 4,
+    "unit": "ml",
+    "unitPriceHtCents": 9500,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Main-d'œuvre",
+    "quantity": 16,
+    "unit": "h",
+    "unitPriceHtCents": 5200,
+    "vatRateBp": 1000
+   }
+  ]
+ },
+ {
+  "id": "paysagiste",
+  "label": "Paysagiste",
+  "plural": "paysagistes",
+  "client": "Mme Robin",
+  "city": "Écully",
+  "title": "Aménagement du jardin",
+  "spoken": "Gazon en rouleaux, 60 mètres carrés à 9 euros. 12 arbustes à 28 euros. Bordure acier, 18 mètres à 22 euros. Évacuation des déchets verts, 120 euros.",
+  "lines": [
+   {
+    "designation": "Gazon en rouleaux posé",
+    "quantity": 60,
+    "unit": "m2",
+    "unitPriceHtCents": 900,
+    "vatRateBp": 2000
+   },
+   {
+    "designation": "Arbuste en conteneur planté",
+    "quantity": 12,
+    "unit": "u",
+    "unitPriceHtCents": 2800,
+    "vatRateBp": 2000
+   },
+   {
+    "designation": "Bordure acier",
+    "quantity": 18,
+    "unit": "ml",
+    "unitPriceHtCents": 2200,
+    "vatRateBp": 2000
+   },
+   {
+    "designation": "Évacuation des déchets verts",
+    "quantity": 1,
+    "unit": "forfait",
+    "unitPriceHtCents": 12000,
+    "vatRateBp": 2000
+   }
+  ]
+ },
+ {
+  "id": "multiservice",
+  "label": "Multiservice",
+  "plural": "artisans multiservice",
+  "client": "Mme Chevalier",
+  "city": "Villeurbanne",
+  "title": "Petits travaux",
+  "spoken": "Pose de 3 étagères à 25 euros. Remplacement de 2 interrupteurs à 18 euros. Joints silicone de la baignoire, 35 euros. Main-d'œuvre, 2 heures à 45 euros.",
+  "lines": [
+   {
+    "designation": "Pose d'étagère murale",
+    "quantity": 3,
+    "unit": "u",
+    "unitPriceHtCents": 2500,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Remplacement d'interrupteur",
+    "quantity": 2,
+    "unit": "u",
+    "unitPriceHtCents": 1800,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Joints silicone de la baignoire",
+    "quantity": 1,
+    "unit": "forfait",
+    "unitPriceHtCents": 3500,
+    "vatRateBp": 1000
+   },
+   {
+    "designation": "Main-d'œuvre",
+    "quantity": 2,
+    "unit": "h",
+    "unitPriceHtCents": 4500,
+    "vatRateBp": 1000
+   }
+  ]
+ }
+]

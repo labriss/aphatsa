@@ -37,6 +37,7 @@ CONF = {
     "pub20": ("2001", 95.7, .0232 + 8 * 60 / 95.7, 1, 24, 19.5, 62, 16),   # plaquiste, sur pub16
     "pub21": ("2101", 129.2, .0464 + 8 * 60 / 129.2, 1, 31, 24.4, 69, 14),  # climaticien, sur pub14
     "pub22": ("2201", 80.75, .6037 + 8 * 60 / 80.75, 2, 41, 33, 60, 15),   # charpentier, sur pub15
+    "clair": ("clair", 96.0, 0.0, 1, 31, 26, 65, 4),   # pubs claires (clair/), 96 BPM, carton au temps 26
     "pub23": ("2301", 85.0, .399 + 32 * 60 / 85, 1, 28, 22.6, 65, 12),     # paysagiste, sur pub12
 }
 
