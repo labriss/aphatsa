@@ -1,4 +1,4 @@
-"""Son de la pub 15, le toit (couvreurs) (méthode du skill sound-effects) : vraie musique calée sur la grille, vrais bruitages sur chaque contact.
+"""Son de la pub 22, la charpente (charpentiers) (méthode du skill sound-effects) : vraie musique calée sur la grille, vrais bruitages sur chaque contact.
 python son.py <video_muette.mp4> <sortie.mp4>"""
 import json
 import os
@@ -15,12 +15,12 @@ VIDEO, SORTIE = sys.argv[1], sys.argv[2]
 SR = 48000
 B = 60 / 161.5
 D = 41 * B
-# Morceau choisi par variables d'environnement (défaut : « Smile », Mixkit #1076, choisie par l'utilisateur le 10 nov. 2026) : numéro, tempo mesuré, phase, temps sautés.
-PISTE = os.environ.get("PISTE", "5")
+# Morceau choisi par variables d'environnement (défaut : Mixkit #2201, pub22/musique/mixkit-2201.mp3) : numéro, tempo mesuré, phase, temps sautés.
+PISTE = os.environ.get("PISTE", "2201")
 BPM_P = float(os.environ.get("BPM_P", "80.75"))
 PHASE_P = float(os.environ.get("PHASE_P", "0.6037"))
 SAUT_P = int(os.environ.get("SAUT_P", "8"))
-TITRE_P = os.environ.get("TITRE_P", "« Feeling Happy » (Mixkit)")
+TITRE_P = os.environ.get("TITRE_P", "piste Mixkit #2201")
 DEBUT_MUSIQUE = PHASE_P + SAUT_P * 60 / BPM_P  # étiré de 121/BPM_P pour tomber sur la grille de la pub
 
 MAN = json.load(open(os.path.join(SKILL, "manifest.json"), encoding="utf-8"))
@@ -57,29 +57,29 @@ musique[: len(m)] = m
 
 deux = 2 / 60
 SOBRE = False
-# Pub 8 : chaque galère tombe avec un coup sourd, « LES DEVIS » s'écrase lourdement, la voix balaie la pile,
-# le vrai écran se remplit, l'envoi, le carton.
-sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 0.3, -9, "« COUVREUR ? »")
-sfx("whoosh/fs-169867-swoosh.ogg", 5.4, -13, "la pluie, le toit", 2 / 60)
+# Pub 22 : la charpente fatiguée craque, chaque phrase dictée répare (chevrons neufs, traitement, panne en chêne),
+# tout se remet d'aplomb, le total, l'envoi, le carton.
+sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 0.3, -9, "« CHARPENTIER ? »")
+sfx("whoosh/fs-169867-swoosh.ogg", 5.4, -13, "la charpente fatiguée, la sciure", 2 / 60)
 for bt in (6.5, 10.5, 14.5, 18.5):
     sfx("kit/click.ogg", bt, -11, "une phrase dictée")
-for i in range(8):
-    sfx("pop/fs-447910-plop.ogg", 7.0 + i * .22, -15, "une tuile se pose")
-sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 11.0, -7, "la gouttière se pose")
-sfx("whoosh/fs-683101-quick-woosh.ogg", 14.8, -12, "l'écran se déroule", 2 / 60)
-sfx("ding/kenney-interface-confirmation-001.ogg", 18.9, -10, "la journée")
-sfx("riser/fs-685256-riser-sound-effect-short-wav.ogg", 22.3, -13, "la pluie s'arrête")
+for i in range(6):
+    sfx("pop/fs-447910-plop.ogg", 7.0 + i * .22, -15, "un chevron neuf se pose")
+sfx("whoosh/fs-683101-quick-woosh.ogg", 11.0, -12, "le traitement balaie le bois", 2 / 60)
+sfx("impact/kenney-impact-impactsoft-heavy-000.ogg", 14.8, -7, "la panne en chêne se pose")
+sfx("ding/kenney-interface-confirmation-001.ogg", 18.9, -10, "les 16 heures")
+sfx("riser/fs-685256-riser-sound-effect-short-wav.ogg", 22.3, -13, "la charpente se remet d'aplomb")
 sfx("impact/fs-177242-cinematic-impact.ogg", 22.9, -7, "le total")
 sfx("whoosh/fs-169867-swoosh.ogg", 27.5, -7, "le devis part", 2 / 60)
 sfx("ding/fs-571513-soft-notifications-bell-ding-d.ogg", 28.5, -8, "envoyé")
 sfx("ding/kenney-interface-confirmation-002.ogg", 33, -11, "le carton Diktéo")
 
-# la musique un peu plus basse pendant la pile, pour laisser la place aux chocs
+# enveloppe de la musique (neutre)
 tb = np.arange(N) / SR / B
 env = np.where(tb < 0, 1.0, 1.0).astype(np.float32)
 env = uniform_filter1d(env, int(.2 * SR), mode="constant").astype(np.float32)
 # ——— la voix : l'artisan dicte ses lignes (son/voix : dicter.py → noter.py → prises/choix.json) ; absente sans choix.json ———
-# une phrase par bandeau « TU DICTES » (temps de musique) ; FIN : la pluie s'arrête, la dernière phrase doit être dite avant
+# une phrase par bandeau « TU DICTES » (temps de musique) ; FIN : tout se remet d'aplomb, la dernière phrase doit être dite avant
 DEBUTS, FIN = [6.5, 10.5, 14.5, 18.5], 22.5
 sys.path.insert(0, os.path.join(ICI, "..", "son", "voix"))
 from poser import poser_voix  # noqa: E402
@@ -98,7 +98,7 @@ with open(os.path.join(ICI, "son", "CREDITS.txt"), "w", encoding="utf-8") as f:
     for cr in sorted({j[3] for j in journal}):
         f.write(f"- {cr}\n")
 with open(os.path.join(ICI, "son", "SOUND.md"), "w", encoding="utf-8") as f:
-    f.write(f"# Son de la pub 15 (le toit)\n\nUsage : TikTok, Reels, Shorts, pubs en ligne. Musique : Mixkit #{PISTE}, Mixkit Stock Music Free License.\n\n")
+    f.write(f"# Son de la pub 22 (la charpente)\n\nUsage : TikTok, Reels, Shorts, pubs en ligne. Musique : Mixkit #{PISTE}, Mixkit Stock Music Free License.\n\n")
     f.write("| t (s) | moment | son | licence |\n|---|---|---|---|\n")
     for t, desc, fi, cr, li in sorted(journal):
         f.write(f"| {t:.3f} | {desc} | {fi} | {li} |\n")

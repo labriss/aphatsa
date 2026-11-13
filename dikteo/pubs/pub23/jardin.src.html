@@ -200,7 +200,7 @@ const PHRASES=[
 const B_GAZ=3.6, B_PLANT=6.6, B_BORD=10.6, B_PAIL=12.7, B_PLIE=14.6, B_BACHE=15.6, B_LUM=17.1, B_CADRE=17.7, B_PLANTE=18.2, B_TOT=18.6, B_GLINT=19.2, B_ENV=20.6, B_FIN=22.6;
 const DC_GAZ=.5, DC_PLANT=.5, DC_BORD=.33, DC_PAIL=.2;
 // les étiquettes de prix : une par ligne, quand le geste est fini (coordonnées de l'écran)
-const ETIQ=[['Gazon 60 m²','540 €',540,600,B_GAZ+4*DC_GAZ-.3],['12 arbustes','336 €',540,800,B_PLANT+6*DC_PLANT-.3],['Bordure acier 18 m','396 €',540,1000,B_BORD+6*DC_BORD],['Déchets verts','120 €',540,1200,B_BACHE+.7]];
+const ETIQ=[['Gazon 60 m²','540 €',540,600,B_GAZ+4*DC_GAZ-.3],['12 arbustes','336 €',540,800,B_PLANT+6*DC_PLANT-.3],['Bordure acier 18 m','396 €',540,1000,B_BORD+6*DC_BORD],['Déchets verts','120 €',540,1200,B_PLIE+.6]];
 
 // ——— le décor final : bornes lumineuses, olivier en pot, lavande ———
 const BORNES=[[228,485],[725,1222]];
@@ -212,7 +212,8 @@ function pot(x,y,r,col){lueur('rgba(0,0,0,.6)',30);g.shadowOffsetX=10;g.shadowOf
   g.fillStyle='#2b1a0f';g.beginPath();g.arc(x,y,r*.82,0,7);g.fill();}
 function olivier(b){if(b<B_CADRE)return;const k=spring((b-B_CADRE)*B,12,.5),s=lerp(1.8,1,clamp(k,0,1.15)),x=880,y=1760;
   g.save();g.globalAlpha=clamp((b-B_CADRE)*4);g.translate(x,y);g.scale(s,s);g.translate(-x,-y);pot(x,y,95);
-  for(let j=0;j<420;j++){const a=rnd(j*1.7)*6.28,d=Math.sqrt(rnd(j*3.1))*150;feuille(g,x+Math.cos(a)*d-10,y+Math.sin(a)*d-14,9,a+1.2,j%3?'#5f7458':'#8f9f84');}
+  g.save();g.globalAlpha*=.5;g.filter='blur(12px)';g.fillStyle='#000';g.beginPath();g.arc(x+18,y+24,140,0,7);g.fill();g.restore();
+  for(let k=0;k<3;k++)for(let j=0;j<380;j++){const a=rnd(j*1.7+k*50)*6.28,d=Math.sqrt(rnd(j*3.1+k*70))*(145-k*35);feuille(g,x+Math.cos(a)*d-k*10,y+Math.sin(a)*d-k*12,8+rnd(j*7)*5,rnd(j*9.3+k)*6.28,['#3f5238','#61755a','#93a387'][k]);}
   g.restore();}
 function lavande(b){if(b<B_PLANTE)return;const k=spring((b-B_PLANTE)*B,13,.55),x=170,y=1720;g.save();g.translate(x,y);g.scale(clamp(k,0,1.1),clamp(k,0,1.1));g.translate(-x,-y);pot(x,y,70);
   for(let j=0;j<60;j++){const a=rnd(j*2.3)*6.28,d=20+rnd(j*4.1)*55;g.strokeStyle='#5b6a50';g.lineWidth=3;g.beginPath();g.moveTo(x,y);g.lineTo(x+Math.cos(a)*d,y+Math.sin(a)*d);g.stroke();g.fillStyle=j%2?'#7d6a9a':'#9a86b5';g.beginPath();g.ellipse(x+Math.cos(a)*d,y+Math.sin(a)*d,7,4,a,0,7);g.fill();}
@@ -291,7 +292,7 @@ function scene(b,t){
   const gv=g.createRadialGradient(lerp(420,540,fini),lerp(700,900,fini),120,540,900,1450*fl);gv.addColorStop(0,'rgba(0,0,0,0)');gv.addColorStop(.55,`rgba(0,0,0,${lerp(.3,.18,fini)})`);gv.addColorStop(1,`rgba(0,0,0,${lerp(.82,.7,fini)})`);g.fillStyle=gv;g.fillRect(0,0,W,H);
   g.save();g.globalCompositeOperation='multiply';g.fillStyle=`rgba(${lerp(185,255,fini)|0},${lerp(190,235,fini)|0},${lerp(200,215,fini)|0},1)`;g.fillRect(0,0,W,H);g.restore();
   // les étiquettes de prix, à l'écran
-  FADE=1-seg(b,B_LUM-.6,B_LUM);ETIQ.forEach(([n,p,x,y,b0])=>etiquette(n,p,x,y,b0,b));
+  FADE=1-seg(b,B_LUM+.1,B_LUM+.6);ETIQ.forEach(([n,p,x,y,b0])=>etiquette(n,p,x,y,b0,b));
 }
 
 // ——— un seul élément du début à la fin : le rond orange du micro ———
