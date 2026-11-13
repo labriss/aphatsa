@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Diktéo · la cloison</title>
+<style>
+/*FONTS*/
+html,body{margin:0;background:#050505;overflow:hidden}
+#c{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0}
+#ui{position:absolute;left:0;bottom:0;width:100%;padding:10px;background:#111;color:#ccc;font:14px sans-serif;display:flex;gap:10px;align-items:center;box-sizing:border-box}
+#ui input{flex:1}
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<div id="ui"><button id="lecture">Lecture</button><input id="curseurUI" type="range" min="0" max="1000" value="0"><span id="temps">0.00</span></div>
+<script>
+/* Pub 20 « la cloison » : pour les plaquistes. L'accroche est écrite au crayon sur une chute de placo ; la caméra recule :
+   une pièce brute. Chaque phrase dictée construit pour de vrai : l'ossature et les plaques de la cloison, le faux plafond
+   qui glisse, la laine de verre qui se déroule au-dessus, les bandes et l'enduit, puis la lumière.
+   95,7 BPM (1 temps = 0,627 s), 24 temps (15 s).   b3.6…10.8 les quatre lignes   b13.4 le total   b16.4 envoi   b19.5 carton */
+const W=1080,H=1920,BPM=95.7,B=60/BPM,NB=24,DN=NB*B;
+const cv=document.getElementById('c'),g=cv.getContext('2d');
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const lerp=(a,b,k)=>a+(b-a)*k;
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const ease=x=>(x=clamp(x),x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2);
+const easeOut=x=>1-Math.pow(1-clamp(x),3);
+function spring(t,w=14,z=.62){if(t<=0)return 0;const wd=w*Math.sqrt(1-z*z);return 1-Math.exp(-z*w*t)*(Math.cos(wd*t)+(z*w/wd)*Math.sin(wd*t));}
+const rnd=n=>{n=Math.sin(n*127.1+311.7)*43758.5453;return n-Math.floor(n);};
+const O1='#E8650F',O2='#C9480A',O3='#A8350A',ORANGE='#ff8a3d';
+function rr(x,y,w,h,r){g.beginPath();g.roundRect(x,y,w,h,r);}
+function texte(t,x,y,size,col,poids=700,font='Archivo',align='center'){g.font=`${poids} ${size}px ${font}`;g.fillStyle=col;g.textAlign=align;g.textBaseline='middle';g.fillText(t,x,y);}
+function lueur(col,flou){g.shadowColor=col;g.shadowBlur=flou;}
+// motion design : arrivées sur une longue traîne, textes qui arrivent mot à mot du flou au net, puis immobiles
+const expoOut=x=>(x=clamp(x),x>=1?1:1-Math.pow(2,-10*x));
+function motsFlou(str,x,y,size,col,poids,font,align,b,b0,ec=.12,du=.35,lettres=false){g.font=`${poids} ${size}px ${font}`;g.textBaseline='middle';g.textAlign='left';
+  const ws=lettres?[...str]:str.split(' '),sp=lettres?0:g.measureText(' ').width,wd=ws.map(w=>g.measureText(w).width),tot=wd.reduce((a,c)=>a+c,0)+sp*(ws.length-1);
+  let px=align==='center'?x-tot/2:align==='right'?x-tot:x;g.fillStyle=col;
+  ws.forEach((w,i)=>{const k=expoOut(seg(b,b0+i*ec,b0+i*ec+du));if(k>0){g.save();g.globalAlpha*=k;if(k<1)g.filter=`blur(${((1-k)*8).toFixed(2)}px)`;g.fillText(w,px,y);g.restore();}px+=wd[i]+sp;});}
+
+function etincelles(x,y,seed,t,force=1,col=[255,200,140]){if(t<0||t>1)return;g.save();g.globalCompositeOperation='lighter';
+  for(let i=0;i<22*force;i++){const a=rnd(seed+i*7)*Math.PI*2,v=(60+rnd(seed+i*3)*260)*force,px=x+Math.cos(a)*v*t,py=y+Math.sin(a)*v*t+t*t*200;
+    g.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${1-t})`;g.beginPath();g.arc(px,py,3*(1-t)+.8,0,7);g.fill();}g.restore();}
+let FADE=1;
+function etiquette(nom,prix,x,y,b0,b){if(b<b0||FADE<=0)return;const k=expoOut(seg(b,b0,b0+.8)),fl=Math.exp(-(b-b0)*B*4),vieux=b>b0+3?.55:1;
+  g.font='700 36px Archivo';const w1=g.measureText(nom).width;g.font='800 46px JBMono';const w2=g.measureText(prix).width,w=w1+w2+76;
+  const xmax=(y+40>820&&y-40<1600)?940:1060,cx=clamp(x,w/2+20,xmax-w/2);   // zone sûre : pas sous les boutons de droite
+  g.save();g.globalAlpha*=k*vieux*FADE;g.translate(cx,y);g.scale(.92+.08*k,.92+.08*k);if(k<1)g.filter=`blur(${((1-k)*6).toFixed(2)}px)`;
+  g.fillStyle='rgba(10,12,16,.88)';rr(-w/2,-40,w,80,28);g.fill();g.strokeStyle=`rgba(255,138,61,${.45+.5*fl})`;g.lineWidth=2.5;rr(-w/2,-40,w,80,28);g.stroke();
+  texte(nom,-w/2+26,2,36,'#eef0f2',700,'Archivo','left');lueur(`rgba(255,138,61,${.4+.4*fl})`,16+30*fl);texte(prix,w/2-26,2,46,ORANGE,800,'JBMono','right');g.restore();}
+// la dictée en direct : « TU DICTES », les mots s'écrivent au rythme de la voix, curseur, micro qui pulse
+function dictee(it,b,mx,my,tx,y0,size){
+  const L1=it.dit.length,L2=it.dit2.length,u=seg(b,it.b+.05,it.b+1.9),n=Math.floor(u*(L1+L2));
+  const s1=it.dit.slice(0,Math.min(n,L1)),s2=it.dit2.slice(0,Math.max(0,n-L1));
+  texte('TU DICTES',tx,y0-2,30,ORANGE,900,'Archivo','left');
+  texte(s1,tx,y0+54,size,'#fff',700,'Archivo','left');if(s2)texte(s2,tx,y0+54+size*1.3,size,ORANGE,700,'Archivo','left');
+  if(u<1||Math.floor(b*3)%2===0){g.font=`700 ${size}px Archivo`;const yy=s2?y0+54+size*1.3:y0+54,ww=g.measureText(s2||s1).width;g.fillStyle=s2?ORANGE:'#fff';g.fillRect(tx+ww+6,yy-size*.45,4,size*.9);}
+  if(u<1){g.save();g.globalCompositeOperation='lighter';for(let k=0;k<2;k++){const ph=((b-it.b)*1.2+k*.5)%1;g.strokeStyle=`rgba(255,138,61,${.7*(1-ph)})`;g.lineWidth=3;g.beginPath();g.arc(mx,my,46+ph*36,0,7);g.stroke();}g.restore();}
+}
+
+const ITEMS=[
+  {b:3.6, dit:'« Cloison en plaques de plâtre,', dit2:'14 m², 42 euros le mètre. »'},
+  {b:6,   dit:'« Faux plafond, 12 m²,', dit2:'48 euros le mètre. »'},
+  {b:8.4, dit:'« Isolant laine de verre, 14 m²,', dit2:'12 euros le mètre. »'},
+  {b:10.8,dit:'« Bandes et enduit,', dit2:'forfait 180 euros. »'},
+];
+const T_MUR=3.8, T_DAL=6.2, T_LIN=8.6, T_MO=11, B_ON=13.4, B_ENV=16.4, B_TXT=17, B_FIN=19.5;
+const TOTAL=1663.2;   // (588 + 576 + 168 + 180) = 1 512 € HT, TVA 10 % → 1 663,20 € TTC
+const SOL=1500, DALLE=600, FP=780, CL={x0:140,x1:940,top:800}, PL=160;   // dalle haute, faux plafond, cloison (plaques de 1,20 m)
+const CHUTE={x0:740,x1:940,y:1400,h:100};                               // la chute de placo de l'accroche, posée contre la cloison
+// l'ordre de pose (un choc tous les 0,225 temps) : 4 montants intermédiaires, 5 plaques, puis le vissage
+const POSE=j=>T_MUR+.1+j*.225;
+const MONTANTS=[300,460,620,780];
+
+function fond(b,t,lum){
+  // la pièce brute : la dalle haute en béton, le vieux mur du fond, la lumière d'un projecteur de chantier
+  const gw=g.createLinearGradient(0,DALLE,0,SOL);gw.addColorStop(0,`rgb(${lerp(46,92,lum)|0},${lerp(42,86,lum)|0},${lerp(40,78,lum)|0})`);gw.addColorStop(1,`rgb(${lerp(64,120,lum)|0},${lerp(57,108,lum)|0},${lerp(50,94,lum)|0})`);
+  g.fillStyle=gw;g.fillRect(-600,DALLE,W+1200,SOL-DALLE);
+  g.fillStyle='rgba(0,0,0,.12)';for(let i=0;i<70;i++){g.fillRect(-200+rnd(i)*1480,DALLE+rnd(i*3)*(SOL-DALLE),8+rnd(i*5)*30,2+rnd(i*7)*3);}
+  const gd=g.createLinearGradient(0,-400,0,DALLE);gd.addColorStop(0,'#141416');gd.addColorStop(1,'#2c2b2a');g.fillStyle=gd;g.fillRect(-600,-400,W+1200,DALLE+400);
+  g.fillStyle='#3d3b38';g.fillRect(-600,DALLE-40,W+1200,40);
+  // le projecteur de chantier, en haut à gauche, et son halo
+  g.save();g.globalCompositeOperation='lighter';const gl=g.createRadialGradient(60,900,20,60,900,900);gl.addColorStop(0,`rgba(255,200,140,${.22+.18*lum})`);gl.addColorStop(1,'rgba(255,170,110,0)');g.fillStyle=gl;g.fillRect(-840,0,1800,1800);g.restore();
+  // le sol (la chape)
+  g.fillStyle='#2b2825';g.fillRect(-600,SOL,W+1200,900);g.fillStyle='rgba(255,255,255,.04)';g.fillRect(-600,SOL,W+1200,6);
+  g.fillStyle='rgba(220,215,205,.08)';for(let i=0;i<40;i++){g.beginPath();g.ellipse(rnd(i)*W,SOL+20+rnd(i*3)*380,6+rnd(i*5)*16,2+rnd(i*7)*3,0,0,7);g.fill();}
+}
+function metal(x,y,w,h){const gm=g.createLinearGradient(x,0,x+w,0);gm.addColorStop(0,'#7d868e');gm.addColorStop(.5,'#c3cad0');gm.addColorStop(1,'#88919a');g.fillStyle=gm;g.fillRect(x,y,w,h);}
+function montant(x,k){if(k<=0)return;g.save();g.translate(0,(1-k)*-90);g.globalAlpha*=clamp(k*2);metal(x-7,CL.top,14,SOL-CL.top);
+  g.fillStyle='rgba(30,32,36,.55)';for(let y=CL.top+120;y<SOL-60;y+=220){g.beginPath();g.ellipse(x,y,4,14,0,0,7);g.fill();}g.restore();}
+function plaque(x0,y0,w,h,k,seed){if(k<=0)return;g.save();g.translate(0,(1-k)*-70);g.globalAlpha*=clamp(k*2);
+  const gp=g.createLinearGradient(x0,y0,x0+w,y0+h);gp.addColorStop(0,'#dcdcd6');gp.addColorStop(1,'#c4c5bf');g.fillStyle=gp;g.fillRect(x0+1.5,y0,w-3,h);
+  g.fillStyle='rgba(0,0,0,.05)';for(let i=0;i<8;i++){g.fillRect(x0+6+rnd(seed+i)*(w-20),y0+10+rnd(seed*3+i)*(h-20),2+rnd(seed+i*7)*10,1.5);}
+  g.fillStyle='rgba(60,70,90,.18)';g.font='700 13px Archivo';g.textAlign='center';g.textBaseline='middle';g.fillText('BA13',x0+w/2,y0+h-26);
+  g.strokeStyle='rgba(120,118,110,.55)';g.lineWidth=2;g.strokeRect(x0+1.5,y0,w-3,h);g.restore();}
+
+function seek(T){
+  const t=((T%DN)+DN)%DN,b=t/B;
+  g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.shadowBlur=0;g.setLineDash([]);g.filter='none';
+  // la caméra : collée à la chute de placo (l'accroche), puis recul sur la pièce
+  const cx0=(CHUTE.x0+CHUTE.x1)/2,cy0=CHUTE.y+CHUTE.h/2;
+  const kz=ease(seg(b,2.6,3.8));const cx=lerp(cx0,540,kz),cy=lerp(cy0,1180,kz),z=Math.exp(lerp(Math.log(4.6),Math.log(1),kz));
+  g.save();g.translate(540,960);g.scale(z,z);g.translate(-cx,-cy);
+  const fini=seg(b,T_MO+1.4,T_MO+2.2),lum=seg(b,T_MO+1.8,T_MO+2.6);
+  fond(b,t,lum);
+  // 1 · l'ossature : les rails et les montants d'about, puis les montants intermédiaires
+  {const kr=expoOut(seg(b,T_MUR-.1,T_MUR+.3));if(kr>0){g.save();g.globalAlpha=kr;metal(CL.x0-7,SOL-14,CL.x1-CL.x0+14,14);metal(CL.x0-7,CL.top,CL.x1-CL.x0+14,14);g.restore();}
+   montant(CL.x0,kr);montant(CL.x1,kr);}
+  MONTANTS.forEach((x,j)=>{const b0=POSE(j);montant(x,b<b0?0:clamp(spring((b-b0)*B,18,.6),0,1.1));});
+  // les plaques, une par une, vissées sur l'ossature
+  for(let j=0;j<5;j++){const b0=POSE(4+j);if(b<b0)continue;const x0=CL.x0+j*PL;plaque(x0,CL.top,PL,SOL-CL.top,clamp(spring((b-b0)*B,18,.6),0,1.1),j*17+3);
+    const d=(b-b0)*B;if(d>.1&&d<.45){g.save();g.globalAlpha=1-(d-.1)/.35;g.fillStyle='rgba(235,232,225,.7)';for(let i=0;i<7;i++){g.beginPath();g.arc(x0+PL/2+(rnd(j*5+i)-.5)*200,SOL-10-(d-.1)*120*rnd(i+j),4,0,7);g.fill();}g.restore();}}
+  // le vissage : les têtes de vis sur chaque montant
+  {const kv=seg(b,POSE(9),POSE(9)+.4);if(kv>0&&fini<1){g.save();g.globalAlpha=(1-fini);const fl=Math.exp(-(b-POSE(9))*B*3);
+    [CL.x0+8,...MONTANTS,CL.x1-8].forEach((x,i)=>{for(let y=CL.top+40;y<SOL-20;y+=100){const k=seg(kv,(y-CL.top)/(SOL-CL.top)*.6,(y-CL.top)/(SOL-CL.top)*.6+.4);if(k<=0)continue;
+      g.fillStyle=`rgba(${lerp(60,255,fl)|0},${lerp(64,170,fl)|0},${lerp(70,90,fl)|0},${.75*k})`;g.beginPath();g.arc(x,y,3.2,0,7);g.fill();}});g.restore();}}
+  // 4 · les bandes et l'enduit sur les joints, puis la cloison finie
+  if(b>=T_MO){MONTANTS.forEach((x,i)=>{const kb=easeOut(seg(b,T_MO+i*.12,T_MO+.6+i*.12)),ke=seg(b,T_MO+.7+i*.1,T_MO+1.3+i*.1);if(kb<=0)return;
+      g.fillStyle='rgba(238,236,230,.95)';g.fillRect(x-11,CL.top,22,(SOL-CL.top)*kb);
+      if(ke>0){const ge=g.createLinearGradient(x-50,0,x+50,0);ge.addColorStop(0,'rgba(232,230,224,0)');ge.addColorStop(.3,`rgba(234,232,226,${.9*ke})`);ge.addColorStop(.7,`rgba(234,232,226,${.9*ke})`);ge.addColorStop(1,'rgba(232,230,224,0)');g.fillStyle=ge;g.fillRect(x-50,CL.top,100,SOL-CL.top);}});
+    if(fini>0){g.fillStyle=`rgba(${lerp(226,240,lum)|0},${lerp(224,236,lum)|0},${lerp(218,226,lum)|0},${fini})`;g.fillRect(CL.x0-7,CL.top,CL.x1-CL.x0+14,SOL-CL.top);}
+    // le seau d'enduit au pied de la cloison
+    const ks=clamp(spring((b-T_MO)*B,16,.6),0,1.1);g.save();g.globalAlpha=clamp(ks*2);g.translate(0,(1-ks)*-60);g.fillStyle='#e7e4dc';g.beginPath();g.moveTo(170,SOL-110);g.lineTo(270,SOL-110);g.lineTo(260,SOL);g.lineTo(180,SOL);g.closePath();g.fill();
+    g.fillStyle=O1;g.fillRect(176,SOL-80,88,22);g.strokeStyle='#8a8780';g.lineWidth=4;g.beginPath();g.arc(220,SOL-110,52,Math.PI,0);g.stroke();g.restore();}
+  // 2 · le faux plafond : les suspentes descendent de la dalle, la fourrure, puis les plaques glissent de gauche à droite
+  if(b>=T_DAL){const ks=easeOut(seg(b,T_DAL,T_DAL+.5)),u=ease(seg(b,T_DAL+.3,T_DAL+1.8)),x1=lerp(40,1040,u);
+    for(let x=80;x<=1000;x+=150){g.fillStyle='#9aa2aa';g.fillRect(x-2,DALLE,4,(FP-DALLE-14)*ks);}
+    if(ks>.6){g.globalAlpha=seg(ks,.6,1);metal(40,FP-14,1000,10);g.globalAlpha=1;}
+    if(u>0){g.fillStyle='#d6d6d0';g.fillRect(40,FP-4,x1-40,24);g.fillStyle='rgba(120,118,110,.6)';for(let x=40+240;x<x1;x+=240)g.fillRect(x-1,FP-4,2,24);
+      g.fillStyle='rgba(0,0,0,.25)';g.fillRect(40,FP+20,x1-40,5);}}
+  // 3 · l'isolant : un rouleau de laine de verre tombe dans le plénum puis se déroule sur le faux plafond
+  if(b>=T_LIN){const k=clamp(spring((b-T_LIN)*B,14,.55),0,1.1),u=ease(seg(b,T_LIN+.45,T_LIN+2.1)),R=lerp(34,20,u),rx=lerp(90,1000,u),ry=FP-4-R-(1-k)*200;
+    g.save();g.globalAlpha*=clamp(k*2);
+    if(u>0){const gy=g.createLinearGradient(0,FP-46,0,FP-4);gy.addColorStop(0,'#f2cf62');gy.addColorStop(1,'#d9a93c');g.fillStyle=gy;g.beginPath();g.moveTo(56,FP-4);
+      for(let x=56;x<=rx;x+=12)g.lineTo(x,FP-40-Math.sin(x*.09)*3-rnd(x)*3);g.lineTo(rx,FP-4);g.closePath();g.fill();
+      g.strokeStyle='rgba(150,100,30,.35)';g.lineWidth=1.5;for(let r=0;r<3;r++){g.beginPath();for(let x=56;x<=rx;x+=10){const y=FP-14-r*9+Math.sin(x*.05+r*2)*3;x===56?g.moveTo(x,y):g.lineTo(x,y);}g.stroke();}}
+    g.fillStyle='#e9bf4f';g.beginPath();g.arc(rx,ry,R,0,7);g.fill();g.strokeStyle='rgba(150,100,30,.6)';g.lineWidth=2;for(let r=R-6;r>4;r-=7){g.beginPath();g.arc(rx,ry,r,0,7);g.stroke();}g.restore();
+    const d=(b-T_LIN)*B;if(d>.25&&d<.8){g.save();g.globalAlpha=1-(d-.25)/.55;g.fillStyle='rgba(240,210,120,.7)';for(let j=0;j<14;j++){const s=(d-.25)*200;g.beginPath();g.arc(90+(rnd(j)-.5)*(80+s),FP-20-rnd(j*3)*s*.5,2+rnd(j*7)*3,0,7);g.fill();}g.restore();}}
+  // l'accroche : écrite au crayon sur la chute de placo, qui reste posée contre la cloison
+  {const a=b<3.6?1:1;g.save();g.globalAlpha=a;const gc=g.createLinearGradient(CHUTE.x0,CHUTE.y,CHUTE.x1,CHUTE.y+CHUTE.h);gc.addColorStop(0,'#e2e2dc');gc.addColorStop(1,'#c9cac4');g.fillStyle=gc;g.fillRect(CHUTE.x0,CHUTE.y,CHUTE.x1-CHUTE.x0,CHUTE.h);
+    g.fillStyle='rgba(0,0,0,.28)';g.fillRect(CHUTE.x0+4,SOL,CHUTE.x1-CHUTE.x0,6);g.strokeStyle='rgba(120,118,110,.6)';g.lineWidth=1.5;g.strokeRect(CHUTE.x0,CHUTE.y,CHUTE.x1-CHUTE.x0,CHUTE.h);g.restore();}
+  if(b<3.6){const a=1-seg(b,2.6,3.4),w=seg(b,.1,1.1);g.save();g.globalAlpha=a;g.beginPath();g.rect(CHUTE.x0,CHUTE.y,(CHUTE.x1-CHUTE.x0)*w,CHUTE.h);g.clip();
+    g.font='900 24px Archivo';g.textAlign='center';g.textBaseline='middle';g.fillStyle='rgba(40,38,36,.85)';g.fillText('PLAQUISTE ?',cx0,cy0-14);
+    g.font='700 9.5px Archivo';g.fillStyle='rgba(40,38,36,.8)';g.fillText('Ton devis, tu l’écris encore',cx0,cy0+12);g.fillText('sur un bout de placo ?',cx0,cy0+25);g.restore();}
+  g.restore(); // fin de la caméra
+  // les étiquettes
+  FADE=1-seg(b,B_ON,B_ON+.5);
+  etiquette('Cloison placo 14 m²','588 €',540,960,T_MUR+.8,b);
+  etiquette('Faux plafond 12 m²','576 €',540,640,T_DAL+.8,b);
+  etiquette('Laine de verre 14 m²','168 €',540,470,T_LIN+.5,b);
+  if(b>=T_MO)etiquette('Bandes et enduit','180 €',540,1460,T_MO+.4,b);
+  // la phrase dite, en haut : une seule à la fois
+  ITEMS.forEach((it,i)=>{const b1=i<ITEMS.length-1?ITEMS[i+1].b-.15:B_ON-.3;if(b<it.b-.05||b>b1+.25)return;
+    const k=expoOut(seg(b,it.b-.05,it.b+.55)),a=k*(1-seg(b,b1,b1+.25));g.save();g.globalAlpha=a;
+    g.fillStyle='rgba(12,12,14,.88)';rr(70,160,940,236,40);g.fill();
+    const gm=g.createLinearGradient(110,223,190,303);gm.addColorStop(0,O1);gm.addColorStop(1,O3);g.fillStyle=gm;g.beginPath();g.arc(150,278,44,0,7);g.fill();
+    g.fillStyle='#fff';rr(141,253,18,32,9);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(150,273,17,.15*Math.PI,.85*Math.PI);g.stroke();
+    dictee(it,b,150,278,220,210,44);g.restore();});
+  // le total
+  if(b>=B_ON+.2&&b<B_ENV+.8){const kg=easeOut(seg(b,B_ON+.4,B_ON+2)),a=expoOut(seg(b,B_ON+.2,B_ON+.8))*(1-seg(b,B_ENV+.2,B_ENV+.5)),val=TOTAL*kg;
+    const txt=val.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}).replace(/ | /g,' ')+' €',fl=kg>=1?Math.exp(-(b-B_ON-2)*B*3):0;
+    g.save();g.globalAlpha=a;g.fillStyle='rgba(12,12,14,.9)';rr(110,160,860,180,30);g.fill();g.strokeStyle='rgba(255,138,61,.35)';g.lineWidth=2;rr(110,160,860,180,30);g.stroke();
+    texte('TOTAL TTC',150,250,30,'rgba(255,190,140,.8)',800,'Archivo','left');lueur(`rgba(255,138,61,${.6+.4*fl})`,18+40*fl);texte(txt,930,254,82,ORANGE,800,'JBMono','right');g.restore();}
+  // l'envoi
+  if(b>=B_ENV&&b<B_FIN){const u=ease(seg(b,B_ENV,B_ENV+1.4));const P0=[540,950],P1=[1150,300];const hx=lerp(P0[0],P1[0],u),hy=lerp(P0[1],P1[1],u)-Math.sin(u*Math.PI)*100,fa=1-seg(b,B_ENV+1.1,B_ENV+1.4);
+    g.save();g.globalAlpha=fa;g.globalCompositeOperation='lighter';g.beginPath();for(let i=0;i<=30;i++){const v=u*i/30;const px=lerp(P0[0],P1[0],v),py=lerp(P0[1],P1[1],v)-Math.sin(v*Math.PI)*100;i?g.lineTo(px,py):g.moveTo(px,py);}
+    g.strokeStyle='rgba(255,170,100,.5)';g.lineWidth=4;g.stroke();const gl=g.createRadialGradient(hx,hy,0,hx,hy,70);gl.addColorStop(0,'rgba(255,240,220,.95)');gl.addColorStop(.3,'rgba(255,160,80,.5)');gl.addColorStop(1,'rgba(255,120,40,0)');g.fillStyle=gl;g.beginPath();g.arc(hx,hy,70,0,7);g.fill();g.restore();}
+  if(b>=B_TXT&&b<B_FIN+.2){const k=expoOut(seg(b,B_TXT,B_TXT+.7)),a=k*(1-seg(b,B_FIN-.2,B_FIN+.1));g.save();g.globalAlpha=a;g.fillStyle='rgba(12,12,14,.86)';rr(150,1395,780,190,40);g.fill();
+    motsFlou('Envoyé à M. Garcia.',540,1455,64,'#fff',800,'Archivo','center',b,B_TXT+.1);motsFlou('La poussière n’est pas retombée.',540,1535,48,ORANGE,800,'Archivo','center',b,B_TXT+.55);g.restore();}
+  // le carton
+  if(b>=B_FIN){const k=expoOut(seg(b,B_FIN,B_FIN+.9));g.save();g.fillStyle=`rgba(6,8,12,${.84*k})`;g.fillRect(0,0,W,H);
+    const tx=540-260,ty=700,kl=expoOut(seg(b,B_FIN+.1,B_FIN+1));g.save();g.globalAlpha=kl;g.translate(tx+70,ty+70);g.scale(.82+.18*kl,.82+.18*kl);g.translate(-tx-70,-ty-70);const gr=g.createLinearGradient(tx,ty,tx+140,ty+140);gr.addColorStop(0,O1);gr.addColorStop(.55,O2);gr.addColorStop(1,O3);
+    lueur('rgba(232,101,15,.5)',40);g.fillStyle=gr;rr(tx,ty,140,140,40);g.fill();g.shadowColor='transparent';
+    g.save();g.translate(tx+18,ty+16);g.scale(4.4,4.4);g.fillStyle='#fff';g.fill(new Path2D('M6.5 2.5H12a9 9 0 0 1 0 18H9.2L4.5 23V4.5a2 2 0 0 1 2-2ZM9.2 9.5a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1Zm3.1-2.5a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1Zm3.1 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Z'),'evenodd');g.restore();g.restore();
+    motsFlou('Diktéo',tx+170,ty+72,138,'#fff',900,'Archivo','left',b,B_FIN+.25,.07,.35,true);
+    motsFlou('Tu dictes ton devis, Diktéo l’écrit.',540,940,46,'#eef0f2',700,'Archivo','center',b,B_FIN+.8,.12);
+    motsFlou('3 devis offerts par mois · sans carte',540,1060,44,'#fff',700,'Archivo','center',b,B_FIN+1.7,.1);
+    {const kb=expoOut(seg(b,B_FIN+2.4,B_FIN+3.1));g.save();g.globalAlpha=kb;if(kb<1)g.filter=`blur(${((1-kb)*8).toFixed(2)}px)`;
+    const gb=g.createLinearGradient(290,1150,790,1250);gb.addColorStop(0,O1);gb.addColorStop(.55,O2);gb.addColorStop(1,O3);g.fillStyle=gb;rr(270,1150,540,104,34);g.fill();
+    texte('diktéo.fr',540,1203,46,'#fff',800,'Archivo');g.restore();}g.restore();}
+}
+window.seek=seek;
+const render=location.search.includes('render');
+if(render){document.getElementById('ui').style.display='none';}
+else{const fit=()=>{const k=Math.min(innerWidth/1080,(innerHeight-40)/1920);cv.style.transform=`scale(${k})`;};addEventListener('resize',fit);fit();
+  let t0=performance.now(),run=false,off=0;document.getElementById('lecture').onclick=()=>{run=!run;t0=performance.now()-off*1000;};
+  document.getElementById('curseurUI').oninput=e=>{off=e.target.value/1000*DN;t0=performance.now()-off*1000;};
+  (function loop(){if(run)off=((performance.now()-t0)/1000)%DN;document.getElementById('temps').textContent=off.toFixed(2);document.getElementById('curseurUI').value=off/DN*1000;seek(off);requestAnimationFrame(loop);})();}
+document.fonts.ready.then(()=>{seek(0);window.VIDEO={w:W,h:H,duration:DN};});
+</script>
+</body>
+</html>

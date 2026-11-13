@@ -1,0 +1,18 @@
+const W=1080,H=1920,BPM=161.5,B=60/BPM,NB=41,DN=NB*B;
+const cv=document.getElementById('c'),g=cv.getContext('2d');
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const lerp=(a,b,k)=>a+(b-a)*k;
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const ease=x=>(x=clamp(x),x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2);
+const easeOut=x=>1-Math.pow(1-clamp(x),3);
+function spring(t,w=14,z=.62){if(t<=0)return 0;const wd=w*Math.sqrt(1-z*z);return 1-Math.exp(-z*w*t)*(Math.cos(wd*t)+(z*w/wd)*Math.sin(wd*t));}
+const rnd=n=>{n=Math.sin(n*127.1+311.7)*43758.5453;return n-Math.floor(n);};
+const O1='#E8650F',O2='#C9480A',O3='#A8350A',ORANGE='#ff8a3d';
+function rr(x,y,w,h,r){g.beginPath();g.roundRect(x,y,w,h,r);}
+function texte(t,x,y,size,col,poids=700,font='Archivo',align='center'){g.font=`${poids} ${size}px ${font}`;g.fillStyle=col;g.textAlign=align;g.textBaseline='middle';g.fillText(t,x,y);}
+function lueur(col,flou){g.shadowColor=col;g.shadowBlur=flou;}
+// motion design : arrivée à longue traîne, sans rebond ; mots qui passent du flou au net puis ne bougent plus
+const expoOut=x=>(x=clamp(x),x>=1?1:1-Math.pow(2,-10*x));
+function motsFlous(t,x,y,size,col,poids,font,align,b,b0,ec=.25,du=.6){g.font=`${poids} ${size}px ${font}`;const ws=t.split(' '),sp=g.measureText(' ').width,wd=ws.map(w=>g.measureText(w).width),L=wd.reduce((a,c)=>a+c,0)+sp*(ws.length-1);
+  let cx=align==='center'?x-L/2:align==='right'?x-L:x;ws.forEach((w,i)=>{const k=expoOut(seg(b,b0+i*ec,b0+i*ec+du));if(k>0){g.save();g.globalAlpha*=k;if(k<1)g.filter=`blur(${((1-k)*8).toFixed(2)}px)`;texte(w,cx,y,size,col,poids,font,'left');g.restore();}cx+=wd[i]+sp;});}
+
