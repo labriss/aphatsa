@@ -1,0 +1,154 @@
+<title>Comptes Diktéo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Public+Sans:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Liste d'étapes en une colonne, chaque réseau = une carte avec lien + champs à copier */
+:root{
+  --bg:#fbf8f5;--card:#ffffff;--fg:#1d1a17;--muted:#6f655c;--line:#e9e1d8;
+  --a1:#f97316;--a2:#ea580c;--on-a:#ffffff;--ok:#15803d;--okbg:#e8f6ec;
+  --display:"Archivo",system-ui,sans-serif;--body:"Public Sans",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15120f;--card:#1e1a16;--fg:#f3ede6;--muted:#a89c90;--line:#332c25;--okbg:#14301d;--ok:#4ade80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15120f;--card:#1e1a16;--fg:#f3ede6;--muted:#a89c90;--line:#332c25;--okbg:#14301d;--ok:#4ade80;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:720px;margin:0 auto;padding-block:28px 64px;display:grid;gap:18px}
+h1{font:800 clamp(28px,6vw,40px)/1.1 var(--display);margin:0;text-wrap:balance}
+h1 span{color:var(--a2)}
+.lead{color:var(--muted);margin:0;max-width:60ch}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--a1),var(--a2));transition:width .3s}
+.count{font:500 13px var(--mono);color:var(--muted)}
+.step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px}
+.step.done{background:var(--okbg);border-color:transparent}
+.head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.num{font:500 13px var(--mono);color:var(--muted);min-width:2ch}
+.head h2{font:600 19px var(--display);margin:0;flex:1;min-width:0}
+.go{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:10px;background:linear-gradient(90deg,var(--a1),var(--a2));color:var(--on-a);font-weight:600;text-decoration:none}
+.go:focus-visible,button:focus-visible,input:focus-visible,label:focus-within{outline:3px solid var(--a1);outline-offset:2px}
+.how{margin:0;color:var(--muted);font-size:14.5px}
+.fields{display:grid;gap:8px}
+.f{display:grid;grid-template-columns:110px 1fr auto;gap:8px;align-items:center}
+.f b{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.f code{font:500 14px/1.4 var(--mono);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;white-space:pre-wrap;word-break:break-word;min-width:0}
+.cp{min-height:40px;min-width:76px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);font:600 14px var(--body);cursor:pointer}
+.cp.ok{color:var(--ok);border-color:var(--ok)}
+.check{display:flex;gap:10px;align-items:center;min-height:44px;font-weight:600;cursor:pointer;width:fit-content;border-radius:8px}
+.check input{width:22px;height:22px;accent-color:var(--a2)}
+.mail{display:grid;gap:8px}
+.mail input{font:16px var(--mono);padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);width:100%;box-sizing:border-box}
+@media (max-width:520px){.f{grid-template-columns:1fr auto}.f b{grid-column:1/-1}}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+
+<main>
+  <h1>Créer les comptes <span>Diktéo</span></h1>
+  <p class="lead">Suis les étapes dans l'ordre. Le bouton orange ouvre la bonne page. Les boutons « Copier » remplissent ton presse-papier, tu colles dans le champ du même nom. Coche quand c'est fait.</p>
+  <div class="bar"><i id="bar"></i></div>
+  <div class="count" id="count">0 / 8 faits</div>
+
+  <section class="step" data-id="mail">
+    <div class="head"><span class="num">1</span><h2>L'adresse mail</h2></div>
+    <p class="how">Le plus rapide : ton Gmail avec « +dikteo ». Tous les mails arrivent dans ta boîte, rien à créer. Tape ton Gmail ci-dessous, l'adresse Diktéo se met à jour partout sur la page. (Plus tard : social@dikteo.fr sur Hostinger.)</p>
+    <div class="mail">
+      <input id="gmail" type="email" inputmode="email" placeholder="ton.adresse@gmail.com" autocomplete="email">
+    </div>
+    <div class="fields"><div class="f"><b>Adresse</b><code class="email">ton.adresse+dikteo@gmail.com</code><button class="cp">Copier</button></div></div>
+    <label class="check"><input type="checkbox"> Fait</label>
+  </section>
+
+  <section class="step" data-id="fb">
+    <div class="head"><span class="num">2</span><h2>Page Facebook</h2><a class="go" href="https://www.facebook.com/pages/create" target="_blank" rel="noopener">Ouvrir Facebook</a></div>
+    <p class="how">Connecte-toi avec ton Facebook perso (obligatoire), la Page est séparée de ton profil.</p>
+    <div class="fields">
+      <div class="f"><b>Nom</b><code>Diktéo</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Catégorie</b><code>Logiciel</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Bio</b><code>Diktéo transforme votre voix en devis chiffré (quantités, prix, TVA), crée le PDF, l'envoie par e-mail ou WhatsApp et le fait signer en ligne. Factures sans trou, relances, export comptable. Gratuit pour commencer.</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Site</b><code>https://dikteo.vercel.app</code><button class="cp">Copier</button></div>
+      <div class="f"><b>E-mail</b><code class="email">ton.adresse+dikteo@gmail.com</code><button class="cp">Copier</button></div>
+    </div>
+    <label class="check"><input type="checkbox"> Fait</label>
+  </section>
+
+  <section class="step" data-id="ig">
+    <div class="head"><span class="num">3</span><h2>Instagram</h2><a class="go" href="https://www.instagram.com/accounts/emailsignup/" target="_blank" rel="noopener">Ouvrir Instagram</a></div>
+    <p class="how">Ensuite : Paramètres → Type de compte → Professionnel → relier à la Page Facebook.</p>
+    <div class="fields">
+      <div class="f"><b>E-mail</b><code class="email">ton.adresse+dikteo@gmail.com</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Nom</b><code>Diktéo</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Pseudo</b><code>dikteo</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Bio</b><code>🎙️ Vos devis dictés à la voix, envoyés et signés depuis le chantier. Pour les artisans du bâtiment. Essai gratuit ↓</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Lien</b><code>https://dikteo.vercel.app?utm_source=instagram</code><button class="cp">Copier</button></div>
+    </div>
+    <label class="check"><input type="checkbox"> Fait</label>
+  </section>
+
+  <section class="step" data-id="tt">
+    <div class="head"><span class="num">4</span><h2>TikTok</h2><a class="go" href="https://www.tiktok.com/signup/phone-or-email/email" target="_blank" rel="noopener">Ouvrir TikTok</a></div>
+    <p class="how">Ensuite : Profil → ☰ → Paramètres → Compte → Passer à un compte Business.</p>
+    <div class="fields">
+      <div class="f"><b>E-mail</b><code class="email">ton.adresse+dikteo@gmail.com</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Pseudo</b><code>dikteo</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Bio</b><code>🎙️ Le devis dicté, envoyé du chantier. Artisans du bâtiment. Gratuit ↓</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Lien</b><code>https://dikteo.vercel.app?utm_source=tiktok</code><button class="cp">Copier</button></div>
+    </div>
+    <label class="check"><input type="checkbox"> Fait</label>
+  </section>
+
+  <section class="step" data-id="yt">
+    <div class="head"><span class="num">5</span><h2>YouTube</h2><a class="go" href="https://www.youtube.com/create_channel" target="_blank" rel="noopener">Ouvrir YouTube</a></div>
+    <p class="how">Choisis « Utiliser un nom personnalisé » pour créer une chaîne de marque séparée.</p>
+    <div class="fields">
+      <div class="f"><b>Nom</b><code>Diktéo</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Identifiant</b><code>@dikteo</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Description</b><code>Diktéo : le devis et la facture des artisans du bâtiment, pensés pour le téléphone. Vous dictez, l'IA remplit les lignes et la TVA, le total est calculé au centime, vous validez et le devis part. Gratuit pour commencer : https://dikteo.vercel.app</code><button class="cp">Copier</button></div>
+    </div>
+    <label class="check"><input type="checkbox"> Fait</label>
+  </section>
+
+  <section class="step" data-id="li">
+    <div class="head"><span class="num">6</span><h2>Page LinkedIn</h2><a class="go" href="https://www.linkedin.com/company/setup/new/" target="_blank" rel="noopener">Ouvrir LinkedIn</a></div>
+    <div class="fields">
+      <div class="f"><b>Nom</b><code>Diktéo</code><button class="cp">Copier</button></div>
+      <div class="f"><b>URL</b><code>dikteo</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Site</b><code>https://dikteo.vercel.app</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Secteur</b><code>Développement de logiciels</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Slogan</b><code>Devis et factures dictés à la voix, pour les artisans du bâtiment.</code><button class="cp">Copier</button></div>
+    </div>
+    <label class="check"><input type="checkbox"> Fait</label>
+  </section>
+
+  <section class="step" data-id="gbp">
+    <div class="head"><span class="num">7</span><h2>Google Business</h2><a class="go" href="https://business.google.com/create" target="_blank" rel="noopener">Ouvrir Google</a></div>
+    <p class="how">Choisis « Entreprise en ligne » (pas d'adresse physique à afficher).</p>
+    <div class="fields">
+      <div class="f"><b>Nom</b><code>Diktéo</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Catégorie</b><code>Éditeur de logiciels</code><button class="cp">Copier</button></div>
+      <div class="f"><b>Site</b><code>https://dikteo.vercel.app</code><button class="cp">Copier</button></div>
+    </div>
+    <label class="check"><input type="checkbox"> Fait</label>
+  </section>
+
+  <section class="step" data-id="mc">
+    <div class="head"><span class="num">8</span><h2>Metricool (pour que je publie)</h2><a class="go" href="https://app.metricool.com/signup" target="_blank" rel="noopener">Ouvrir Metricool</a></div>
+    <p class="how">Inscris-toi, puis « Connecter » chaque réseau des étapes 2 à 7. Ensuite écris-moi « comptes créés ».</p>
+    <div class="fields"><div class="f"><b>E-mail</b><code class="email">ton.adresse+dikteo@gmail.com</code><button class="cp">Copier</button></div></div>
+    <label class="check"><input type="checkbox"> Fait</label>
+  </section>
+</main>
+
+<script>
+const steps=[...document.querySelectorAll('.step')];
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+function progress(){const n=steps.filter(s=>s.classList.contains('done')).length;document.getElementById('bar').style.width=(n/steps.length*100)+'%';document.getElementById('count').textContent=n+' / '+steps.length+' faits'}
+steps.forEach(s=>{const cb=s.querySelector('.check input');cb.id='done-'+s.dataset.id;if(store.get(cb.id)==='1'){cb.checked=true;s.classList.add('done')}
+  cb.addEventListener('change',()=>{s.classList.toggle('done',cb.checked);store.set(cb.id,cb.checked?'1':'0');progress()})});
+progress();
+const gm=document.getElementById('gmail');
+function alias(){const v=gm.value.trim();let a='ton.adresse+dikteo@gmail.com';if(v.includes('@')){const[u,d]=v.split('@');a=u.split('+')[0]+'+dikteo@'+d}document.querySelectorAll('code.email').forEach(c=>c.textContent=a);store.set('gmail',v)}
+gm.value=store.get('gmail')||'';gm.addEventListener('input',alias);alias();
+document.querySelectorAll('.cp').forEach(b=>b.addEventListener('click',()=>{const c=b.previousElementSibling;const t=c.textContent;
+  const ok=()=>{b.textContent='Copié';b.classList.add('ok');setTimeout(()=>{b.textContent='Copier';b.classList.remove('ok')},1500)};
+  const sel=()=>{const r=document.createRange();r.selectNodeContents(c);const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Sélectionné';};
+  try{navigator.clipboard.writeText(t).then(ok,sel)}catch(e){sel()}}));
+</script>
