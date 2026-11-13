@@ -33,6 +33,11 @@ CONF = {
     "pub17": ("52", 76.0, .1625 + 8 * 60 / 76, 1, 20, 16.2, 67, 17),
     "pub18": ("493", 140.0, .114 + 16 * 60 / 140, 1, 47, 38.7, 70, 18),
     "pub19": ("91", 75.0, .467 + 8 * 60 / 75, 1, 25, 22.5, 64, 19),
+    # nouveaux métiers : même grille que la pub dont ils reprennent la structure
+    "pub20": ("2001", 95.7, .0232 + 8 * 60 / 95.7, 1, 24, 19.5, 62, 16),   # plaquiste, sur pub16
+    "pub21": ("2101", 129.2, .0464 + 8 * 60 / 129.2, 1, 31, 24.4, 69, 14),  # climaticien, sur pub14
+    "pub22": ("2201", 80.75, .6037 + 8 * 60 / 80.75, 2, 41, 33, 60, 15),   # charpentier, sur pub15
+    "pub23": ("2301", 85.0, .399 + 32 * 60 / 85, 1, 28, 22.7, 65, 12),     # paysagiste, sur pub12
 }
 
 # progressions jazz-pop détendues (degrés de la gamme majeure, qualité) ; la dernière mesure avant le carton est

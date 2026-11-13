@@ -6,8 +6,9 @@ V=$(cd "$(dirname "$0")/../.." && pwd); L=$V/out/livraison; cd $V
 [ -f ~/.claude/skills/sound-effects/sfx/manifest.json ] || python3 son/libre/bibliotheque.py
 nom(){ case $1 in pub4) echo dikteo_pub4_boucle;; pub8) echo dikteo_pub8_pile;; pub10) echo dikteo_pub10_plan;; pub11) echo dikteo_pub11_tableau;;
   pub12) echo dikteo_pub12_rouleau;; pub13) echo dikteo_pub13_carreaux;; pub14) echo dikteo_pub14_froid;; pub15) echo dikteo_pub15_toit;;
-  pub16) echo dikteo_pub16_mur;; pub17) echo dikteo_pub17_porte;; pub18) echo dikteo_pub18_copeau;; pub19) echo dikteo_pub19_tournee;; esac; }
-for p in ${@:-pub4 pub8 pub10 pub11 pub12 pub13 pub14 pub15 pub16 pub17 pub18 pub19}; do
+  pub16) echo dikteo_pub16_mur;; pub17) echo dikteo_pub17_porte;; pub18) echo dikteo_pub18_copeau;; pub19) echo dikteo_pub19_tournee;;
+  pub20) echo dikteo_pub20_cloison;; pub21) echo dikteo_pub21_clim;; pub22) echo dikteo_pub22_charpente;; pub23) echo dikteo_pub23_jardin;; esac; }
+for p in ${@:-pub4 pub8 pub10 pub11 pub12 pub13 pub14 pub15 pub16 pub17 pub18 pub19 pub20 pub21 pub22 pub23}; do
   n=$(nom $p); [ -f $L/${n}_muet.mp4 ] || { echo "pas de vidéo muette pour $p"; continue; }
   python3 son/libre/composer.py $p > /dev/null || { echo "ECHEC musique $p"; continue; }
   s=$p/son.py; [ $p = pub4 ] && s=$p/son_boucle.py
