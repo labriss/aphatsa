@@ -7,8 +7,6 @@ Usage : TikTok, Reels, Shorts, pubs en ligne. Musique : musique originale compos
 | 0.000 | le crayon sur le bois | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 0.750 | le crayon, la question | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 1.629 | « TU DICTES » s'allume | kit/click.ogg | CC0 1.0 |
-| 2.191 | l'air de la pièce sous la dictée | ambience/fs-329533-room-tone-in-an-apartment-livi.ogg | CC0 1.0 |
-| 2.391 | voix, phrase 1 | siwis_p0_d2_k0.wav | CC BY 4.0 |
 | 2.486 | le rabot | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 4.023 | le prix gravé au fer | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 4.074 | crépitement du fer | tick/fs384187.ogg | CC0 1.0 |
@@ -16,8 +14,6 @@ Usage : TikTok, Reels, Shorts, pubs en ligne. Musique : musique originale compos
 | 4.099 | crépitement du fer | tick/fs384187.ogg | CC0 1.0 |
 | 4.157 | crépitement du fer | tick/fs384187.ogg | CC0 1.0 |
 | 4.186 | crépitement du fer | tick/fs384187.ogg | CC0 1.0 |
-| 4.769 | l'air de la pièce sous la dictée | ambience/fs-329533-room-tone-in-an-apartment-livi.ogg | CC0 1.0 |
-| 4.969 | voix, phrase 2 | siwis_p1_d2_k0.wav | CC BY 4.0 |
 | 5.057 | le rabot | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 6.595 | le prix gravé au fer | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 6.735 | crépitement du fer | tick/fs384187.ogg | CC0 1.0 |
@@ -25,8 +21,6 @@ Usage : TikTok, Reels, Shorts, pubs en ligne. Musique : musique originale compos
 | 6.867 | crépitement du fer | tick/fs384187.ogg | CC0 1.0 |
 | 6.982 | crépitement du fer | tick/fs384187.ogg | CC0 1.0 |
 | 6.993 | crépitement du fer | tick/fs384187.ogg | CC0 1.0 |
-| 7.344 | l'air de la pièce sous la dictée | ambience/fs-329533-room-tone-in-an-apartment-livi.ogg | CC0 1.0 |
-| 7.544 | voix, phrase 3 | siwis_p2_d2_k0.wav | CC BY 4.0 |
 | 7.629 | le rabot | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 9.166 | le prix gravé au fer | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 9.284 | crépitement du fer | tick/fs384187.ogg | CC0 1.0 |
@@ -34,8 +28,6 @@ Usage : TikTok, Reels, Shorts, pubs en ligne. Musique : musique originale compos
 | 9.340 | crépitement du fer | tick/fs384187.ogg | CC0 1.0 |
 | 9.455 | crépitement du fer | tick/fs384187.ogg | CC0 1.0 |
 | 9.459 | crépitement du fer | tick/fs384187.ogg | CC0 1.0 |
-| 9.911 | l'air de la pièce sous la dictée | ambience/fs-329533-room-tone-in-an-apartment-livi.ogg | CC0 1.0 |
-| 10.111 | voix, phrase 4 | siwis_p3_d1_k0.wav | CC BY 4.0 |
 | 10.200 | le rabot | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 11.738 | le prix gravé au fer | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
 | 11.819 | crépitement du fer | tick/fs384187.ogg | CC0 1.0 |

@@ -168,6 +168,10 @@ def reverb(x, d=2.8, pre=.025, couleur=5500, graine=5):
 
 def composer(pub):
     piste, bpm, debut, rapport, duree, carton, ton, graine = CONF[pub]
+    # la musique de la pub 4 (tonalité, progression, tirages) sert de référence pour toutes (choix de l'utilisateur, 12 nov.)
+    modele = os.environ.get("MUSIQUE_COMME", "pub4")
+    if modele in CONF:
+        ton, graine = CONF[modele][6], CONF[modele][7]
     rng = np.random.default_rng(graine)
     tempo_pub = bpm * rapport  # tempo ressenti (pub15 : 161,5 → on joue sur 80,75 comme le fichier)
     demi = bpm > 108  # au-dessus de 108 BPM : groove en demi-tempo, pulsation = 2 temps

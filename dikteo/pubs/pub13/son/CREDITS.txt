@@ -4,9 +4,7 @@ Bruitages :
 - Classic Click par adh.dreaming — https://freesound.org/people/adh.dreaming/sounds/671105/ — CC0 1.0
 - par LegitCheese — https://freesound.org/people/LegitCheese/sounds/571513/ — CC0 1.0
 - par Sadiquecat — https://freesound.org/people/Sadiquecat/sounds/816262/ — CC0 1.0 (dérivé : hauteur/vitesse/couches)
-- par cMilan — https://freesound.org/people/cMilan/sounds/426767/ — CC0 1.0 (dérivé : hauteur/vitesse/couches)
 - par malle99 — https://freesound.org/people/malle99/sounds/384187/ — CC0 1.0
 - par migoreng1 — https://freesound.org/people/migoreng1/sounds/786514/ — CC0 1.0 (dérivé : hauteur/vitesse/couches)
 - soft_impact3 par peoplearehappy — https://freesound.org/people/peoplearehappy/sounds/841274/ — CC0 1.0 (dérivé : hauteur/vitesse/couches)
 - synthèse maison Diktéo (numpy), CC0 1.0
-- voix de synthèse Kokoro-82M (Apache 2.0), voix ff_siwis (données SIWIS, CC BY 4.0), générée en local

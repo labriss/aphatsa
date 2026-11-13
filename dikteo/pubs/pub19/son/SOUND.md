@@ -6,33 +6,23 @@ Usage : TikTok, Reels, Shorts, pubs en ligne. Musique : musique originale compos
 |---|---|---|---|
 | 0.000 | « MULTISERVICE ? » | impact/kenney-impact-impactsoft-heavy-000.ogg | CC0 1.0 |
 | 1.760 | l'utilitaire roule | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
-| 2.264 | l'air de la pièce sous la dictée | ambience/fs-329533-room-tone-in-an-apartment-livi.ogg | CC0 1.0 |
 | 2.400 | une phrase dictée | kit/click.ogg | CC0 1.0 |
-| 2.464 | voix, phrase 1 | siwis_p0_d1_k0.wav | CC BY 4.0 |
 | 3.400 | envoyé | ding/fs-634690-lil-pip.ogg | CC0 1.0 |
 | 3.480 | l'épingle s'allume | pop/fs-447910-plop.ogg | CC0 1.0 |
 | 3.760 | l'utilitaire roule | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
-| 4.664 | l'air de la pièce sous la dictée | ambience/fs-329533-room-tone-in-an-apartment-livi.ogg | CC0 1.0 |
 | 4.800 | une phrase dictée | kit/click.ogg | CC0 1.0 |
-| 4.864 | voix, phrase 2 | siwis_p1_d1_k0.wav | CC BY 4.0 |
 | 5.800 | envoyé | ding/kenney-interface-confirmation-001.ogg | CC0 1.0 |
 | 5.880 | l'épingle s'allume | pop/fs-447910-plop.ogg | CC0 1.0 |
 | 6.160 | l'utilitaire roule | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
-| 7.064 | l'air de la pièce sous la dictée | ambience/fs-329533-room-tone-in-an-apartment-livi.ogg | CC0 1.0 |
 | 7.200 | une phrase dictée | kit/click.ogg | CC0 1.0 |
-| 7.264 | voix, phrase 3 | siwis_p2_d0_k0.wav | CC BY 4.0 |
 | 8.200 | envoyé | ding/fs-634690-lil-pip.ogg | CC0 1.0 |
 | 8.280 | l'épingle s'allume | pop/fs-447910-plop.ogg | CC0 1.0 |
 | 8.560 | l'utilitaire roule | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
-| 9.464 | l'air de la pièce sous la dictée | ambience/fs-329533-room-tone-in-an-apartment-livi.ogg | CC0 1.0 |
 | 9.600 | une phrase dictée | kit/click.ogg | CC0 1.0 |
-| 9.664 | voix, phrase 4 | siwis_p3_d0_k0.wav | CC BY 4.0 |
 | 10.600 | envoyé | ding/kenney-interface-confirmation-001.ogg | CC0 1.0 |
 | 10.680 | l'épingle s'allume | pop/fs-447910-plop.ogg | CC0 1.0 |
 | 10.960 | l'utilitaire roule | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
-| 11.864 | l'air de la pièce sous la dictée | ambience/fs-329533-room-tone-in-an-apartment-livi.ogg | CC0 1.0 |
 | 12.000 | une phrase dictée | kit/click.ogg | CC0 1.0 |
-| 12.064 | voix, phrase 5 | siwis_p4_d1_k0.wav | CC BY 4.0 |
 | 13.000 | envoyé | ding/fs-634690-lil-pip.ogg | CC0 1.0 |
 | 13.080 | l'épingle s'allume | pop/fs-447910-plop.ogg | CC0 1.0 |
 | 13.360 | l'utilitaire roule | ambience/fs-329569-roomtone-bedroom-yew.ogg | CC0 1.0 |
