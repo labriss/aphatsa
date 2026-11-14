@@ -17,3 +17,7 @@ Sur le CPU de la session cloud (Xeon avec AMX bf16) : environ 1 minute pour 20 s
 `python -I composer_lot.py <dossier> 96 21 [style ...]` → `<style>.wav` + `<style>.json` (description, tonalité, graine).
 Styles prêts : trap, phonk, afro, reggaeton, boombap, electropop, funk, epique (96 BPM = tempo des pubs claires).
 Monter sur une pub : `MUSIQUE=<wav> DEBUT_M=0 MUSIQUE_DB=-3 python3 dikteo/pubs/clair/son.py <muet.mp4> <sortie.mp4>`.
+
+## Choix
+`noter_musiques.py <ref.wav> <wav...>` note chaque morceau (ressemblance avec une musique aimée, régularité, douceur, chaleur, mélodie, bruit).
+Musique des pubs claires (14 nov.) : `musiques/lofi_reggaeton_202.mp3` — lo-fi reggaeton posé, choisi daprès
