@@ -37,9 +37,10 @@ mix = "[m]" + "".join(f"[s{k}]" for k in range(len(POSE))) + f"amix=inputs={len(
 tmp = SORTIE + ".tmp.mov"
 subprocess.run(["ffmpeg", "-v", "error", "-y", *entrees, "-filter_complex", ";".join(chaines + [mix]), "-map", "0:v", "-map", "[a]",
                 "-c:v", "copy", "-c:a", "pcm_s16le", "-t", str(FIN), tmp], check=True)
-out = subprocess.run(["ffmpeg", "-nostats", "-i", tmp, "-af", "loudnorm=I=-14:TP=-1:LRA=11:print_format=json", "-f", "null", "-"], capture_output=True, text=True).stderr
+out = subprocess.run(["ffmpeg", "-nostats", "-i", tmp, "-af", f"loudnorm=I={os.environ.get('CIBLE_LUFS', '-14')}:TP=-1:LRA=11:print_format=json", "-f", "null", "-"], capture_output=True, text=True).stderr
 J = json.loads(out[out.rindex("{"):out.rindex("}") + 1])
-af = (f"loudnorm=I=-14:TP=-1:LRA=11:measured_I={J['input_i']}:measured_TP={J['input_tp']}:measured_LRA={J['input_lra']}"
+CIBLE = os.environ.get("CIBLE_LUFS", "-14")
+af = (f"loudnorm=I={CIBLE}:TP=-1:LRA=11:measured_I={J['input_i']}:measured_TP={J['input_tp']}:measured_LRA={J['input_lra']}"
       f":measured_thresh={J['input_thresh']}:offset={J['target_offset']}:linear=true")
 subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", tmp, "-c:v", "copy", "-af", af, "-ar", "48000", "-c:a", "aac", "-b:a", "192k",
                 "-movflags", "+faststart", SORTIE], check=True)
