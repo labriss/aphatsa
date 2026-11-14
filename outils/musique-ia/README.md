@@ -21,3 +21,7 @@ Monter sur une pub : `MUSIQUE=<wav> DEBUT_M=0 MUSIQUE_DB=-3 python3 dikteo/pubs/
 ## Choix
 `noter_musiques.py <ref.wav> <wav...>` note chaque morceau (ressemblance avec une musique aimée, régularité, douceur, chaleur, mélodie, bruit).
 Musique des pubs claires (14 nov.) : `musiques/lofi_reggaeton_202.mp3` — lo-fi reggaeton posé, choisi daprès
+## Niveau pro
+- `composer_pro.py` : mode réflexion (LM 1.7B, `backend="pt"`, bf16), environ 4 min par prise, plusieurs graines.
+- `arranger.py <wav> <sortie> [référence]` : pistes séparées par Demucs (hôte dl.fbaipublicfiles.com), accroche filtrée sans batterie, batterie sur la promesse, arrêt avant le carton, mastering Matchering sur une référence commerciale.
+- Version XL (4B) : meilleure mais 20 Go, ne tient pas dans le disque d'une session cloud (39 Go).
